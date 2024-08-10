@@ -4,6 +4,6 @@ const { getProfile } = require("../../../controller/dashboardController");
 
 const dashboardRoutes = Router();
 
-dashboardRoutes.post("/dashboard/profile", isAuthenticated, getProfile);
+dashboardRoutes.get("/dashboard/profile", isAuthenticated, getProfile);
 
 module.exports = dashboardRoutes;
