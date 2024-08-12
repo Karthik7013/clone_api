@@ -4,7 +4,7 @@ const { getProfile } = require("../../../controller/dashboardController");
 
 const dashboardRoutes = Router();
 // customer-dashboard-routes
-dashboardRoutes.post("/employee/login", async (req, res) => {
+dashboardRoutes.post("/employee/login", isAuthenticated, async (req, res) => {
   const ceo = "7013140693";
   const hr = "9491403247";
   const cust = "7382728748";
@@ -253,9 +253,6 @@ dashboardRoutes.post("/employee/login", async (req, res) => {
   } else if (body.phno === pospPending) {
     res.send(newPospProfilePending)
   }
-  //   console.log(body);
-
-  //   res.send("login-api");
 });
 // posp-dashboard-routes
 // employee-dashboard-routes
