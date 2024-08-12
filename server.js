@@ -15,7 +15,6 @@ app.use(rateLimiter);
 app.use(logger);
 app.use(errorHandler);
 
-
 app.use("/api/v1", dashboardRoutes);
 
 app.listen(PORT, () =>
@@ -23,3 +22,4 @@ app.listen(PORT, () =>
     ` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`
   )
 );
+
