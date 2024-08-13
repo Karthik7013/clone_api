@@ -5,6 +5,8 @@ const rateLimiter = require("./middleware/rateLimiter");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const dashboardRoutes = require("./route/v1/dashboard/dashboardRoutes");
+const smsRoutes = require("./route/v1/dashboard/smsRoutes");
+const isAuthenticated = require("./middleware/auth");
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -13,9 +15,13 @@ const PORT = process.env.PORT || 8000;
 app.use(express.json());
 app.use(rateLimiter);
 app.use(logger);
-app.use(errorHandler);
+
 
 app.use("/api/v1", dashboardRoutes);
+app.use("/api/v1", smsRoutes);
+
+
+app.use(errorHandler);
 
 app.listen(PORT, () =>
   console.log(
