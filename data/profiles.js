@@ -194,32 +194,32 @@ const newPospProfile = {
         },
         {
             title: "Dashboard",
-            path: "/posp/dashboard/",
+            path: "/dashboard/",
             icon: "space_dashboard",
         },
         {
             title: "Bookings",
-            path: "/posp/dashboard/bookings",
+            path: "/dashboard/bookings",
             icon: "import_contacts",
         },
         {
             title: "Add Policy",
-            path: "/posp/dashboard/add-policy",
+            path: "/dashboard/add-policy",
             icon: "post_add",
         },
         {
             title: "Policy Claims",
-            path: "/posp/dashboard/claims",
+            path: "/dashboard/claims",
             icon: "policy",
         },
         {
             title: "Settings",
-            path: "/posp/dashboard/settings",
+            path: "/dashboard/settings",
             icon: "settings",
         },
         {
             title: "Help-line",
-            path: "/posp/dashboard/help",
+            path: "/dashboard/help",
             icon: "help",
         },
     ],
