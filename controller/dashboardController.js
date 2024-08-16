@@ -26,7 +26,7 @@ const verifyCustomerNumber = async (req, res, next) => {
 
 const getCustomerProfile = async (req, res, next) => {
     try {
-        res.send(req.customer)
+        res.send(newCustomerProfile)
     } catch (error) {
         error.status = 500;
         next(error)

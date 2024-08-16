@@ -111,32 +111,32 @@ const newCustomerProfile = {
     sideProps: [
         {
             title: "Dashboard",
-            path: "/customer/dashboard/",
+            path: "/dashboard/",
             icon: "space_dashboard",
         },
         {
             title: "My Policies",
-            path: "/customer/dashboard/policies",
+            path: "/dashboard/policies",
             icon: "description",
         },
         {
             title: "Policy Claims",
-            path: "/customer/dashboard/claims",
+            path: "/dashboard/claims",
             icon: "policy",
         },
         {
             title: "Register Claims",
-            path: "/customer/dashboard/register-claims",
+            path: "/dashboard/register-claims",
             icon: "edit_note",
         },
         {
             title: "Settings",
-            path: "/customer/dashboard/settings",
+            path: "/dashboard/settings",
             icon: "settings",
         },
         {
             title: "Helpline",
-            path: "/customer/dashboard/help",
+            path: "/dashboard/help",
             icon: "call_quality",
         },
     ],
