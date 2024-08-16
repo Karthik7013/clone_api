@@ -7,6 +7,7 @@ const errorHandler = require("./middleware/errorHandler");
 const dashboardRoutes = require("./route/v1/dashboard/dashboardRoutes");
 const smsRoutes = require("./route/v1/dashboard/smsRoutes");
 const isAuthenticated = require("./middleware/auth");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -15,10 +16,11 @@ const PORT = process.env.PORT || 8000;
 app.use(express.json());
 app.use(rateLimiter);
 app.use(logger);
+app.use(cors());
 
 
-app.use("/api/v1", dashboardRoutes);
-app.use("/api/v1", smsRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
+app.use("/api/v1/", smsRoutes);
 
 
 app.use(errorHandler);
