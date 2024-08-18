@@ -11,48 +11,48 @@ const newCeoProfile = {
     sideProps: [
         {
             title: "Analytics",
-            path: "/employee/dashboard",
+            path: "/dashboard",
             icon: "trending_up",
         },
         {
             title: "Revenue",
-            path: "/employee/dashboard/revenue",
+            path: "/dashboard/revenue",
             icon: "payments",
         },
         {
             title: "Sales",
-            path: "/employee/dashboard/sales",
+            path: "/dashboard/sales",
             icon: "sell",
         },
         {
             title: "Income",
-            path: "/employee/dashboard/income",
+            path: "/dashboard/income",
             icon: "currency_rupee_circle",
         },
         {
             title: "Service",
-            path: "/employee/dashboard/service",
+            path: "/dashboard/service",
             icon: "support_agent",
         },
 
         {
             title: "Employee Management",
-            path: "/employee/dashboard/employee-management",
+            path: "/dashboard/employee-management",
             icon: "supervisor_account",
         },
         {
             title: "Products",
-            path: "/employee/dashboard/products",
+            path: "/dashboard/products",
             icon: "category",
         },
         {
             title: "Access",
-            path: "/employee/dashboard/access-management",
+            path: "/dashboard/access-management",
             icon: "checklist_rtl",
         },
         {
             title: "Settings",
-            path: "/employee/dashboard/settings",
+            path: "/dashboard/settings",
             icon: "settings",
         },
     ],
@@ -160,18 +160,18 @@ const newPospProfilePending = {
     sideProps: [
         {
             title: "Examination",
-            path: "/posp/dashboard/",
+            path: "/dashboard/",
             icon: "checklist_rtl",
         },
         {
             title: "Study Material",
-            path: "/posp/dashboard/study-material",
+            path: "/dashboard/study-material",
             icon: "menu_book",
         },
 
         {
             title: "Help-line",
-            path: "/posp/dashboard/help",
+            path: "/dashboard/help",
             icon: "help",
         },
     ],

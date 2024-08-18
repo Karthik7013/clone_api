@@ -1,4 +1,4 @@
-const { newCustomerProfile, newPospProfile, newPospProfilePending } = require('../data/profiles');
+const { newCustomerProfile, newPospProfile, newPospProfilePending, newCeoProfile, newHrProfile } = require('../data/profiles');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
@@ -56,12 +56,43 @@ const verifyPospNumber = async (req, res, next) => {
 }
 const getPospProfile = (req, res, next) => {
     try {
-        res.send(newPospProfile)
+        res.send(newPospProfilePending)
     } catch (error) {
         error.status = 500;
         next(error)
     }
 }
+
+// employee -controllers
+const verifyEmployeeNumber = async (req, res, next) => {
+    try {
+        const phno = req.body.phno;
+        if (!phno) {
+            const err = new Error("Phone Number is required !");
+            err.status = 400;
+            next(err)
+        } else {
+            // get the profile based on phno; add posp id to encrypt data
+            const token = jwt.sign({
+                id: newCeoProfile.empId
+            }, jwtSecretKey, { expiresIn: '1h' });
+            return res.status(200).json({ status: 200, token, exp: "1h" })
+        }
+    } catch (err) {
+        err.status = 500;
+        return next(err);
+    }
+}
+const getEmployeeProfile = (req, res, next) => {
+    try {
+        res.send(newCeoProfile)
+    } catch (error) {
+        error.status = 500;
+        next(error)
+    }
+}
+
+
 
 module.exports = {
     // customer
@@ -69,5 +100,8 @@ module.exports = {
     getCustomerProfile,
     // posp
     verifyPospNumber,
-    getPospProfile
+    getPospProfile,
+    // employee
+    verifyEmployeeNumber,
+    getEmployeeProfile
 };
