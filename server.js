@@ -6,7 +6,7 @@ const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const dashboardRoutes = require("./route/v1/dashboard/dashboardRoutes");
 const smsRoutes = require("./route/v1/dashboard/smsRoutes");
-const isAuthenticated = require("./middleware/auth");
+
 const cors = require("cors");
 
 const app = express();

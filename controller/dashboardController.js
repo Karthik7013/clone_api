@@ -4,7 +4,11 @@ const jwt = require('jsonwebtoken');
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 
-// customer -controllers
+//=================||customer-controllers||===============//
+
+// @desc     verify customer number
+// @route    /customer/verify
+// @access   public
 const verifyCustomerNumber = async (req, res, next) => {
     try {
         const phno = req.body.phno;
@@ -25,6 +29,9 @@ const verifyCustomerNumber = async (req, res, next) => {
     }
 };
 
+// @desc     verify customer number
+// @route    /customer/profile
+// @access   private
 const getCustomerProfile = async (req, res, next) => {
     try {
         res.send(newCustomerProfile)
@@ -34,7 +41,34 @@ const getCustomerProfile = async (req, res, next) => {
     }
 }
 
-// posp -controllers
+const getCustomerStats = async (req, res, next) => {
+    return res.send({
+        stats: {
+            purchase: 2,
+            approved: 0,
+            rejected: 1,
+            pending: 3
+        }
+    })
+}
+
+const getCustomerPolicies = async (req, res, next) => {
+    return res.send([{ policyId: 1234, policyDate: '26/11/1999', exp: '26/11/2046' }])
+}
+
+const getCutomerClaims = (req, res, next) => {
+    return res.send([{
+        policyId: 1234,
+        claim_status: 'pending',
+        message: 'pending at ceo',
+    }])
+}
+
+//=================||posp-controllers||===============//
+
+// @desc     verify posp number
+// @route    /posp/verify
+// @access   public
 const verifyPospNumber = async (req, res, next) => {
     try {
         const phno = req.body.phno;
@@ -54,6 +88,10 @@ const verifyPospNumber = async (req, res, next) => {
         return next(err);
     }
 }
+
+// @desc     verify customer number
+// @route    /posp/profile
+// @access   private
 const getPospProfile = (req, res, next) => {
     try {
         res.send(newPospProfilePending)
@@ -63,7 +101,11 @@ const getPospProfile = (req, res, next) => {
     }
 }
 
-// employee -controllers
+//=================||employee-controllers||===============//
+
+// @desc     verify employee number
+// @route    /employee/verify
+// @access   public
 const verifyEmployeeNumber = async (req, res, next) => {
     try {
         const phno = req.body.phno;
@@ -83,6 +125,10 @@ const verifyEmployeeNumber = async (req, res, next) => {
         return next(err);
     }
 }
+
+// @desc     verify employee number
+// @route    /employee/profile
+// @access   private
 const getEmployeeProfile = (req, res, next) => {
     try {
         res.send(newCeoProfile)
@@ -95,13 +141,13 @@ const getEmployeeProfile = (req, res, next) => {
 
 
 module.exports = {
-    // customer
     verifyCustomerNumber,
     getCustomerProfile,
-    // posp
+    getCustomerStats,
+    getCustomerPolicies,
+    getCutomerClaims,
     verifyPospNumber,
     getPospProfile,
-    // employee
     verifyEmployeeNumber,
     getEmployeeProfile
 };

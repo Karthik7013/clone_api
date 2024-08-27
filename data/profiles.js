@@ -113,31 +113,37 @@ const newCustomerProfile = {
             title: "Dashboard",
             path: "/dashboard/",
             icon: "space_dashboard",
+            link: ""
         },
         {
             title: "My Policies",
             path: "/dashboard/policies",
             icon: "description",
+            link: ""
         },
         {
             title: "Policy Claims",
             path: "/dashboard/claims",
             icon: "policy",
+            link: ""
         },
         {
             title: "Register Claims",
             path: "/dashboard/register-claims",
             icon: "edit_note",
+            link: ""
         },
         {
             title: "Settings",
             path: "/dashboard/settings",
             icon: "settings",
+            link: ""
         },
         {
             title: "Helpline",
             path: "/dashboard/help",
             icon: "call_quality",
+            link: ""
         },
     ],
     menuProps: [
