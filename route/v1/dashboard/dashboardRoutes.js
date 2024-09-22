@@ -13,8 +13,8 @@ dashboardRoutes.get('/customer/policies', isAuthenticated, getCustomerPolicies)
 dashboardRoutes.get('/customer/claims', isAuthenticated, getCutomerClaims)
 
 // posp-routes
-dashboardRoutes.post('/posp/verify', verifyPospNumber)
-dashboardRoutes.post('/posp/profile', isAuthenticated, getPospProfile)
+dashboardRoutes.post('/verify', verifyPospNumber)
+dashboardRoutes.post('/profile', isAuthenticated, getPospProfile)
 
 
 // employee-routes

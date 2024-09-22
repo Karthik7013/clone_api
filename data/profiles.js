@@ -1,6 +1,5 @@
 // profiles
 const newCeoProfile = {
-    access: [""],
     department: "backend",
     dob: "23-09-2022",
     empId: "EMP4834789398",
@@ -11,48 +10,48 @@ const newCeoProfile = {
     sideProps: [
         {
             title: "Analytics",
-            path: "/dashboard",
+            path: "analytics",
             icon: "trending_up",
         },
         {
             title: "Revenue",
-            path: "/dashboard/revenue",
+            path: "revenue",
             icon: "payments",
         },
         {
             title: "Sales",
-            path: "/dashboard/sales",
+            path: "sales",
             icon: "sell",
         },
         {
             title: "Income",
-            path: "/dashboard/income",
+            path: "income",
             icon: "currency_rupee_circle",
         },
         {
             title: "Service",
-            path: "/dashboard/service",
+            path: "service",
             icon: "support_agent",
         },
 
         {
             title: "Employee Management",
-            path: "/dashboard/employee-management",
+            path: "employee-management",
             icon: "supervisor_account",
         },
         {
             title: "Products",
-            path: "/dashboard/products",
+            path: "products",
             icon: "category",
         },
         {
             title: "Access",
-            path: "/dashboard/access-management",
+            path: "access-management",
             icon: "checklist_rtl",
         },
         {
             title: "Settings",
-            path: "/dashboard/settings",
+            path: "settings",
             icon: "settings",
         },
     ],
@@ -89,12 +88,12 @@ const newHrProfile = {
     sideProps: [
         {
             title: "Employee Management",
-            path: "/employee/dashboard/",
+            path: "employee-management",
             icon: "supervisor_account",
         },
         {
             title: "Access",
-            path: "/employee/dashboard/access-management",
+            path: "access-management",
             icon: "checklist_rtl",
         },
     ],
@@ -111,37 +110,37 @@ const newCustomerProfile = {
     sideProps: [
         {
             title: "Dashboard",
-            path: "/dashboard/",
+            path: "home",
             icon: "space_dashboard",
             link: ""
         },
         {
             title: "My Policies",
-            path: "/dashboard/policies",
+            path: "policies",
             icon: "description",
             link: ""
         },
         {
             title: "Policy Claims",
-            path: "/dashboard/claims",
+            path: "claims",
             icon: "policy",
             link: ""
         },
         {
             title: "Register Claims",
-            path: "/dashboard/register-claims",
+            path: "register-claims",
             icon: "edit_note",
             link: ""
         },
         {
             title: "Settings",
-            path: "/dashboard/settings",
+            path: "settings",
             icon: "settings",
             link: ""
         },
         {
             title: "Helpline",
-            path: "/dashboard/help",
+            path: "help",
             icon: "call_quality",
             link: ""
         },
@@ -166,18 +165,18 @@ const newPospProfilePending = {
     sideProps: [
         {
             title: "Examination",
-            path: "/dashboard/",
+            path: "examination",
             icon: "checklist_rtl",
         },
         {
             title: "Study Material",
-            path: "/dashboard/study-material",
+            path: "study-material",
             icon: "menu_book",
         },
 
         {
             title: "Help-line",
-            path: "/dashboard/help",
+            path: "help",
             icon: "help",
         },
     ],
@@ -194,23 +193,18 @@ const newPospProfile = {
     pospId: "POSP3452928094",
     sideProps: [
         {
-            title: "Home",
-            path: "/",
-            icon: "home",
-        },
-        {
-            title: "Dashboard",
-            path: "/dashboard/",
-            icon: "space_dashboard",
+            title: "Overview",
+            path: "overview",
+            icon: "query_stats",
         },
         {
             title: "Bookings",
-            path: "/dashboard/bookings",
+            path: "bookings",
             icon: "import_contacts",
         },
         {
             title: "Add Policy",
-            path: "/dashboard/add-policy",
+            path: "add-policy",
             icon: "post_add",
         },
         {
@@ -220,12 +214,12 @@ const newPospProfile = {
         },
         {
             title: "Settings",
-            path: "/dashboard/settings",
+            path: "settings",
             icon: "settings",
         },
         {
             title: "Help-line",
-            path: "/dashboard/help",
+            path: "help",
             icon: "help",
         },
     ],

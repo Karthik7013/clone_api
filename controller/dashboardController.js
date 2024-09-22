@@ -94,7 +94,7 @@ const verifyPospNumber = async (req, res, next) => {
 // @access   private
 const getPospProfile = (req, res, next) => {
     try {
-        res.send(newPospProfilePending)
+        res.send(newCeoProfile)
     } catch (error) {
         error.status = 500;
         next(error)
