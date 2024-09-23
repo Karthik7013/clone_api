@@ -40,6 +40,11 @@ const newCeoProfile = {
             icon: "supervisor_account",
         },
         {
+            title: "Agent Management",
+            path: "agent-management",
+            icon: "supervisor_account",
+        },
+        {
             title: "Products",
             path: "products",
             icon: "category",

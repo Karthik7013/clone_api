@@ -3,7 +3,13 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
-
+const profile = {
+    "9999999999": newCeoProfile,
+    "8888888888": newHrProfile,
+    "7777777777": newCustomerProfile,
+    "6666666666": newPospProfile,
+    "5555555555": newPospProfilePending
+}
 //=================||customer-controllers||===============//
 
 // @desc     verify customer number
@@ -66,8 +72,8 @@ const getCutomerClaims = (req, res, next) => {
 
 //=================||posp-controllers||===============//
 
-// @desc     verify posp number
-// @route    /posp/verify
+// @desc     verify number
+// @route    /verify
 // @access   public
 const verifyPospNumber = async (req, res, next) => {
     try {
@@ -77,10 +83,14 @@ const verifyPospNumber = async (req, res, next) => {
             err.status = 400;
             next(err)
         } else {
+            if (!profile[phno]) return res.status(404).json({ msg: 'no user found' })
+
             // get the profile based on phno; add posp id to encrypt data
-            const token = jwt.sign({
-                id: newPospProfile.pospId
-            }, jwtSecretKey, { expiresIn: '1h' });
+            const loginCredentials = {
+                type: profile[phno].type,
+                id: profile[phno].custId || profile[phno].empId || profile[phno].pospId
+            }
+            const token = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '1h' });
             return res.status(200).json({ status: 200, token, exp: "1h" })
         }
     } catch (err) {
@@ -89,12 +99,15 @@ const verifyPospNumber = async (req, res, next) => {
     }
 }
 
-// @desc     verify customer number
-// @route    /posp/profile
+// @desc      get profile 
+// @route    /profile
 // @access   private
 const getPospProfile = (req, res, next) => {
+    console.log(req.auth) // login id & type 
     try {
-        res.send(newCeoProfile)
+        console.log(req.auth.type)
+        // take id and type and get profile based on the type (posp | customer | employee)
+        res.send(newCustomerProfile)
     } catch (error) {
         error.status = 500;
         next(error)

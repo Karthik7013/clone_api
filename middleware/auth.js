@@ -13,7 +13,7 @@ const isAuthenticated = (req, res, next) => {
                     err.status = 401;
                     return next(err);
                 }
-                req.customer = decoded;
+                req.auth = decoded;
                 next();
             });
         } else {
