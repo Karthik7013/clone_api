@@ -1,6 +1,7 @@
 // NAEMLIX 360 INSURANCE APPLICATION
 //
 const express = require("express");
+const path = require('path')
 const rateLimiter = require("./middleware/rateLimiter");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
