@@ -6,8 +6,9 @@ const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const dashboardRoutes = require("./route/v1/dashboard/dashboardRoutes");
 const smsRoutes = require("./route/v1/dashboard/smsRoutes");
-
+const authRoutes = require('./route/v1/auth/authRoutes')
 const cors = require("cors");
+const mysql = require('mysql2');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -19,17 +20,21 @@ app.use(logger);
 app.use(cors());
 
 
-app.use("/api/v1/dashboard", dashboardRoutes);
-app.use("/api/v1/", smsRoutes);
+app.listen(PORT, () =>
+  console.log(` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`)
+);
+
+// app.use("/api/v1/dashboard", dashboardRoutes);
+// app.use("/api/v1/", smsRoutes);
+
+
+
+app.use('/api/v1/auth', authRoutes)
 
 
 app.use(errorHandler);
 
-app.listen(PORT, () =>
-  console.log(
-    ` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`
-  )
-);
+
 
 
 

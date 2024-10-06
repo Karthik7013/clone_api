@@ -4,7 +4,6 @@ const { verifyCustomerNumber, getCustomerProfile, getPospProfile, verifyPospNumb
 const dashboardRoutes = Router();
 
 
-
 // customer-routes
 dashboardRoutes.post('/customer/verify', verifyCustomerNumber)
 dashboardRoutes.post('/customer/profile', isAuthenticated, getCustomerProfile)
