@@ -18,7 +18,7 @@ app.use(rateLimiter);
 app.use(logger);
 app.use(cors());
 
-
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/", smsRoutes);
 
