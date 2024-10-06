@@ -78,17 +78,31 @@ const getCutomerClaims = (req, res, next) => {
 const verifyPospNumber = async (req, res, next) => {
     try {
         const phno = req.body.phno;
+        const role = req.body.role;
         if (!phno) {
             const err = new Error("Phone Number is required !");
             err.status = 400;
             next(err)
         } else {
             if (!profile[phno]) return res.status(404).json({ msg: 'no user found' })
-
             // get the profile based on phno; add posp id to encrypt data
             const loginCredentials = {
                 type: profile[phno].type,
                 id: profile[phno].custId || profile[phno].empId || profile[phno].pospId
+            }
+            switch (role) {
+                case 'employee':
+
+                    break;
+                case 'posp':
+
+                    break;
+                case 'customer':
+
+                    break;
+
+                default:
+                    break;
             }
             const token = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '1h' });
             return res.status(200).json({ status: 200, token, exp: "1h" })
@@ -107,7 +121,7 @@ const getPospProfile = (req, res, next) => {
     try {
         console.log(req.auth.type)
         // take id and type and get profile based on the type (posp | customer | employee)
-        res.send(newCustomerProfile)
+        res.send(newHrProfile)
     } catch (error) {
         error.status = 500;
         next(error)

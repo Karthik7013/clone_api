@@ -12,7 +12,7 @@ dashboardRoutes.get('/customer/stats', isAuthenticated, getCustomerStats)
 dashboardRoutes.get('/customer/policies', isAuthenticated, getCustomerPolicies)
 dashboardRoutes.get('/customer/claims', isAuthenticated, getCutomerClaims)
 
-// posp-routes
+
 dashboardRoutes.post('/verify', verifyPospNumber)
 dashboardRoutes.post('/profile', isAuthenticated, getPospProfile)
 
