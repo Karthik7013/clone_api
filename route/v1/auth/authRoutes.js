@@ -1,5 +1,15 @@
 const { Router } = require('express');
-const { verfiyAgent, verfiyCustomer, verfiyEmployee, createCustomer, createAgent, createEmployee } = require('../../../controller/authController')
+const isAuthenticated = require('../../../middleware/auth')
+const { verfiyAgent,
+    verfiyCustomer,
+    verfiyEmployee,
+    createCustomer,
+    createAgent,
+    createEmployee,
+    getCustomerProfile,
+    getAgentProfile,
+    getEmployeeProfile
+} = require('../../../controller/authController')
 const authRoutes = Router();
 
 
@@ -13,5 +23,9 @@ authRoutes.post('/verify/customer', verfiyCustomer)
 authRoutes.post('/verify/agent', verfiyAgent)
 authRoutes.post('/verify/employee', verfiyEmployee)
 
+
+authRoutes.get('/profile/customer', isAuthenticated(['customer']), getCustomerProfile);
+authRoutes.get('/profile/agent',isAuthenticated(['agent']), getAgentProfile);
+authRoutes.get('/profile/employee', isAuthenticated(['employee']), getEmployeeProfile);
 
 module.exports = authRoutes;
