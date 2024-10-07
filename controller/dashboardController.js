@@ -121,7 +121,7 @@ const getPospProfile = (req, res, next) => {
     try {
         console.log(req.auth.type)
         // take id and type and get profile based on the type (posp | customer | employee)
-        res.send(newHrProfile)
+        res.send(newCeoProfile)
     } catch (error) {
         error.status = 500;
         next(error)
