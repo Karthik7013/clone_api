@@ -8,7 +8,6 @@ const isAuthenticated = (role) => {
         const authHeader = req.headers['authorization'];
         if (authHeader && authHeader.startsWith('Bearer ')) {
             const token = authHeader.split(' ')[1];
-            console.log(token)
             if (token) {
                 jwt.verify(token, jwtSecretKey, (err, decoded) => {
                     if (err) {
@@ -21,7 +20,7 @@ const isAuthenticated = (role) => {
                         return next(err);
                     }
                     req.auth = decoded;
-                     next()
+                    next()
                 });
             } else {
                 const error = new Error("Token not found");
