@@ -6,9 +6,9 @@ const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const isAuthenticated = (role) => {
     return (req, res, next) => {
         const authHeader = req.headers['authorization'];
+        console.log(authHeader)
         if (authHeader && authHeader.startsWith('Bearer ')) {
             const token = authHeader.split(' ')[1];
-            console.log(token)
             if (token) {
                 jwt.verify(token, jwtSecretKey, (err, decoded) => {
                     if (err) {

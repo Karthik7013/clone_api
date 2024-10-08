@@ -21,11 +21,11 @@ authRoutes.post('/signup/employee', createEmployee)
 
 authRoutes.post('/verify/customer', verfiyCustomer)
 authRoutes.post('/verify/agent', verfiyAgent)
-authRoutes.post('/verify/employee', verfiyEmployee)
+authRoutes.post('/employee/verify', verfiyEmployee)
 
 
 authRoutes.get('/profile/customer', isAuthenticated(['customer']), getCustomerProfile);
 authRoutes.get('/profile/agent',isAuthenticated(['agent']), getAgentProfile);
-authRoutes.get('/profile/employee', isAuthenticated(['employee']), getEmployeeProfile);
+authRoutes.get('/employee/profile', isAuthenticated(['employee']), getEmployeeProfile);
 
 module.exports = authRoutes;

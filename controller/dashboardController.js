@@ -113,7 +113,7 @@ const verifyPospNumber = async (req, res, next) => {
     }
 }
 
-// @desc      get profile 
+// @desc      get profile
 // @route    /profile
 // @access   private
 const getPospProfile = (req, res, next) => {

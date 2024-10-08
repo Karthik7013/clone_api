@@ -359,6 +359,7 @@ const getEmployeeProfile = async (req, res, next) => {
     const employee_id = req.auth.loginId;
     try {
         const response = await connection.execute(GET_EMPLOYEE_ID, [employee_id]);
+        console.log(response)
         return res.status(200).json(
             {
                 "success": true,
@@ -371,7 +372,6 @@ const getEmployeeProfile = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-    // res.send({ msg: 'your are real customer', data: req.auth })
 }
 
 module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getCustomerProfile, getEmployeeProfile, getAgentProfile };

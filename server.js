@@ -24,8 +24,8 @@ app.listen(PORT, () =>
   console.log(` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`)
 );
 
-// app.use("/api/v1/dashboard", dashboardRoutes);
-// app.use("/api/v1/", smsRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
+app.use("/api/v1/", smsRoutes);
 
 
 
