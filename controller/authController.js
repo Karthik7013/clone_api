@@ -325,6 +325,8 @@ const getCustomerProfile = async (req, res, next) => {
         )
     } catch (error) {
         next(error)
+    }finally{
+       await connection.end();
     }
 }
 
@@ -347,6 +349,8 @@ const getAgentProfile = async (req, res, next) => {
         )
     } catch (error) {
         next(error)
+    }finally{
+        await connection.end()
     }
 }
 
@@ -354,12 +358,10 @@ const getAgentProfile = async (req, res, next) => {
 // @route    /profile/employee
 // @access   private
 const getEmployeeProfile = async (req, res, next) => {
-
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId;
     try {
         const response = await connection.execute(GET_EMPLOYEE_ID, [employee_id]);
-        console.log(response)
         return res.status(200).json(
             {
                 "success": true,
@@ -371,6 +373,8 @@ const getEmployeeProfile = async (req, res, next) => {
         )
     } catch (error) {
         next(error)
+    }finally{
+        await connection.end()
     }
 }
 
