@@ -21,7 +21,7 @@ const isAuthenticated = (role) => {
                         return next(err);
                     }
                     req.auth = decoded;
-                     next()
+                    next()
                 });
             } else {
                 const error = new Error("Token not found");
