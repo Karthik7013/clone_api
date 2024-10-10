@@ -21,12 +21,12 @@ authRoutes.post('/signup/agent', createAgent)
 authRoutes.post('/signup/employee', createEmployee)
 
 authRoutes.post('/customer/verify', verfiyCustomer)
-authRoutes.post('/verify/agent', verfiyAgent)
+authRoutes.post('/agent/verify', verfiyAgent)
 authRoutes.post('/employee/verify', verfiyEmployee)
 
 
-authRoutes.get('/profile/customer', isAuthenticated(['customer']), getCustomerProfile);
-authRoutes.get('/profile/agent', isAuthenticated(['agent']), getAgentProfile);
+authRoutes.get('/customer/profile', isAuthenticated(['customer']), getCustomerProfile);
+authRoutes.get('/agent/profile', isAuthenticated(['agent']), getAgentProfile);
 authRoutes.get('/employee/profile', isAuthenticated(['employee']), getEmployeeProfile);
 
 authRoutes.get('/employee/routes', isAuthenticated(['employee']), (req, res, next) => {

@@ -8,12 +8,13 @@ async function connectToDatabase() {
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
+            port:process.env.DB_PORT,
         });
         return connection;
     } catch (err) {
-        console.error('Error connecting to MySQL:', err.message);
-        process.exit(1); // Exit the process if there's a connection error
+        console.error('Error connecting to MySQL:', err);
     }
+
 }
 
 module.exports = connectToDatabase;

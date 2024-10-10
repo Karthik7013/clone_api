@@ -9,6 +9,10 @@ const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const verfiyCustomer = async (req, res, next) => {
     const connection = await connectToDatabase();
     try {
+        if (!connection) {
+            const dbTimeOutErr = new Error("Error in connecting to db");
+            next(dbTimeOutErr)
+        }
         const { phone } = req.body;
         const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone]); // Execute the query
         if (!results.length) {
@@ -36,7 +40,7 @@ const verfiyCustomer = async (req, res, next) => {
         error.status = 500;
         return next(error);
     } finally {
-        await connection.end();
+        if (connection) await connection.end();
     }
 }
 
@@ -44,8 +48,12 @@ const verfiyCustomer = async (req, res, next) => {
 // @route    /verify/agent
 // @access   public
 const verfiyAgent = async (req, res, next) => {
-    const connection = await connectToDatabase();
+    let connection = await connectToDatabase();
     try {
+        if (!connection) {
+            const dbTimeOutErr = new Error("Error in connecting to db");
+            next(dbTimeOutErr)
+        }
         const { phone } = req.body;
         const [results] = await connection.execute(GET_AGENT_PHONE, [phone]);
         if (!results.length) {
@@ -63,17 +71,18 @@ const verfiyAgent = async (req, res, next) => {
         return res.status(200).json(
             {
                 "success": true,
-                "message": "User found.",
+                "message": "Agent found.",
                 "status": 200,
                 "data": { accessToken: token, exp: "1h" },
-                "timestamp": "2024-10-06T12:34:56Z"
+                "timestamp": new Date()
             }
         )
     } catch (error) {
         error.status = 500;
         return next(error);
-    } finally {
-        await connection.end();
+    }
+    finally {
+        if (connection) await connection.end();
     }
 }
 
@@ -83,6 +92,10 @@ const verfiyAgent = async (req, res, next) => {
 const verfiyEmployee = async (req, res, next) => {
     const connection = await connectToDatabase();
     try {
+        if (!connection) {
+            const dbTimeOutErr = new Error("Error in connecting to db");
+            next(dbTimeOutErr)
+        }
         const { phone } = req.body;
         const [results] = await connection.execute(GET_EMPLOYEE_PHONE, [phone]); // Execute the query
         if (!results.length) {
@@ -110,7 +123,7 @@ const verfiyEmployee = async (req, res, next) => {
         error.status = 500;
         return next(error);
     } finally {
-        await connection.end();
+        if (connection) await connection.end();
     }
 }
 
@@ -325,8 +338,8 @@ const getCustomerProfile = async (req, res, next) => {
         )
     } catch (error) {
         next(error)
-    }finally{
-       await connection.end();
+    } finally {
+        await connection.end();
     }
 }
 
@@ -349,7 +362,7 @@ const getAgentProfile = async (req, res, next) => {
         )
     } catch (error) {
         next(error)
-    }finally{
+    } finally {
         await connection.end()
     }
 }
@@ -373,7 +386,7 @@ const getEmployeeProfile = async (req, res, next) => {
         )
     } catch (error) {
         next(error)
-    }finally{
+    } finally {
         await connection.end()
     }
 }

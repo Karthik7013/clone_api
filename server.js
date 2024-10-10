@@ -18,12 +18,12 @@ app.use(express.json());
 app.use(rateLimiter);
 app.use(logger);
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 
 app.listen(PORT, () =>
