@@ -1,14 +1,15 @@
 const connectToDatabase = require("../db/db");
 const jwt = require('jsonwebtoken');
-const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, GET_CUSTOMER_MAX_ID, GET_AGENT_MAX_ID, GET_EMPLOYEE_MAX_ID, GET_CUSTOMER_ID, GET_EMPLOYEE_ID, GET_AGENT_ID } = require("../db/queries/queries.constants");
+const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, GET_CUSTOMER_MAX_ID, GET_AGENT_MAX_ID, GET_EMPLOYEE_MAX_ID, GET_CUSTOMER_ID, GET_EMPLOYEE_ID, GET_AGENT_ID, INSERT_REFRESH_TOKEN } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
-
+const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
 // @desc     verify customer number
 // @route    /verify/customer
 // @access   public
 const verfiyCustomer = async (req, res, next) => {
-    console.log(req)
+    const user_agent = req.headers['user-agent'];
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const connection = await connectToDatabase();
     try {
         if (!connection) {
@@ -24,20 +25,21 @@ const verfiyCustomer = async (req, res, next) => {
             err.details = 'this is message';
             return next(err)
         }
+        const customer_id = results[0].customer_id;
         const loginCredentials = {
-            loginId: results[0].customer_id,
+            loginId: customer_id,
             type: 'customer'
         }
-        const token = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '1h' });
-        // insert refresh_token in db.refresh_tokens
-        await connection.execute('INSERT INTO refresh_tokens (refresh_token,code,agent) values(?,?,?)',[token,'','Broweser'])
+        const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: 60 });
+        const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: '7d' });
+
+        await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
         return res.status(200).json(
-            successHandler(
-                {
-                    accessToken: token,
-                    refreshToken: token,
-                    exp: '1h'
-                },
+            successHandler({
+                accessToken,
+                exp: '15m',
+            },
                 "User Found",
                 200
             )
@@ -397,4 +399,45 @@ const getEmployeeProfile = async (req, res, next) => {
     }
 }
 
-module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getCustomerProfile, getEmployeeProfile, getAgentProfile };
+// @desc     get access token
+// @route    /generate-access-token
+// @access   public
+const getAccessToken = (req, res, next) => {
+    const { refreshToken } = req.body;
+    // get it from cookies
+    try {
+        if (!refreshToken) {
+            const err = new Error('Token not found');
+            err.status = 401;
+            err.code = 'this is code';
+            err.details = 'Refresh token not found';
+            return next(err)
+        }
+        jwt.verify(refreshToken, jwtRefreshSecretKey, (err, decode) => {
+            if (err) {
+                const err = new Error("Token expired/invalid !");
+                err.status = 403;
+                return next(err);
+            }
+            const loginCredentials = {
+                loginId: decode.loginId, type: decode.type,
+            }
+            const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '15m' });
+            return res.status(200).json(
+                successHandler({
+                    accessToken,
+                    exp: '15m',
+                },
+                    "token generated successfully",
+                    200
+                )
+            )
+
+        })
+
+    } catch (error) {
+
+    }
+}
+
+module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getCustomerProfile, getEmployeeProfile, getAgentProfile, getAccessToken };

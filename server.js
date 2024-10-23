@@ -9,6 +9,8 @@ const smsRoutes = require("./route/v1/dashboard/smsRoutes");
 const authRoutes = require('./route/v1/auth/authRoutes')
 const cors = require("cors");
 const mysql = require('mysql2');
+const cookieParser = require("cookie-parser");
+const notFound = require("./middleware/notFound");
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -24,6 +26,7 @@ const corsOptions = {
 };
 
 app.use(cors());
+app.use(cookieParser())
 
 
 app.listen(PORT, () =>
@@ -40,8 +43,7 @@ app.use('/api/v1/auth', authRoutes)
 
 app.use(errorHandler);
 
-
-
+app.use(notFound)
 
 
 // this is development branch
