@@ -1,12 +1,14 @@
 const connectToDatabase = require("../db/db");
 const jwt = require('jsonwebtoken');
 const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, GET_CUSTOMER_MAX_ID, GET_AGENT_MAX_ID, GET_EMPLOYEE_MAX_ID, GET_CUSTOMER_ID, GET_EMPLOYEE_ID, GET_AGENT_ID } = require("../db/queries/queries.constants");
+const successHandler = require("../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 // @desc     verify customer number
 // @route    /verify/customer
 // @access   public
 const verfiyCustomer = async (req, res, next) => {
+    console.log(req)
     const connection = await connectToDatabase();
     try {
         if (!connection) {
@@ -27,14 +29,18 @@ const verfiyCustomer = async (req, res, next) => {
             type: 'customer'
         }
         const token = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '1h' });
+        // insert refresh_token in db.refresh_tokens
+        await connection.execute('INSERT INTO refresh_tokens (refresh_token,code,agent) values(?,?,?)',[token,'','Broweser'])
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "User found.",
-                "status": 200,
-                "data": { accessToken: token, exp: "1h" },
-                "timestamp": "2024-10-06T12:34:56Z"
-            }
+            successHandler(
+                {
+                    accessToken: token,
+                    refreshToken: token,
+                    exp: '1h'
+                },
+                "User Found",
+                200
+            )
         )
     } catch (error) {
         error.status = 500;

@@ -20,7 +20,6 @@ async function connectToDatabase() {
             database: 'namelixdb',
             port: 3306,
         });
-
         return connection;
     } catch (err) {
         console.error('Error connecting to MySQL:', err);
