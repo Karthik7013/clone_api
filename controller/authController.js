@@ -1,9 +1,12 @@
 const connectToDatabase = require("../db/db");
 const jwt = require('jsonwebtoken');
-const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, GET_CUSTOMER_MAX_ID, GET_AGENT_MAX_ID, GET_EMPLOYEE_MAX_ID, GET_CUSTOMER_ID, GET_EMPLOYEE_ID, GET_AGENT_ID, INSERT_REFRESH_TOKEN } = require("../db/queries/queries.constants");
+const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, GET_CUSTOMER_MAX_ID, GET_AGENT_MAX_ID, GET_EMPLOYEE_MAX_ID, GET_CUSTOMER_ID, GET_EMPLOYEE_ID, GET_AGENT_ID, INSERT_REFRESH_TOKEN, DELETE_REFRESH_TOKEN } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
+const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRES
+const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES
+
 // @desc     verify customer number
 // @route    /verify/customer
 // @access   public
@@ -30,15 +33,15 @@ const verfiyCustomer = async (req, res, next) => {
             loginId: customer_id,
             type: 'customer'
         }
-        const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: 60 });
-        const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: '7d' });
+        const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
+        const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
 
         await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
         return res.status(200).json(
             successHandler({
                 accessToken,
-                exp: '15m',
+                exp: accessTokenExpire,
             },
                 "User Found",
                 200
@@ -56,6 +59,8 @@ const verfiyCustomer = async (req, res, next) => {
 // @route    /verify/agent
 // @access   public
 const verfiyAgent = async (req, res, next) => {
+    const user_agent = req.headers['user-agent'];
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     let connection = await connectToDatabase();
     try {
         if (!connection) {
@@ -71,17 +76,21 @@ const verfiyAgent = async (req, res, next) => {
             err.details = 'this is message';
             return next(err)
         }
+        const agent_id = results[0].agent_id;
         const loginCredentials = {
-            loginId: results[0].agent_id,
+            loginId: agent_id,
             type: 'agent'
         }
-        const token = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '1h' });
+        const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
+        const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
+        await connection.execute(INSERT_REFRESH_TOKEN, [null, null, agent_id, refreshToken, new Date(), user_agent, ipAddress])
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
         return res.status(200).json(
             {
                 "success": true,
                 "message": "Agent found.",
                 "status": 200,
-                "data": { accessToken: token, exp: "1h" },
+                "data": { accessToken, exp: accessTokenExpire },
                 "timestamp": new Date()
             }
         )
@@ -98,6 +107,8 @@ const verfiyAgent = async (req, res, next) => {
 // @route    /verify/employee
 // @access   public
 const verfiyEmployee = async (req, res, next) => {
+    const user_agent = req.headers['user-agent'];
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const connection = await connectToDatabase();
     try {
         if (!connection) {
@@ -113,17 +124,21 @@ const verfiyEmployee = async (req, res, next) => {
             err.details = 'this is message';
             return next(err)
         }
+        const employee_id = results[0].employee_id
         const loginCredentials = {
-            loginId: results[0].employee_id,
+            loginId: employee_id,
             type: 'employee'
         }
-        const token = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '1h' });
+        const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
+        const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
+        await connection.execute(INSERT_REFRESH_TOKEN, [null, employee_id, null, refreshToken, new Date(), user_agent, ipAddress])
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
         return res.status(200).json(
             {
                 "success": true,
                 "message": "User found.",
                 "status": 200,
-                "data": { accessToken: token, exp: "1h" },
+                "data": { accessToken, exp: accessTokenExpire },
                 "timestamp": "2024-10-06T12:34:56Z"
             }
         )
@@ -135,6 +150,34 @@ const verfiyEmployee = async (req, res, next) => {
     }
 }
 
+const signOut = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const { refreshToken } = req.cookies;
+
+    try {
+        if (!refreshToken) {
+            const err = new Error('Not Authenticated');
+            err.status = 403;
+            err.code = 'this is code';
+            err.details = 'this is message';
+            return next(err)
+        }
+        await connection.execute(DELETE_REFRESH_TOKEN, [refreshToken]);
+        res.clearCookie('refreshToken');
+        return res.status(200).json(
+            successHandler(null,
+                "Logout Successfull",
+                204
+            )
+        )
+    } catch (error) {
+        error.status = 500;
+        return next(error);
+    }
+    finally {
+        if (connection) await connection.end();
+    }
+}
 const generateCustomerId = async (callback) => {
     const connection = await connectToDatabase();
     try {
@@ -341,7 +384,7 @@ const getCustomerProfile = async (req, res, next) => {
                 "message": "Customer found.",
                 "status": 200,
                 "data": response[0][0],
-                "timestamp": "2024-10-06T12:34:56Z"
+                "timestamp": new Date()
             }
         )
     } catch (error) {
@@ -403,8 +446,9 @@ const getEmployeeProfile = async (req, res, next) => {
 // @route    /generate-access-token
 // @access   public
 const getAccessToken = (req, res, next) => {
-    const { refreshToken } = req.body;
+    // const { refreshToken } = req.body;
     // get it from cookies
+    const { refreshToken } = req.cookies
     try {
         if (!refreshToken) {
             const err = new Error('Token not found');
@@ -422,11 +466,11 @@ const getAccessToken = (req, res, next) => {
             const loginCredentials = {
                 loginId: decode.loginId, type: decode.type,
             }
-            const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: '15m' });
+            const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
             return res.status(200).json(
                 successHandler({
                     accessToken,
-                    exp: '15m',
+                    exp: accessTokenExpire,
                 },
                     "token generated successfully",
                     200
@@ -440,4 +484,4 @@ const getAccessToken = (req, res, next) => {
     }
 }
 
-module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getCustomerProfile, getEmployeeProfile, getAgentProfile, getAccessToken };
+module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getCustomerProfile, getEmployeeProfile, getAgentProfile, getAccessToken, signOut };

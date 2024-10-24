@@ -9,7 +9,8 @@ const { verfiyAgent,
     getCustomerProfile,
     getAgentProfile,
     getEmployeeProfile,
-    getAccessToken
+    getAccessToken,
+    signOut
 } = require('../../../controller/authController');
 const isAuthorized = require('../../../middleware/authorization');
 const authRoutes = Router();
@@ -22,6 +23,10 @@ authRoutes.post('/signup/employee', createEmployee)
 authRoutes.post('/customer/verify', verfiyCustomer)
 authRoutes.post('/agent/verify', verfiyAgent)
 authRoutes.post('/employee/verify', verfiyEmployee)
+
+authRoutes.post('/customer/signOut', signOut)
+authRoutes.post('/agent/signOut', signOut)
+authRoutes.post('/employee/signOut', signOut)
 
 
 authRoutes.get('/customer/profile', isAuthenticated(['customer']), getCustomerProfile);
