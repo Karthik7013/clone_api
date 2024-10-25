@@ -1,6 +1,7 @@
 // NAEMLIX 360 INSURANCE APPLICATION
 //
 const express = require("express");
+const path = require('path')
 const rateLimiter = require("./middleware/rateLimiter");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -29,10 +30,14 @@ app.use(cors());
 app.use(cookieParser())
 
 
+// <<<<<<< development
 app.listen(PORT, () =>
   console.log(` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`)
 );
 
+// =======
+app.use('/public', express.static(path.join(__dirname, 'public')));
+//  main
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/", smsRoutes);
 
