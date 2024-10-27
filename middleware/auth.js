@@ -30,7 +30,7 @@ const isAuthenticated = (role) => {
                         err.status = 401;
                         return next(err);
                     }
-                    console.log(decoded, 'decoded')
+                    // console.log(decoded, 'decoded')
                     if (!role.includes(decoded.type)) {
                         const err = new Error('Access Denied for this login');
                         return next(err);

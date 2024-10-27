@@ -12,7 +12,7 @@ const cors = require("cors");
 const mysql = require('mysql2');
 const cookieParser = require("cookie-parser");
 const notFound = require("./middleware/notFound");
-
+const customerRoutes = require("./route/v1/customer/customerRoutes");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -30,20 +30,19 @@ app.use(cors());
 app.use(cookieParser())
 
 
-// <<<<<<< development
+
 app.listen(PORT, () =>
   console.log(` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`)
 );
 
-// =======
 app.use('/public', express.static(path.join(__dirname, 'public')));
-//  main
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/", smsRoutes);
 
 
 
 app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/customer', customerRoutes)
 
 
 app.use(errorHandler);

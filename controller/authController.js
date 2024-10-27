@@ -178,6 +178,7 @@ const signOut = async (req, res, next) => {
         if (connection) await connection.end();
     }
 }
+
 const generateCustomerId = async (callback) => {
     const connection = await connectToDatabase();
     try {
@@ -446,8 +447,6 @@ const getEmployeeProfile = async (req, res, next) => {
 // @route    /generate-access-token
 // @access   public
 const getAccessToken = (req, res, next) => {
-    // const { refreshToken } = req.body;
-    // get it from cookies
     const { refreshToken } = req.cookies
     try {
         if (!refreshToken) {
@@ -478,9 +477,8 @@ const getAccessToken = (req, res, next) => {
             )
 
         })
-
     } catch (error) {
-
+        next(error)
     }
 }
 
