@@ -20,6 +20,10 @@ const verfiyCustomer = async (req, res, next) => {
             next(dbTimeOutErr)
         }
         const { phone } = req.body;
+        if (!phone) {
+            const customerErr = new Error("Customer Phone Number is Required !");
+            next(customerErr)
+        }
         const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone]); // Execute the query
         if (!results.length) {
             const err = new Error('Customer Not Found !');
@@ -36,7 +40,7 @@ const verfiyCustomer = async (req, res, next) => {
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
 
-        await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
+        // await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
         return res.status(200).json(
             successHandler({

@@ -12,7 +12,7 @@ const { verfiyAgent,
     getAccessToken,
     signOut
 } = require('../../../controller/authController');
-const isAuthorized = require('../../../middleware/authorization');
+
 const authRoutes = Router();
 
 
@@ -90,9 +90,5 @@ authRoutes.get('/employee/routes', isAuthenticated(['employee']), (req, res, nex
 })
 
 authRoutes.post('/generate-access-token', getAccessToken)
-
-authRoutes.post('/employee/profile/:id', isAuthenticated(['employee']), isAuthorized, (req, res) => {
-    res.send({ operation: 'done' })
-})
 
 module.exports = authRoutes;
