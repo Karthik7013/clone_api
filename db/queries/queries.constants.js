@@ -32,8 +32,11 @@ const GET_POLICY_PAYMENT = 'SELECT payments.payment_id,payments.policy_id,paymen
 
 const REGISTER_CLAIM = 'INSERT INTO registered_claims (registered_claim_id,policy_id,description) values(?,?,?)';
 
-const INSERT_CLAIM = 'INSERT INTO claims (claim_id,registered_claim_id) values(?,?)';
+const INSERT_CLAIM = 'INSERT INTO claims (claim_id,registered_claim_id,description) values(?,?,?)';
 
+const CREATE_POLICY = 'INSERT INTO policies (policy_id,policy_type,customer_id,agent_id,employee_id,start_date,end_date,premium_amount,coverage_amount,mode) VALUES(?,?,?,?,?,?,?,?,?,?)'
+const CREATE_PAYMENT = "INSERT INTO payments(payment_id, policy_id, amount) VALUES(?,?,?)";
+const UPDATE_PAYMENT = "UPDATE payments SET payment_date=?, payment_status=?, payment_mode=?,currency=? WHERE payment_id = ?";
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
     GET_CUSTOMER_MAX_ID,
@@ -48,5 +51,7 @@ module.exports = {
     GET_POLICY_PAYMENT,
     GET_CUSTOMER_CLAIMS,
     REGISTER_CLAIM,
-    INSERT_CLAIM
+    INSERT_CLAIM, CREATE_POLICY,
+    CREATE_PAYMENT,
+    UPDATE_PAYMENT
 }

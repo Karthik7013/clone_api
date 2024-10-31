@@ -1,5 +1,5 @@
 const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID, GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM } = require("../db/queries/queries.constants");
+const { GET_EMPLOYEE_ID, GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
 
 // @desc     create new Agent
@@ -71,7 +71,7 @@ const registerClaim = async (req, res, next) => {
         }
         await connection.execute(REGISTER_CLAIM, [register_claim_id, policy_id, description]);
         const claim_id = uuidv4().split('-')[0]
-        await connection.execute(INSERT_CLAIM, [claim_id, register_claim_id])
+        await connection.execute(INSERT_CLAIM, [claim_id, register_claim_id, description])
         return res.status(200).json({
             "success": true,
             "message": "Your claim has been successfully registered.",
@@ -107,4 +107,50 @@ const getCustomerClaims = async (req, res, next) => {
     }
 }
 
-module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim }
+const createPolicy = async (req, res, next) => {
+    const customer_id = req.auth.loginId;
+    const connection = await connectToDatabase();
+    const policy_id = "POL" + uuidv4().split('-')[0];
+    const { policy_type, start_date, end_date, premium_amount, coverage_amount, mode } = req.body;
+    try {
+        const response = await connection.execute(CREATE_POLICY, [policy_id, policy_type, customer_id, null, null, start_date, end_date, premium_amount, coverage_amount, mode]);
+        const paymentId = "PAY" + uuidv4().split('-')[0];
+        const paymentInitiate = await connection.execute(CREATE_PAYMENT, [paymentId, policy_id, premium_amount])
+        return res.status(200).json(
+            {
+                "success": true,
+                "message": "Policy succesfull Registered",
+                "status": 200,
+                "data": response[0],
+                "timestamp": new Date()
+            }
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end()
+    }
+}
+
+const updatePaymentDetails = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const { status, mode, currency, payment_id } = req.body;
+    try {
+        const response = await connection.execute(UPDATE_PAYMENT, [new Date(), status, mode, currency, payment_id]);
+        return res.status(200).json(
+            {
+                "success": true,
+                "message": "Payment Details Updated",
+                "status": 200,
+                "data": response[0],
+                "timestamp": new Date()
+            }
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end()
+    }
+}
+
+module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails }
