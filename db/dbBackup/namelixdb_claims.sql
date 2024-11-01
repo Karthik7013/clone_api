@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `namelixdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `namelixdb`;
 -- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: namelixdb
@@ -43,7 +45,7 @@ CREATE TABLE `claims` (
 
 LOCK TABLES `claims` WRITE;
 /*!40000 ALTER TABLE `claims` DISABLE KEYS */;
-INSERT INTO `claims` VALUES ('CLM0001','RCLM0001','2024-01-15',1500.00,'pending','Claim for living room water damage repair.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0002','RCLM0002','2024-01-16',3000.00,'approved','Claim for theft of electronics.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0003','RCLM0003','2024-01-17',2000.00,'pending','Claim for car accident damages.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0004','RCLM0004','2024-01-18',5000.00,'rejected','Claim for kitchen fire damage.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0005','RCLM0005','2024-01-19',1200.00,'approved','Claim for medical bills.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0006','RCLM0006','2024-01-20',3500.00,'pending','Claim for flood-related damage.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0007','RCLM0007','2024-01-21',4000.00,'rejected','Claim for vandalism costs.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0008','RCLM0008','2024-01-22',800.00,'pending','Claim for stolen bicycle.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0009','RCLM0009','2024-01-23',2000.00,'approved','Claim for slip and fall incident.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0010','RCLM0010','2024-01-24',600.00,'pending','Claim for dog bite expenses.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0011','RCLM0011','2024-01-25',5000.00,'approved','Claim for business interruption loss.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0012','RCLM0012','2024-01-26',2500.00,'pending','Claim for vehicle collision repairs.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0013','RCLM0013','2024-01-27',4500.00,'rejected','Claim for storm damage to roof.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0014','RCLM0014','2024-01-28',700.00,'pending','Claim for lost travel luggage.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0015','RCLM0015','2024-01-29',3000.00,'approved','Claim for property damage.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0016','RCLM0016','2024-01-30',1500.00,'pending','Claim for equipment repair.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0017','RCLM0017','2024-01-31',4000.00,'approved','Claim for office fire damage.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0018','RCLM0018','2024-02-01',1000.00,'pending','Claim for identity theft expenses.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0019','RCLM0019','2024-02-02',2500.00,'approved','Claim for personal injury at home.','2024-10-22 01:50:08','2024-10-22 01:50:08'),('CLM0020','RCLM0020','2024-02-03',6000.00,'rejected','Claim for earthquake damage.','2024-10-22 01:50:08','2024-10-22 01:50:08');
+INSERT INTO `claims` VALUES ('e2ba906c','25d32738',NULL,NULL,'pending','I loss my bag during this journey i want to claim this policy','2024-10-31 18:52:13','2024-10-31 18:52:13');
 /*!40000 ALTER TABLE `claims` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -56,4 +58,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-22  7:59:20
+-- Dump completed on 2024-11-01  2:27:13

@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `namelixdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `namelixdb`;
 -- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: namelixdb
@@ -31,7 +33,7 @@ CREATE TABLE `registered_claims` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`registered_claim_id`),
-  KEY `policy_id` (`policy_id`),
+  UNIQUE KEY `unique_policy_id` (`policy_id`),
   CONSTRAINT `registered_claims_ibfk_1` FOREIGN KEY (`policy_id`) REFERENCES `policies` (`policy_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -42,7 +44,7 @@ CREATE TABLE `registered_claims` (
 
 LOCK TABLES `registered_claims` WRITE;
 /*!40000 ALTER TABLE `registered_claims` DISABLE KEYS */;
-INSERT INTO `registered_claims` VALUES ('RCLM0001','2024-10-22 01:49:19','POL001','Claim for water damage in living room.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0002','2024-10-22 01:49:19','POL002','Claim for theft of personal belongings.','approved','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0003','2024-10-22 01:49:19','POL003','Claim for car accident repair.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0004','2024-10-22 01:49:19','POL001','Claim for fire damage in kitchen.','rejected','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0005','2024-10-22 01:49:19','POL002','Claim for medical expenses.','approved','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0006','2024-10-22 01:49:19','POL004','Claim for flood damage.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0007','2024-10-22 01:49:19','POL003','Claim for vandalism damage.','rejected','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0008','2024-10-22 01:49:19','POL001','Claim for stolen bicycle.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0009','2024-10-22 01:49:19','POL005','Claim for slip and fall accident.','approved','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0010','2024-10-22 01:49:19','POL002','Claim for dog bite incident.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0011','2024-10-22 01:49:19','POL006','Claim for business interruption.','approved','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0012','2024-10-22 01:49:19','POL003','Claim for collision with another vehicle.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0013','2024-10-22 01:49:19','POL001','Claim for roof damage from storm.','rejected','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0014','2024-10-22 01:49:19','POL004','Claim for lost luggage during travel.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0015','2024-10-22 01:49:19','POL005','Claim for property damage.','approved','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0016','2024-10-22 01:49:19','POL006','Claim for equipment breakdown.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0017','2024-10-22 01:49:19','POL003','Claim for fire in office space.','approved','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0018','2024-10-22 01:49:19','POL002','Claim for identity theft.','pending','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0019','2024-10-22 01:49:19','POL001','Claim for personal injury at home.','approved','2024-10-22 01:49:19','2024-10-22 01:49:19'),('RCLM0020','2024-10-22 01:49:19','POL004','Claim for earthquake damage.','rejected','2024-10-22 01:49:19','2024-10-22 01:49:19');
+INSERT INTO `registered_claims` VALUES ('25d32738','2024-10-31 18:52:13','POL004','I loss my bag during this journey i want to claim this policy','pending','2024-10-31 18:52:13','2024-10-31 18:52:13');
 /*!40000 ALTER TABLE `registered_claims` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -55,4 +57,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-22  7:59:20
+-- Dump completed on 2024-11-01  2:27:13
