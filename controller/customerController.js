@@ -1,10 +1,10 @@
 const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID, GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT } = require("../db/queries/queries.constants");
+const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
 
-// @desc     create new Agent
-// @route    /signup/agent
-// @access   public
+// @desc     get customer policies
+// @route    /policies
+// @access   private
 const getCustomerPolicies = async (req, res, next) => {
     const { limit = 10, page = 1 } = req.query;
     const limitValue = parseInt(limit, 10);
@@ -12,7 +12,6 @@ const getCustomerPolicies = async (req, res, next) => {
     const offset = (pageValue - 1) * limitValue
     const customer_id = req.auth.loginId;
     const connection = await connectToDatabase();
-    // const extendQuery = GET_CUSTOMER_POLICIES + ` AND LIMIT = ? AND OFFSET = ?`;
     try {
         const response = await connection.execute(GET_CUSTOMER_POLICIES, [customer_id]);
         return res.status(200).json(
@@ -32,7 +31,9 @@ const getCustomerPolicies = async (req, res, next) => {
 }
 
 
-
+// @desc     get customer policy payments
+// @route    /payments
+// @access   private
 const getPolicyPayments = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
@@ -54,6 +55,9 @@ const getPolicyPayments = async (req, res, next) => {
     }
 }
 
+// @desc     register customer claims
+// @route    /register-claims
+// @access   private
 const registerClaim = async (req, res, next) => {
     const customer_id = req.auth.loginId;
     const { policy_id, description } = req.body;
@@ -86,6 +90,9 @@ const registerClaim = async (req, res, next) => {
     }
 }
 
+// @desc     get customer claims
+// @route    /claims
+// @access   private
 const getCustomerClaims = async (req, res, next) => {
     const customer_id = req.auth.loginId;
     const connection = await connectToDatabase();
@@ -107,6 +114,9 @@ const getCustomerClaims = async (req, res, next) => {
     }
 }
 
+// @desc     create customer policy
+// @route    /register-claims
+// @access   private
 const createPolicy = async (req, res, next) => {
     const customer_id = req.auth.loginId;
     const connection = await connectToDatabase();
