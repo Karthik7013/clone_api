@@ -6,6 +6,7 @@ const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY
 const isAuthenticated = (role) => {
     return (req, res, next) => {
         const refreshToken = req.cookies?.refreshToken
+        // const accessToken = req.cookies?.accessToken
         const authHeader = req.headers['authorization'];
         if (authHeader && authHeader.startsWith('Bearer ')) {
             const accessToken = authHeader.split(' ')[1];

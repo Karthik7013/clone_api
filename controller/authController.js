@@ -42,10 +42,16 @@ const verfiyCustomer = async (req, res, next) => {
 
         // await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
+        res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
         return res.status(200).json(
             successHandler({
                 accessToken,
                 exp: accessTokenExpire,
+                role: 'customer',
+                // user: {
+                //     role: 'customer',
+                //     permissions: [1000, 1001, 1002]
+                // }
             },
                 "User Found",
                 200
@@ -388,7 +394,15 @@ const getCustomerProfile = async (req, res, next) => {
                 "success": true,
                 "message": "Customer found.",
                 "status": 200,
-                "data": response[0][0],
+                "data": {
+                    ...response[0][0],
+                    "permissions": [
+                        1000,
+                        1001,
+                        1002,
+                        1003, 1004, 1005
+                    ]
+                },
                 "timestamp": new Date()
             }
         )
