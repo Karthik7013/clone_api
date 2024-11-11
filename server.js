@@ -21,12 +21,13 @@ app.use(express.json());
 app.use(rateLimiter);
 app.use(logger);
 const corsOptions = {
-  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: 'http://localhost:5173', // Change to your frontend URL
+  credentials: true,
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(cookieParser())
 
 

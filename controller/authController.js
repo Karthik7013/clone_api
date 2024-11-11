@@ -40,7 +40,7 @@ const verfiyCustomer = async (req, res, next) => {
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
 
-        // await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
+        await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
         res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
         return res.status(200).json(
@@ -48,10 +48,6 @@ const verfiyCustomer = async (req, res, next) => {
                 accessToken,
                 exp: accessTokenExpire,
                 role: 'customer',
-                // user: {
-                //     role: 'customer',
-                //     permissions: [1000, 1001, 1002]
-                // }
             },
                 "User Found",
                 200
@@ -174,6 +170,7 @@ const signOut = async (req, res, next) => {
         }
         await connection.execute(DELETE_REFRESH_TOKEN, [refreshToken]);
         res.clearCookie('refreshToken');
+        res.clearCookie('accessToken');
         return res.status(200).json(
             successHandler(null,
                 "Logout Successfull",
@@ -400,7 +397,7 @@ const getCustomerProfile = async (req, res, next) => {
                         1000,
                         1001,
                         1002,
-                        1003, 1004, 1005
+                        1003, 1004
                     ]
                 },
                 "timestamp": new Date()
