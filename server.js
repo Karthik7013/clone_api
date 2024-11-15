@@ -49,6 +49,3 @@ app.use('/api/v1/customer', customerRoutes)
 app.use(errorHandler);
 
 app.use(notFound)
-
-
-// this is development branch

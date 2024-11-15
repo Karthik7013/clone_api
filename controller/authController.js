@@ -481,6 +481,7 @@ const getAccessToken = (req, res, next) => {
                 loginId: decode.loginId, type: decode.type,
             }
             const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
+            res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
             return res.status(200).json(
                 successHandler({
                     accessToken,
