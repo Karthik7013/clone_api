@@ -5,11 +5,8 @@ const path = require('path')
 const rateLimiter = require("./middleware/rateLimiter");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
-const dashboardRoutes = require("./route/v1/dashboard/dashboardRoutes");
-const smsRoutes = require("./route/v1/dashboard/smsRoutes");
 const authRoutes = require('./route/v1/auth/authRoutes')
 const cors = require("cors");
-const mysql = require('mysql2');
 const cookieParser = require("cookie-parser");
 const notFound = require("./middleware/notFound");
 const customerRoutes = require("./route/v1/customer/customerRoutes");
@@ -28,7 +25,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(cookieParser())
+app.use(cookieParser());
 
 
 
@@ -37,10 +34,6 @@ app.listen(PORT, () =>
 );
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use("/api/v1/dashboard", dashboardRoutes);
-// app.use("/api/v1/", smsRoutes);
-
-
 
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/customer', customerRoutes)
