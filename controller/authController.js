@@ -40,7 +40,7 @@ const verfiyCustomer = async (req, res, next) => {
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
 
-        await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
+        // await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
         res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
         return res.status(200).json(
@@ -451,6 +451,7 @@ const getAccessToken = (req, res, next) => {
                 loginId: decode.loginId, type: decode.type,
             }
             const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
+            res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
             return res.status(200).json(
                 successHandler({
                     accessToken,
