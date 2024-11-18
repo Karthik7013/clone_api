@@ -1,6 +1,39 @@
 const connectToDatabase = require("../db/db");
-const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT } = require("../db/queries/queries.constants");
+const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
+
+// @desc     get customer policies
+// @route    /profile
+// @access   private
+const getCustomerProfile = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const customer_id = req.auth.loginId;
+    try {
+        const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
+        return res.status(200).json(
+            {
+                "success": true,
+                "message": "Customer found.",
+                "status": 200,
+                "data": {
+                    ...response[0][0],
+                    "permissions": [
+                        1000,
+                        1001,
+                        1002,
+                        1003, 1004, 1005
+                    ]
+                },
+                "timestamp": new Date()
+            }
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
 
 // @desc     get customer policies
 // @route    /policies
@@ -118,14 +151,39 @@ const getCustomerClaims = async (req, res, next) => {
 // @route    /register-claims
 // @access   private
 const createPolicy = async (req, res, next) => {
-    const customer_id = req.auth.loginId;
+    const customerId = req.auth.loginId;
     const connection = await connectToDatabase();
-    const policy_id = "POL" + uuidv4().split('-')[0];
-    const { policy_type, start_date, end_date, premium_amount, coverage_amount, mode } = req.body;
+    const {
+        application_id,
+        policy_number,
+        policy_type,
+        insured_name,
+        insurer_company,
+        customer_id,
+        agent_id,
+        employee_id,
+        start_date,
+        end_date,
+        premium_amount,
+        coverage_amount,
+        status,
+        mode
+    } = req.body;
     try {
-        const response = await connection.execute(CREATE_POLICY, [policy_id, policy_type, customer_id, null, null, start_date, end_date, premium_amount, coverage_amount, mode]);
-        const paymentId = "PAY" + uuidv4().split('-')[0];
-        const paymentInitiate = await connection.execute(CREATE_PAYMENT, [paymentId, policy_id, premium_amount])
+        const response = await connection.execute(CREATE_POLICY, [application_id,
+            policy_number,
+            policy_type,
+            insured_name,
+            insurer_company,
+            customer_id,
+            agent_id,
+            employee_id,
+            start_date,
+            end_date,
+            premium_amount,
+            coverage_amount,
+            status,
+            mode]);
         return res.status(200).json(
             {
                 "success": true,
@@ -163,4 +221,4 @@ const updatePaymentDetails = async (req, res, next) => {
     }
 }
 
-module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails }
+module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile }

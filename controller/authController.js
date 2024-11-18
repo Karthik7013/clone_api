@@ -378,37 +378,7 @@ const createEmployee = async (req, res, next) => {
 }
 
 
-// @desc     get customer profile
-// @route    /profile/customer
-// @access   private
-const getCustomerProfile = async (req, res, next) => {
-    const connection = await connectToDatabase();
-    const customer_id = req.auth.loginId;
-    try {
-        const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "Customer found.",
-                "status": 200,
-                "data": {
-                    ...response[0][0],
-                    "permissions": [
-                        1000,
-                        1001,
-                        1002,
-                        1003, 1004
-                    ]
-                },
-                "timestamp": new Date()
-            }
-        )
-    } catch (error) {
-        next(error)
-    } finally {
-        await connection.end();
-    }
-}
+
 
 // @desc     get agent profile
 // @route    /profile/agent
@@ -497,4 +467,4 @@ const getAccessToken = (req, res, next) => {
     }
 }
 
-module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getCustomerProfile, getEmployeeProfile, getAgentProfile, getAccessToken, signOut };
+module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getEmployeeProfile, getAgentProfile, getAccessToken, signOut };

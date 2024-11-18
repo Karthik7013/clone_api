@@ -29,7 +29,6 @@ authRoutes.post('/agent/signOut', signOut)
 authRoutes.post('/employee/signOut', signOut)
 
 
-authRoutes.get('/customer/profile', isAuthenticated(['customer']), getCustomerProfile);
 authRoutes.get('/agent/profile', isAuthenticated(['agent']), getAgentProfile);
 authRoutes.get('/employee/profile', isAuthenticated(['employee']), getEmployeeProfile);
 

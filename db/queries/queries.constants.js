@@ -34,7 +34,10 @@ const REGISTER_CLAIM = 'INSERT INTO registered_claims (registered_claim_id,polic
 
 const INSERT_CLAIM = 'INSERT INTO claims (claim_id,registered_claim_id,description) values(?,?,?)';
 
-const CREATE_POLICY = 'INSERT INTO policies (policy_id,policy_type,customer_id,agent_id,employee_id,start_date,end_date,premium_amount,coverage_amount,mode) VALUES(?,?,?,?,?,?,?,?,?,?)'
+const CREATE_POLICY = 'INSERT INTO policies (application_id, policy_number,policy_type,insured_name,insured_company,customer_id,agent_id,employee_id,start_date,end_date,premium_amount,coverage_amount,status,mode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+
+
+
 const CREATE_PAYMENT = "INSERT INTO payments(payment_id, policy_id, amount) VALUES(?,?,?)";
 const UPDATE_PAYMENT = "UPDATE payments SET payment_date=?, payment_status=?, payment_mode=?,currency=? WHERE payment_id = ?";
 module.exports = {

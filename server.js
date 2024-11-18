@@ -38,7 +38,7 @@ app.listen(PORT, () =>
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use("/api/v1/dashboard", dashboardRoutes);
-app.use("/api/v1/", smsRoutes);
+// app.use("/api/v1/", smsRoutes);
 
 
 
@@ -47,8 +47,4 @@ app.use('/api/v1/customer', customerRoutes)
 
 
 app.use(errorHandler);
-
 app.use(notFound)
-
-
-// this is development branch
