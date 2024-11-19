@@ -186,51 +186,6 @@ const signOut = async (req, res, next) => {
     }
 }
 
-const generateCustomerId = async (callback) => {
-    const connection = await connectToDatabase();
-    try {
-        const res = await connection.execute(GET_CUSTOMER_MAX_ID)
-        const newId = res[0][0].max_id + 1;
-        const formattedId = `CUST${String(newId).padStart(4, '0')}`;
-        callback(formattedId)
-    } catch (error) {
-        error.status = 500;
-        return next(error);
-    }
-    finally {
-        await connection.end()
-    }
-}
-const generateAgentId = async (callback) => {
-    const connection = await connectToDatabase();
-    try {
-        const res = await connection.execute(GET_AGENT_MAX_ID)
-        const newId = res[0][0].max_id + 1;
-        const formattedId = `AGENT${String(newId).padStart(4, '0')}`;
-        callback(formattedId)
-    } catch (error) {
-        error.status = 500;
-        return next(error);
-    }
-    finally {
-        await connection.end()
-    }
-}
-const generateEmployeeId = async (callback) => {
-    const connection = await connectToDatabase();
-    try {
-        const res = await connection.execute(GET_EMPLOYEE_MAX_ID)
-        const newId = res[0][0].max_id + 1;
-        const formattedId = `EMP${String(newId).padStart(4, '0')}`;
-        callback(formattedId)
-    } catch (error) {
-        error.status = 500;
-        return next(error);
-    }
-    finally {
-        await connection.end()
-    }
-}
 
 // @desc     create new customer
 // @route    /signup/customer
@@ -377,57 +332,6 @@ const createEmployee = async (req, res, next) => {
     })
 }
 
-
-
-
-// @desc     get agent profile
-// @route    /profile/agent
-// @access   private
-const getAgentProfile = async (req, res, next) => {
-    const connection = await connectToDatabase();
-    const agent_id = req.auth.loginId;
-    try {
-        const response = await connection.execute(GET_AGENT_ID, [agent_id]);
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "Agent found.",
-                "status": 200,
-                "data": response[0][0],
-                "timestamp": new Date()
-            }
-        )
-    } catch (error) {
-        next(error)
-    } finally {
-        await connection.end()
-    }
-}
-
-// @desc     get employee profile
-// @route    /profile/employee
-// @access   private
-const getEmployeeProfile = async (req, res, next) => {
-    const connection = await connectToDatabase();
-    const employee_id = req.auth.loginId;
-    try {
-        const response = await connection.execute(GET_EMPLOYEE_ID, [employee_id]);
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "Employee found.",
-                "status": 200,
-                "data": response[0][0],
-                "timestamp": new Date()
-            }
-        )
-    } catch (error) {
-        next(error)
-    } finally {
-        await connection.end()
-    }
-}
-
 // @desc     get access token
 // @route    /generate-access-token
 // @access   public
@@ -468,4 +372,4 @@ const getAccessToken = (req, res, next) => {
     }
 }
 
-module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getEmployeeProfile, getAgentProfile, getAccessToken, signOut };
+module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getAccessToken, signOut };
