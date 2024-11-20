@@ -22,7 +22,8 @@ const getCustomerProfile = async (req, res, next) => {
                         1001,
                         1002,
                         1003, 1004, 1005
-                    ]
+                    ],
+                    role: 'customer'
                 },
                 "timestamp": new Date()
             }
