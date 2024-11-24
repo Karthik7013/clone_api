@@ -10,6 +10,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const notFound = require("./middleware/notFound");
 const customerRoutes = require("./route/v1/customer/customerRoutes");
+const agentRoutes = require("./route/v1/agent/agentRoutes");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -37,6 +38,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/customer', customerRoutes)
+app.use('/api/v1/agent', agentRoutes)
 
 
 app.use(errorHandler);
