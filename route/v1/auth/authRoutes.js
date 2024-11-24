@@ -19,9 +19,7 @@ authRoutes.post('/customer/verify', verfiyCustomer)
 authRoutes.post('/agent/verify', verfiyAgent)
 authRoutes.post('/employee/verify', verfiyEmployee)
 
-authRoutes.post('/customer/signOut', signOut)
-authRoutes.post('/agent/signOut', signOut)
-authRoutes.post('/employee/signOut', signOut)
+authRoutes.post('/signOut', signOut)
 
 authRoutes.post('/generate-access-token', getAccessToken)
 
