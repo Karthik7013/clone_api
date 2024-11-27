@@ -132,6 +132,10 @@ const verfiyEmployee = async (req, res, next) => {
             next(dbTimeOutErr)
         }
         const { phone } = req.body;
+        if (!phone) {
+            const agentErr = new Error("Employee Phone Number is Required !");
+            next(agentErr)
+        }
         const [results] = await connection.execute(GET_EMPLOYEE_PHONE, [phone]); // Execute the query
         if (!results.length) {
             const err = new Error('Employee Not Found !');
@@ -148,15 +152,18 @@ const verfiyEmployee = async (req, res, next) => {
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
         await connection.execute(INSERT_REFRESH_TOKEN, [null, employee_id, null, refreshToken, new Date(), user_agent, ipAddress])
+        res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
+        res.cookie('role', 'employee', { httpOnly: true, secure: true })
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "User found.",
-                "status": 200,
-                "data": { accessToken, exp: accessTokenExpire },
-                "timestamp": "2024-10-06T12:34:56Z"
-            }
+            successHandler({
+                accessToken,
+                exp: accessTokenExpire,
+                role: 'employee',
+            },
+                "Employee Found",
+                200
+            )
         )
     } catch (error) {
         error.status = 500;
