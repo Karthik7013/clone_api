@@ -82,27 +82,49 @@ const getPolicyPayments = async (req, res, next) => {
 // @access   private
 const registerClaim = async (req, res, next) => {
     const customer_id = req.auth.loginId;
-    const { policy_id, description } = req.body;
+    const {
+        first_name,
+        last_name,
+        dob,
+        gender,
+        phone,
+        email,
+        address,
+        city,
+        state,
+        pincode,
+
+        policy_number,
+        policy_type,
+        policy_issue_date,
+
+        claim_nature,
+        incident_date,
+        support_docs,
+        description,
+        additional_description
+    } = req.body;
     const connection = await connectToDatabase();
     try {
-        // GENERATE A REGESTERED_CLAIM_ID => rclm0017
-        const register_claim_id = uuidv4().split('-')[0];
-        // registering own policy_id not other policy_id
         const customer_policies = await connection.execute(GET_CUSTOMER_POLICIES, [customer_id]);
-        const foundPolicy = customer_policies[0].find(policy => policy.policy_id === policy_id);
+        const foundPolicy = customer_policies[0].find(policy => policy.policy_number === policy_number);
         if (!foundPolicy) {
             const err = new Error("The specified policy could not be found. Please ensure that the policy ID is correct and try again to register for the claim.");
             err.status = 404;
             return next(err);
         }
-        await connection.execute(REGISTER_CLAIM, [register_claim_id, policy_id, description]);
-        const claim_id = uuidv4().split('-')[0]
-        await connection.execute(INSERT_CLAIM, [claim_id, register_claim_id, description])
+        const register_claim_id = uuidv4().split('-')[0];
+        await connection.execute(REGISTER_CLAIM, [register_claim_id, first_name, last_name, dob, gender, phone, email, address, city, state, pincode, policy_number, policy_type, policy_issue_date, claim_nature, incident_date, support_docs, description, additional_description]);
+
+
+
+        // const registered_claim_id = uuidv4().split('-')[0]
+        // await connection.execute(INSERT_CLAIM, [registered_claim_id, first_name, last_name, dob, gender, phone, email, address, city, state, pincode, policy_number, policy_type, policy_issue_date, claim_nature, incident_date, support_docs, description, additional_description])
         return res.status(200).json({
             "success": true,
             "message": "Your claim has been successfully registered.",
             "status": 200,
-            "data": { policy_id, description },
+            "data": { policy_number, description },
             "timestamp": new Date()
         })
     } catch (error) {
