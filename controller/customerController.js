@@ -1,7 +1,7 @@
 const connectToDatabase = require("../db/db");
 const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
-
+const successHandler = require('../middleware/successHandler')
 // @desc     get customer policies
 // @route    /profile
 // @access   private
@@ -11,11 +11,8 @@ const getCustomerProfile = async (req, res, next) => {
     try {
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "Customer found.",
-                "status": 200,
-                "data": {
+            successHandler(
+                {
                     ...response[0][0],
                     "permissions": [
                         1000,
@@ -24,9 +21,12 @@ const getCustomerProfile = async (req, res, next) => {
                         1003, 1004, 1005
                     ],
                     role: 'customer'
+
+
                 },
-                "timestamp": new Date()
-            }
+                "Customer found.",
+                200,
+            )
         )
     } catch (error) {
         next(error)
@@ -49,13 +49,7 @@ const getCustomerPolicies = async (req, res, next) => {
     try {
         const response = await connection.execute(GET_CUSTOMER_POLICIES, [customer_id]);
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "Customer Policies",
-                "status": 200,
-                "data": response[0],
-                "timestamp": new Date()
-            }
+            successHandler(response[0], "Customer Policies", 200)
         )
     } catch (error) {
         next(error)
@@ -74,13 +68,7 @@ const getPolicyPayments = async (req, res, next) => {
     try {
         const response = await connection.execute(GET_POLICY_PAYMENT, [customer_id]);
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "Policies Payment Status",
-                "status": 200,
-                "data": response[0],
-                "timestamp": new Date()
-            }
+            successHandler(response[0], "Policies Payment Status", 200)
         )
     } catch (error) {
         next(error)
