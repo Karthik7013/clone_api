@@ -124,7 +124,7 @@ const registerClaim = async (req, res, next) => {
             "success": true,
             "message": "Your claim has been successfully registered.",
             "status": 200,
-            "data": { policy_number, description },
+            "data": { policy_number, description: "Your claim has been successfully registered." },
             "timestamp": new Date()
         })
     } catch (error) {
