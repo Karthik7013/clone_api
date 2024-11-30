@@ -120,13 +120,8 @@ const registerClaim = async (req, res, next) => {
 
         // const registered_claim_id = uuidv4().split('-')[0]
         // await connection.execute(INSERT_CLAIM, [registered_claim_id, first_name, last_name, dob, gender, phone, email, address, city, state, pincode, policy_number, policy_type, policy_issue_date, claim_nature, incident_date, support_docs, description, additional_description])
-        return res.status(200).json({
-            "success": true,
-            "message": "Your claim has been successfully registered.",
-            "status": 200,
-            "data": { policy_number, description: "Your claim has been successfully registered." },
-            "timestamp": new Date()
-        })
+        return res.status(200).json(
+            successHandler({ policy_number, description: "Your claim has been successfully registered." },"Your claim has been successfully registered.",200))
     } catch (error) {
         next(error)
     } finally {
