@@ -24,7 +24,8 @@ const INSERT_REFRESH_TOKEN = 'INSERT INTO refresh_token (customer_id,employee_id
 
 const DELETE_REFRESH_TOKEN = 'DELETE FROM refresh_token where refresh_token = ?';
 
-const GET_CUSTOMER_POLICIES = 'SELECT * FROM policies WHERE customer_id = ?'
+const GET_CUSTOMER_POLICIES = 'SELECT * FROM policies WHERE customer_id = ? ORDER BY created_at DESC'
+
 
 const GET_CUSTOMER_CLAIMS = 'SELECT claims.claim_id,claims.registered_claim_id,claims.claim_date,claims.claim_amount,claims.claim_status,claims.description,claims.created_at,claims.updated_at FROM claims RIGHT JOIN registered_claims ON registered_claims.registered_claim_id = claims.registered_claim_id RIGHT JOIN policies ON registered_claims.policy_id = policies.policy_id WHERE customer_id = ?';
 

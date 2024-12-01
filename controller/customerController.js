@@ -123,6 +123,7 @@ const registerClaim = async (req, res, next) => {
         return res.status(200).json(
             successHandler({ policy_number, description: "Your claim has been successfully registered." },"Your claim has been successfully registered.",200))
     } catch (error) {
+        
         next(error)
     } finally {
         await connection.end()
