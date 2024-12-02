@@ -41,9 +41,18 @@ const verfiyCustomer = async (req, res, next) => {
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
 
         await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
-        res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
-        res.cookie('role', 'customer', { httpOnly: true, secure: true })
+
+
+        // {
+        //     secure: process.env.NODE_ENV === 'production', // Use secure cookies only in production
+        //     httpOnly: true, // Secure against XSS
+        //     sameSite: 'Strict', // Ensure the cookie is sent with cross-origin requests
+        //   }
+
+
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure:process.env.NODE_ENV === 'production', sameSite:'Strict' })
+        res.cookie('accessToken', accessToken, { httpOnly: true, secure:process.env.NODE_ENV === 'production', sameSite:'Strict' })
+        res.cookie('role', 'customer', { httpOnly: true, secure:process.env.NODE_ENV === 'production', sameSite:'Strict' })
         return res.status(200).json(
             successHandler({
                 accessToken,
