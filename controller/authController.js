@@ -46,19 +46,19 @@ const verfiyCustomer = async (req, res, next) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
             sameSite: 'None', // Allow cross-origin requests to include the cookie
-          });
-          
-          res.cookie('accessToken', accessToken, {
+        });
+
+        res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
             sameSite: 'None', // Allow cross-origin requests to include the cookie
-          });
-          
-          res.cookie('role', 'customer', {
+        });
+
+        res.cookie('role', 'customer', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
             sameSite: 'None', // Allow cross-origin requests to include the cookie
-          });
+        });
         return res.status(200).json(
             successHandler({
                 accessToken,
@@ -201,8 +201,23 @@ const signOut = async (req, res, next) => {
             return next(err)
         }
         await connection.execute(DELETE_REFRESH_TOKEN, [refreshToken]);
-        res.clearCookie('refreshToken');
-        res.clearCookie('accessToken');
+
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Only clear in production if cookie is secure
+            sameSite: 'None', // Same SameSite setting used while setting cookies
+            path: '/' // Match the path you set when the cookie was created
+        });
+
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'None',
+            path: '/'
+        });
+
+
         return res.status(200).json(
             successHandler(null,
                 "Logout Successfull",
