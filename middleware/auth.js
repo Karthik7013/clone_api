@@ -1,13 +1,12 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const jwtSecretKey = process.env.JWT_SECRET_KEY;
-const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY
+const jwtSecretKey = process.env.JWT_SECRET_KEY
 
 const isAuthenticated = (role) => {
-
     return (req, res, next) => {
         const accessToken = req.cookies?.accessToken;
-        console.log(accessToken, 'accessToken');
+        const cookies = req.cookies?.accessToken;
+        console.log(cookies, 'cookies');
         if (accessToken) {
             if (accessToken) {
                 jwt.verify(accessToken, jwtSecretKey, (err, decoded) => {
