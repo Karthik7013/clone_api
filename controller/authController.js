@@ -42,17 +42,23 @@ const verfiyCustomer = async (req, res, next) => {
 
         await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
 
-
-        // {
-        //     secure: process.env.NODE_ENV === 'production', // Use secure cookies only in production
-        //     httpOnly: true, // Secure against XSS
-        //     sameSite: 'Strict', // Ensure the cookie is sent with cross-origin requests
-        //   }
-
-
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure:process.env.NODE_ENV === 'production', sameSite:'Strict' })
-        res.cookie('accessToken', accessToken, { httpOnly: true, secure:process.env.NODE_ENV === 'production', sameSite:'Strict' })
-        res.cookie('role', 'customer', { httpOnly: true, secure:process.env.NODE_ENV === 'production', sameSite:'Strict' })
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'None', // Allow cross-origin requests to include the cookie
+          });
+          
+          res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'None', // Allow cross-origin requests to include the cookie
+          });
+          
+          res.cookie('role', 'customer', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'None', // Allow cross-origin requests to include the cookie
+          });
         return res.status(200).json(
             successHandler({
                 accessToken,
