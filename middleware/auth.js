@@ -4,9 +4,10 @@ const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY
 
 const isAuthenticated = (role) => {
-    console.log(role)
+
     return (req, res, next) => {
         const accessToken = req.cookies?.accessToken;
+        console.log(accessToken, 'accessToken');
         if (accessToken) {
             if (accessToken) {
                 jwt.verify(accessToken, jwtSecretKey, (err, decoded) => {
