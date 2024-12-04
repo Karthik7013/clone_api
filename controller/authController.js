@@ -44,21 +44,22 @@ const verfiyCustomer = async (req, res, next) => {
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'None', // Allow cross-origin requests to include the cookie
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
         });
 
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'None', // Allow cross-origin requests to include the cookie
+            maxAge: 900000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
         });
 
         res.cookie('role', 'customer', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'None', // Allow cross-origin requests to include the cookie
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
         });
+
         return res.status(200).json(
             successHandler({
                 accessToken,
@@ -110,9 +111,23 @@ const verfiyAgent = async (req, res, next) => {
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
         await connection.execute(INSERT_REFRESH_TOKEN, [null, null, agent_id, refreshToken, new Date(), user_agent, ipAddress])
-        res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
-        res.cookie('role', 'agent', { httpOnly: true, secure: true })
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
+        });
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            maxAge: 900000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
+        });
+
+        res.cookie('role', 'agent', {
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
+        });
         return res.status(200).json(
             successHandler({
                 accessToken,
@@ -151,7 +166,7 @@ const verfiyEmployee = async (req, res, next) => {
             const agentErr = new Error("Employee Phone Number is Required !");
             next(agentErr)
         }
-        const [results] = await connection.execute(GET_EMPLOYEE_PHONE, [phone]); // Execute the query
+        const [results] = await connection.execute(GET_EMPLOYEE_PHONE, [phone]);
         if (!results.length) {
             const err = new Error('Employee Not Found !');
             err.status = 404;
@@ -167,9 +182,24 @@ const verfiyEmployee = async (req, res, next) => {
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
         await connection.execute(INSERT_REFRESH_TOKEN, [null, employee_id, null, refreshToken, new Date(), user_agent, ipAddress])
-        res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
-        res.cookie('role', 'employee', { httpOnly: true, secure: true })
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
+        });
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            maxAge: 900000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
+        });
+
+        res.cookie('role', 'employee', {
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'PRODUCTION'
+        });
+
         return res.status(200).json(
             successHandler({
                 accessToken,
@@ -188,6 +218,9 @@ const verfiyEmployee = async (req, res, next) => {
     }
 }
 
+// @desc     logout user
+// @route    /logout
+// @access   public
 const signOut = async (req, res, next) => {
     const connection = await connectToDatabase();
     const { refreshToken } = req.cookies;
@@ -204,17 +237,24 @@ const signOut = async (req, res, next) => {
 
 
         res.clearCookie('refreshToken', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Only clear in production if cookie is secure
-            sameSite: 'None', // Same SameSite setting used while setting cookies
-            path: '/' // Match the path you set when the cookie was created
+            // httpOnly: true,
+            // secure: process.env.NODE_ENV === 'PRODUCTION', // Only clear in production if cookie is secure
+            // sameSite: 'None', // Same SameSite setting used while setting cookies
+            // path: '/' // Match the path you set when the cookie was created
         });
 
         res.clearCookie('accessToken', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'None',
-            path: '/'
+            // httpOnly: true,
+            // secure: process.env.NODE_ENV === 'PRODUCTION',
+            // sameSite: 'None',
+            // path: '/'
+        });
+
+        res.clearCookie('role', {
+            // httpOnly: true,
+            // secure: process.env.NODE_ENV === 'PRODUCTION',
+            // sameSite: 'None',
+            // path: '/'
         });
 
 
@@ -267,6 +307,7 @@ const createCustomer = async (req, res, next) => {
 
     })
 }
+
 // @desc     create new Agent
 // @route    /signup/agent
 // @access   public
