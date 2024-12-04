@@ -118,12 +118,12 @@ const registerClaim = async (req, res, next) => {
 
 
 
-        // const registered_claim_id = uuidv4().split('-')[0]
-        // await connection.execute(INSERT_CLAIM, [registered_claim_id, first_name, last_name, dob, gender, phone, email, address, city, state, pincode, policy_number, policy_type, policy_issue_date, claim_nature, incident_date, support_docs, description, additional_description])
+        const claim_id = uuidv4().split('-')[0]
+        await connection.execute(INSERT_CLAIM, [claim_id, register_claim_id, new Date(), description])
         return res.status(200).json(
-            successHandler({ policy_number, description: "Your claim has been successfully registered." },"Your claim has been successfully registered.",200))
+            successHandler({ policy_number, description: "Your claim has been successfully registered." }, "Your claim has been successfully registered.", 200))
     } catch (error) {
-        
+
         next(error)
     } finally {
         await connection.end()
@@ -139,13 +139,11 @@ const getCustomerClaims = async (req, res, next) => {
     try {
         const response = await connection.execute(GET_CUSTOMER_CLAIMS, [customer_id]);
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "Customer Claims",
-                "status": 200,
-                "data": response[0],
-                "timestamp": new Date()
-            }
+            successHandler(
+                response[0],
+                "Customer Claims",
+                200
+            )
         )
     } catch (error) {
         next(error)

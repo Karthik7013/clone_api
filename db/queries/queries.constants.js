@@ -27,13 +27,13 @@ const DELETE_REFRESH_TOKEN = 'DELETE FROM refresh_token where refresh_token = ?'
 const GET_CUSTOMER_POLICIES = 'SELECT * FROM policies WHERE customer_id = ? ORDER BY created_at DESC'
 
 
-const GET_CUSTOMER_CLAIMS = 'SELECT claims.claim_id,claims.registered_claim_id,claims.claim_date,claims.claim_amount,claims.claim_status,claims.description,claims.created_at,claims.updated_at FROM claims RIGHT JOIN registered_claims ON registered_claims.registered_claim_id = claims.registered_claim_id RIGHT JOIN policies ON registered_claims.policy_id = policies.policy_id WHERE customer_id = ?';
+const GET_CUSTOMER_CLAIMS = 'SELECT * from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ? ORDER BY claims.created_at DESC';
 
 const GET_POLICY_PAYMENT = 'SELECT payments.payment_id,payments.policy_id,payments.amount,payments.payment_date,payments.payment_status,payments.created_at,payments.updated_at FROM payments RIGHT JOIN policies ON payments.policy_id = policies.policy_id WHERE customer_id = ?';
 
 const REGISTER_CLAIM = 'INSERT INTO register_claims (register_claim_id,first_name,last_name,dob,gender,phone,email,address,city,state,pincode,policy_number,policy_type,policy_issue_date,claim_nature,incident_date,support_docs,description,additional_description) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
-const INSERT_CLAIM = 'INSERT INTO claims (claim_id,registered_claim_id,description) values(?,?,?)';
+const INSERT_CLAIM = 'INSERT INTO claims (claim_id,register_claim_id,claim_date,description) values(?,?,?,?)';
 
 const CREATE_POLICY = 'INSERT INTO policies (application_id, policy_number,policy_type,insured_name,insured_company,customer_id,agent_id,employee_id,start_date,end_date,premium_amount,coverage_amount,status,mode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
 

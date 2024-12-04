@@ -1,6 +1,6 @@
 const connectToDatabase = require("../db/db");
 const jwt = require('jsonwebtoken');
-const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, GET_CUSTOMER_MAX_ID, GET_AGENT_MAX_ID, GET_EMPLOYEE_MAX_ID, GET_CUSTOMER_ID, GET_EMPLOYEE_ID, GET_AGENT_ID, INSERT_REFRESH_TOKEN, DELETE_REFRESH_TOKEN } = require("../db/queries/queries.constants");
+const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, INSERT_REFRESH_TOKEN, DELETE_REFRESH_TOKEN } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
@@ -45,19 +45,19 @@ const verfiyCustomer = async (req, res, next) => {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION'
+            secure: process.env.NODE_ENV === 'PRODUCTION',
         });
 
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             maxAge: 900000,
-            secure: process.env.NODE_ENV === 'PRODUCTION'
+            secure: process.env.NODE_ENV === 'PRODUCTION',
         });
 
         res.cookie('role', 'customer', {
             httpOnly: true,
             maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION'
+            secure: process.env.NODE_ENV === 'PRODUCTION',
         });
 
         return res.status(200).json(
