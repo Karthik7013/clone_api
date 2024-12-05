@@ -2,6 +2,40 @@ const connectToDatabase = require("../db/db");
 const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
 const successHandler = require('../middleware/successHandler')
+
+
+// @desc     get customer stats
+// @route    /stats
+// @access   private
+const getCustomerStats = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const customer_id = req.auth.loginId;
+    try {
+        
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+// @desc     get customer policies queues
+// @route    /stats
+// @access   private
+const getCustomerPolicyQueues = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const customer_id = req.auth.loginId;
+    try {
+        
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+
+
 // @desc     get customer policies
 // @route    /profile
 // @access   private
@@ -225,4 +259,4 @@ const updatePaymentDetails = async (req, res, next) => {
     }
 }
 
-module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile }
+module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues }
