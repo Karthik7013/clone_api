@@ -1,5 +1,5 @@
 const connectToDatabase = require("../db/db");
-const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID } = require("../db/queries/queries.constants");
+const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
 const successHandler = require('../middleware/successHandler')
 
@@ -11,7 +11,33 @@ const getCustomerStats = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
-        
+        const active_policy = await connection.execute(GET_CUSTOMER_ACTIVE_POLICIES, [customer_id]);
+        const expire_policy = await connection.execute(GET_CUSTOMER_RENEWAL_POLICIES, [customer_id]);
+        const claim_policy = await connection.execute(GET_CUSTOMER_CLAIMS, [customer_id]);
+        const register_policy = await connection.execute(GET_CUSTOMER_REGISTER_POLICIES, [customer_id]);
+        res.send(successHandler({
+            "activePolicies": {
+                "count": active_policy[0].length,
+                "percentage": 83.33,
+            },
+
+            "renewalPolicies": {
+                "count": expire_policy[0].length,
+                "percentage": 20.83,
+            },
+            "claimPolicies": {
+                "count": claim_policy[0].length,
+                "percentage": 33.33,
+                "pending": "",
+                "reject": "",
+                "approved": ""
+            },
+            "registeredClaimPolicies": {
+                "count": register_policy[0].length,
+                "percentage": 37.5,
+
+            }
+        }, 'Customer Stats', 200))
     } catch (error) {
         next(error)
     } finally {
@@ -26,7 +52,7 @@ const getCustomerPolicyQueues = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
-        
+
     } catch (error) {
         next(error)
     } finally {
@@ -69,6 +95,40 @@ const getCustomerProfile = async (req, res, next) => {
     }
 }
 
+// @desc     get customer policies
+// @route    /profile
+// @access   private
+const updateCustomerProfile = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const customer_id = req.auth.loginId;
+    const {
+        email,
+        dob,
+        gender,
+        address,
+        state,
+        city,
+        pincode,
+        country,
+        marital_status
+    } = req.body;
+    try {
+
+        const response = await connection.execute(UPDATE_CUSTOMER_BY_ID, [email, dob, gender, address, state, city, pincode, country, marital_status, customer_id]);
+        
+        return res.status(200).json(
+            successHandler(
+                {},
+                "Customer Details Updated Successfull.",
+                200,
+            )
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
 
 // @desc     get customer policies
 // @route    /policies
@@ -259,4 +319,4 @@ const updatePaymentDetails = async (req, res, next) => {
     }
 }
 
-module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues }
+module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile }

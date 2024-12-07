@@ -6,6 +6,8 @@ const GET_AGENT_PHONE = 'SELECT * FROM agents WHERE phone = ?';
 
 const GET_CUSTOMER_ID = 'SELECT * FROM customers WHERE customer_id = ?';
 
+const UPDATE_CUSTOMER_BY_ID = 'UPDATE customers set email = ? ,dob = ?, gender=?,address=?,state=?,city=?,pincode=?,country=?,marital_status=?  WHERE customer_id = ?';
+
 const GET_EMPLOYEE_ID = 'SELECT * FROM employees WHERE employee_id = ?';
 
 const GET_AGENT_ID = 'SELECT * FROM agents WHERE agent_id = ?';
@@ -25,6 +27,9 @@ const INSERT_REFRESH_TOKEN = 'INSERT INTO refresh_token (customer_id,employee_id
 const DELETE_REFRESH_TOKEN = 'DELETE FROM refresh_token where refresh_token = ?';
 
 const GET_CUSTOMER_POLICIES = 'SELECT * FROM policies WHERE customer_id = ? ORDER BY created_at DESC'
+const GET_CUSTOMER_ACTIVE_POLICIES = "SELECT * FROM policies WHERE status = 'active' AND customer_id = ?   ORDER BY created_at DESC LIMIT 100"
+const GET_CUSTOMER_RENEWAL_POLICIES = "SELECT * FROM policies WHERE status = 'inactive' AND customer_id = ?   ORDER BY created_at DESC LIMIT 100"
+const GET_CUSTOMER_REGISTER_POLICIES = "SELECT * FROM register_claims JOIN policies ON policies.policy_number = register_claims.policy_number JOIN customers on customers.customer_id = policies.customer_id WHERE customers.customer_id = ? ORDER BY register_claims.created_date DESC LIMIT 100"
 
 
 const GET_CUSTOMER_CLAIMS = 'SELECT * from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ? ORDER BY claims.created_at DESC';
@@ -47,6 +52,7 @@ module.exports = {
     GET_AGENT_MAX_ID,
     GET_EMPLOYEE_MAX_ID,
     GET_CUSTOMER_ID,
+    UPDATE_CUSTOMER_BY_ID,
     GET_EMPLOYEE_ID,
     GET_AGENT_ID,
     INSERT_REFRESH_TOKEN,
@@ -57,5 +63,8 @@ module.exports = {
     REGISTER_CLAIM,
     INSERT_CLAIM, CREATE_POLICY,
     CREATE_PAYMENT,
-    UPDATE_PAYMENT
+    UPDATE_PAYMENT,
+    GET_CUSTOMER_ACTIVE_POLICIES,
+    GET_CUSTOMER_RENEWAL_POLICIES,
+    GET_CUSTOMER_REGISTER_POLICIES
 }
