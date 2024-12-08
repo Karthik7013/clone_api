@@ -1,4 +1,5 @@
 const connectToDatabase = require("../db/db");
+const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken');
 const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, INSERT_REFRESH_TOKEN, DELETE_REFRESH_TOKEN } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
@@ -37,10 +38,120 @@ const verfiyCustomer = async (req, res, next) => {
             loginId: customer_id,
             type: 'customer'
         }
+
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
 
         await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
+
+        // Create a transporter object using SMTP transport
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            secure: true,
+            port: 465,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.APP_PASSWORD
+            }
+        });
+
+        // Email options
+        const mailOptions = {
+            from: 'karthiktumala143@gmail.com',    // Sender address
+            to: `${results[0].email}`, // List of recipients
+            subject: 'Namelix 360° Total Insurance', // Subject line
+            text: 'This is a test email sent using Node.js and Nodemailer.', // Plain text body
+            html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Login Notification</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f9;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+          background-color: #23a8fa;
+          color: white;
+          padding: 10px;
+          text-align: center;
+          border-radius: 8px 8px 0 0;
+        }
+        .content {
+          margin-top: 20px;
+          padding: 20px;
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          border: 1px solid #e0e0e0;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-size: 14px;
+          color: #888888;
+        }
+        .important {
+          color: #D8000C;
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <!-- Header -->
+        <div class="header">
+          <h1>Login Notification</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+          <h2>Dear ${results[0].firstname}</h2>
+          <p>We wanted to let you know that a successful login was made to your account on <strong>Namelix 360° Total Insurance</strong> at <strong>${new Date()}</strong>.</p>
+
+          <h3>Device Details:</h3>
+          <ul>
+            <li><strong>IP Address:</strong> ${ipAddress}</li>
+            <li><strong>Device:</strong> ${user_agent}</li>
+          </ul>
+
+          <p>If you did not initiate this login or suspect any suspicious activity, please immediately change your password and contact our support team at <a href="mailto:[Support Email]">karthiktumala143@gmail.com</a> for assistance.</p>
+
+          <p>Thank you for using <strong>Namelix 360° Total Insurance</strong>.</p>
+          <p>Best regards, <br>The <strong>Namelix 360° Total Insurance</strong> Team</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <p>If you have any issues or questions, feel free to contact our support at <a href="mailto:[Support Email]">karthiktumala143@gmail.com</a>.</p>
+          <p>&copy; 2024 Namelix 360° Total Insurance. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `};
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Error sending email:', error);
+            } else {
+                console.log('Email sent successfully:', info.response);
+            }
+        });
+
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,

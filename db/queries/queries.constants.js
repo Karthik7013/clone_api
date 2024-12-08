@@ -6,7 +6,7 @@ const GET_AGENT_PHONE = 'SELECT * FROM agents WHERE phone = ?';
 
 const GET_CUSTOMER_ID = 'SELECT * FROM customers WHERE customer_id = ?';
 
-const UPDATE_CUSTOMER_BY_ID = 'UPDATE customers set email = ? ,dob = ?, gender=?,address=?,state=?,city=?,pincode=?,country=?,marital_status=?  WHERE customer_id = ?';
+const UPDATE_CUSTOMER_BY_ID = 'UPDATE customers set email = ? ,dob = ?, gender=?,address=?,state=?,city=?,pincode=?,country=?,marital_status=?,bio=? WHERE customer_id = ?';
 
 const GET_EMPLOYEE_ID = 'SELECT * FROM employees WHERE employee_id = ?';
 

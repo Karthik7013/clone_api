@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 const connectToDatabase = require("../db/db");
 const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
@@ -81,8 +82,6 @@ const getCustomerProfile = async (req, res, next) => {
                         1003, 1004, 1005
                     ],
                     role: 'customer'
-
-
                 },
                 "Customer found.",
                 200,
@@ -110,12 +109,12 @@ const updateCustomerProfile = async (req, res, next) => {
         city,
         pincode,
         country,
-        marital_status
+        marital_status, bio
     } = req.body;
     try {
 
-        const response = await connection.execute(UPDATE_CUSTOMER_BY_ID, [email, dob, gender, address, state, city, pincode, country, marital_status, customer_id]);
-        
+        const response = await connection.execute(UPDATE_CUSTOMER_BY_ID, [email, dob, gender, address, state, city, pincode, country, marital_status, bio, customer_id]);
+
         return res.status(200).json(
             successHandler(
                 {},
