@@ -12,6 +12,7 @@ const notFound = require("./middleware/notFound");
 const customerRoutes = require("./route/v1/customer/customerRoutes");
 const agentRoutes = require("./route/v1/agent/agentRoutes");
 const employeeRoutes = require("./route/v1/employee/employeeRoutes");
+const botRoutes = require("./route/v1/bot/botRoutes");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -39,7 +40,7 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/customer', customerRoutes)
 app.use('/api/v1/agent', agentRoutes)
 app.use('/api/v1/employee', employeeRoutes)
-
+app.use('/api/v1/bot', botRoutes)
 
 app.use(errorHandler);
 app.use(notFound)
