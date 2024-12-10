@@ -18,7 +18,6 @@ botRoutes.post('/ask', async (req, res, next) => {
                 }
             ]
         };
-        console.log(requestBody)
         const response = await fetch(URI, {
             method: 'POST',  // Specify the HTTP method
             headers: {
@@ -29,8 +28,8 @@ botRoutes.post('/ask', async (req, res, next) => {
         const data = await response.json();
 
         return res.status(200).json(
-            successHandler(data,
-                "Response getting",
+            successHandler({response:data.candidates[0].content.parts[0].text},
+                "Bot Response",
                 200
             )
         )
