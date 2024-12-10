@@ -1,8 +1,8 @@
-const nodemailer = require('nodemailer');
 const connectToDatabase = require("../db/db");
 const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
-const successHandler = require('../middleware/successHandler')
+const successHandler = require('../middleware/successHandler');
+const transporter = require('../mail/transporter');
 
 
 // @desc     get customer stats
@@ -212,7 +212,133 @@ const registerClaim = async (req, res, next) => {
 
 
         const claim_id = uuidv4().split('-')[0]
-        await connection.execute(INSERT_CLAIM, [claim_id, register_claim_id, new Date(), description])
+        await connection.execute(INSERT_CLAIM, [claim_id, register_claim_id, new Date(), description]);
+
+
+
+        // Email options
+        const mailOptions = {
+            from: 'karthiktumala143@gmail.com', // Sender address
+            to: `${email}`, // List of recipients
+            subject: 'Claim Process Initiated',
+            html: `
+          <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claim Policy Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    .email-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .email-header {
+      text-align: center;
+      padding-bottom: 20px;
+    }
+    .email-header h2 {
+      color: #4CAF50;
+    }
+    .email-content {
+      padding: 20px;
+      background-color: #f4f4f4;
+      border-radius: 8px;
+    }
+    .email-footer {
+      padding-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="email-container">
+    <div class="email-header">
+      <h2>Claim Policy Applied</h2>
+      <p>Dear ${first_name},</p>
+    </div>
+
+    <div class="email-content">
+      <p>We would like to inform you that a claim policy has been successfully applied to your account. Please review the details below:</p>
+
+      <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Claim Policy ID:</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${policy_number}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Account Holder Name:</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${first_name}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Claim Type:</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${claim_nature}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Claim Amount:</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">-</td>
+        </tr>
+      </table>
+
+      <p>If you have any questions or need further assistance, please feel free to contact our support team at karthiktumala143@gmail.com or call 7013140693.</p>
+
+      <p>We appreciate your trust in us and will keep you updated on the progress of your claim.</p>
+
+      <p>Best regards,<br>
+      Namelix 360 Total Insurance Support Team</p>
+
+      <p style="text-align: center;">
+        <a href="#" class="btn">Track Your Claim Status</a>
+      </p>
+    </div>
+
+    <div class="email-footer">
+      <p>&copy; 2024 Namelix 360 Total Insurance. All Rights Reserved.</p>
+      </div>
+  </div>
+
+</body>
+</html>
+            `};
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Error sending email:', error);
+            } else {
+                console.log('Email sent successfully:', info.response);
+            }
+        });
+
+
+
+
         return res.status(200).json(
             successHandler({ policy_number, description: "Your claim has been successfully registered." }, "Your claim has been successfully registered.", 200))
     } catch (error) {

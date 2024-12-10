@@ -6,7 +6,8 @@ const successHandler = require("../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
 const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRES
-const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES
+const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES;
+const transporter = require('../mail/transporter');
 
 // @desc     verify customer number
 // @route    /verify/customer
@@ -44,23 +45,11 @@ const verfiyCustomer = async (req, res, next) => {
 
         await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
 
-        // Create a transporter object using SMTP transport
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            secure: true,
-            port: 465,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.APP_PASSWORD
-            }
-        });
-
         // Email options
         const mailOptions = {
-            from: 'karthiktumala143@gmail.com',    // Sender address
+            from: 'karthiktumala143@gmail.com', // Sender address
             to: `${results[0].email}`, // List of recipients
-            subject: 'Namelix 360° Total Insurance', // Subject line
-            text: 'This is a test email sent using Node.js and Nodemailer.', // Plain text body
+            subject: 'Namelix 360° Total Insurance',
             html: `
     <!DOCTYPE html>
     <html lang="en">
