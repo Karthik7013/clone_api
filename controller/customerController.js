@@ -1,5 +1,5 @@
 const connectToDatabase = require("../db/db");
-const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID } = require("../db/queries/queries.constants");
+const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
 const successHandler = require('../middleware/successHandler');
 const transporter = require('../mail/transporter');
@@ -53,7 +53,13 @@ const getCustomerPolicyQueues = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
-
+        const response = await connection.execute(CUSTOMER_APPLICATION_QUEUE, [customer_id]);
+        return res.status(200).json(
+            successHandler(
+                response[0],
+                'customer applications', 200
+            )
+        )
     } catch (error) {
         next(error)
     } finally {
