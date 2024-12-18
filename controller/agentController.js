@@ -1,8 +1,8 @@
 const connectToDatabase = require("../db/db");
 const { GET_AGENT_ID, GET_AGENT_CUSTOMERS, GET_AGENT_POLICIES, CREATE_AGENT_CUSTOMERS } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
-import { v4 as uuidv4 } from 'uuid';
-
+// import { v4 as uuidv4 } from 'uuid';
+const uuidv4 = require('uuid')
 // @desc     get agent profile
 // @route    /profile
 // @access   private
@@ -22,7 +22,11 @@ const getAgentProfile = async (req, res, next) => {
                         2000,
                         2001,
                         2002,
-                        2003, 2004, 2005, 2006, 2007
+                        2003,
+                        2004,
+                        2005,
+                        2006, // exam 
+                        2007 // study material 
                     ],
                     role: 'agent'
                 },
@@ -92,7 +96,7 @@ const createAgentCustomer = async (req, res, next) => {
         country = null,
         marital_status = null
     } = req.body;
-    
+
     try {
         const response = await connection.execute(CREATE_AGENT_CUSTOMERS, [customer_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,marital_status, agent_id]);
         return res.status(201).json(
