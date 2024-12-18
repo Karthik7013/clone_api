@@ -98,7 +98,7 @@ const createAgentCustomer = async (req, res, next) => {
     } = req.body;
 
     try {
-        const response = await connection.execute(CREATE_AGENT_CUSTOMERS, [customer_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,marital_status, agent_id]);
+        const response = await connection.execute(CREATE_AGENT_CUSTOMERS, [customer_id, firstname, lastname, phone, email, dob, gender, address, state, city, pincode, country, marital_status, agent_id]);
         return res.status(201).json(
             successHandler(
                 null,
