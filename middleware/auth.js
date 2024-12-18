@@ -5,8 +5,6 @@ const jwtSecretKey = process.env.JWT_SECRET_KEY
 const isAuthenticated = (role) => {
     return (req, res, next) => {
         const accessToken = req.cookies?.accessToken;
-        const cookies = req.cookies?.accessToken;
-        console.log(cookies, 'cookies');
         if (accessToken) {
             if (accessToken) {
                 jwt.verify(accessToken, jwtSecretKey, (err, decoded) => {

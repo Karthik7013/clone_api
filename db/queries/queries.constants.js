@@ -46,6 +46,13 @@ const CUSTOMER_APPLICATION_QUEUE =  'SELECT * FROM applications WHERE customer_i
 
 const CREATE_PAYMENT = "INSERT INTO payments(payment_id, policy_id, amount) VALUES(?,?,?)";
 const UPDATE_PAYMENT = "UPDATE payments SET payment_date=?, payment_status=?, payment_mode=?,currency=? WHERE payment_id = ?";
+
+
+// AGENT QUERIES
+const GET_AGENT_CUSTOMERS = 'SELECT * FROM customers where refered_by_agent = ?';
+const GET_AGENT_POLICIES = 'SELECT * FROM policies where  agent_id = ?'
+const CREATE_AGENT_CUSTOMERS = 'INSERT INTO customers (customer_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,marital_status,refered_by_agent) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
     GET_CUSTOMER_MAX_ID,
@@ -67,5 +74,8 @@ module.exports = {
     GET_CUSTOMER_ACTIVE_POLICIES,
     GET_CUSTOMER_RENEWAL_POLICIES,
     GET_CUSTOMER_REGISTER_POLICIES,
-    CUSTOMER_APPLICATION_QUEUE
+    CUSTOMER_APPLICATION_QUEUE,
+    GET_AGENT_CUSTOMERS,
+    GET_AGENT_POLICIES,
+    CREATE_AGENT_CUSTOMERS
 }
