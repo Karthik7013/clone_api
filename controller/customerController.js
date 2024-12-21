@@ -78,11 +78,6 @@ const getCustomerProfile = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
-        valkey.get(`key`).then((result)=>{
-            console.log(result);
-            valkey.disconnect();
-            return
-            })
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
         return res.status(200).json(
             successHandler(
