@@ -34,7 +34,7 @@ const GET_CUSTOMER_REGISTER_POLICIES = "SELECT * FROM register_claims JOIN polic
 
 const GET_CUSTOMER_CLAIMS = 'SELECT * from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ? ORDER BY claims.created_at DESC';
 
-const GET_POLICY_PAYMENT = 'SELECT payments.payment_id,payments.policy_id,payments.amount,payments.payment_date,payments.payment_status,payments.created_at,payments.updated_at FROM payments RIGHT JOIN policies ON payments.policy_id = policies.policy_id WHERE customer_id = ?';
+const GET_POLICY_PAYMENT = 'SELECT payments.payment_id,payments.application_id,payments.amount,payments.payment_method,payments.payment_date,payments.status,payments.transaction_id,applications.product_type,payments.description,payments.created_at FROM payments JOIN applications ON payments.application_id = applications.application_id JOIN customers on applications.customer_id = customers.customer_id WHERE customers.customer_id = ? ORDER BY payments.created_at'
 
 const REGISTER_CLAIM = 'INSERT INTO register_claims (register_claim_id,first_name,last_name,dob,gender,phone,email,address,city,state,pincode,policy_number,policy_type,policy_issue_date,claim_nature,incident_date,support_docs,description,additional_description) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 

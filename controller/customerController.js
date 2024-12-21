@@ -1,8 +1,10 @@
 const connectToDatabase = require("../db/db");
+const valkey = require("../db/redisClient");
 const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE } = require("../db/queries/queries.constants");
 const { v4: uuidv4 } = require('uuid');
 const successHandler = require('../middleware/successHandler');
 const transporter = require('../mail/transporter');
+
 
 
 // @desc     get customer stats
@@ -76,6 +78,11 @@ const getCustomerProfile = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
+        valkey.get(`key`).then((result)=>{
+            console.log(result);
+            valkey.disconnect();
+            return
+            })
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
         return res.status(200).json(
             successHandler(
@@ -170,6 +177,7 @@ const getPolicyPayments = async (req, res, next) => {
             successHandler(response[0], "Policies Payment Status", 200)
         )
     } catch (error) {
+        console.log(error)
         next(error)
     } finally {
         await connection.end()
