@@ -13,6 +13,7 @@ const customerRoutes = require("./route/v1/customer/customerRoutes");
 const agentRoutes = require("./route/v1/agent/agentRoutes");
 const employeeRoutes = require("./route/v1/employee/employeeRoutes");
 const botRoutes = require("./route/v1/bot/botRoutes");
+const { flushCache } = require("./utils/cache");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -28,8 +29,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-
-
 app.listen(PORT, () =>
   console.log(` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`)
 );
@@ -44,5 +43,5 @@ app.use('/api/v1/bot', botRoutes)
 
 app.use(errorHandler);
 app.use(notFound)
-
+// flushCache()
 // dummy

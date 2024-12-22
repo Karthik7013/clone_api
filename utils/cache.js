@@ -1,18 +1,44 @@
 const valkey = require("../db/redisClient")
 
-const getCache = (key) => {
-    valkey.get(`key`).then((result) => {
-        console.log(result);
-        valkey.disconnect();
-    })
+// generate cache key => cache data with that key => get cache data with that key
+
+const getCache = async (key) => {
+    try {
+        const cacheData = await valkey.get(key);
+        const data = JSON.parse(cacheData)
+        return data;
+    } catch (error) {
+        console.log('failed to get Cache !')
+    }
 }
 
 const generateCacheKey = (prefix, id, type) => {
     return `${prefix}:${id}:${type}`
 }
 
-const setCache = (key, value) => {
-
+// value must be an object here [ ! Importan ]
+const setCache = async (key, value, expires = 10) => {
+    try {
+        const strValue = JSON.stringify(value);
+        await valkey.set(key, strValue, 'EX', expires);
+        // await valkey.set(key, value);
+    } catch (error) {
+        console.log('failed to set cache !')
+    }
 }
 
-module.exports = { setCache, generateCacheKey, getCache }
+const flushCache = async () => {
+    valkey.flushdb();
+    console.log('flushed cache !')
+}
+
+module.exports = { setCache, generateCacheKey, getCache, flushCache }
+
+
+
+// valkey.set("key", "hello world");
+
+// valkey.get("key").then(function (result) {
+//     console.log(`The value of key is: ${result}`);
+//     valkey.disconnect();
+// });

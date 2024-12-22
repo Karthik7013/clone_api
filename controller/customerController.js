@@ -4,7 +4,7 @@ const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER
 const { v4: uuidv4 } = require('uuid');
 const successHandler = require('../middleware/successHandler');
 const transporter = require('../mail/transporter');
-
+const { generateCacheKey, setCache, getCache } = require('../utils/cache')
 
 
 // @desc     get customer stats
@@ -78,7 +78,31 @@ const getCustomerProfile = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
+        const cacheResponse = await getCache(`customer:${customer_id}:profile`);
+        if (cacheResponse) {
+            return res.status(200).json(
+                cacheResponse
+            )
+        }
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
+        // cache the data
+        const cacheKey = generateCacheKey('customer', `${customer_id}`, 'profile');
+        await setCache(cacheKey,
+            successHandler(
+                {
+                    ...response[0][0],
+                    "permissions": [
+                        1000,
+                        1001,
+                        1002,
+                        1003, 1004, 1005
+                    ],
+                    role: 'customer'
+                },
+                "Customer found.",
+                200,
+            )
+        )
         return res.status(200).json(
             successHandler(
                 {
@@ -120,7 +144,6 @@ const updateCustomerProfile = async (req, res, next) => {
         marital_status, bio
     } = req.body;
     try {
-
         const response = await connection.execute(UPDATE_CUSTOMER_BY_ID, [email, dob, gender, address, state, city, pincode, country, marital_status, bio, customer_id]);
 
         return res.status(200).json(
