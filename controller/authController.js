@@ -326,14 +326,14 @@ const signOut = async (req, res, next) => {
     const { refreshToken } = req.cookies;
 
     try {
-        if (!refreshToken) {
-            const err = new Error('Not Authenticated');
-            err.status = 403;
-            err.code = 'this is code';
-            err.details = 'this is message';
-            return next(err)
-        }
-        await connection.execute(DELETE_REFRESH_TOKEN, [refreshToken]);
+        // if (!refreshToken) {
+        //     const err = new Error('Not Authenticated');
+        //     err.status = 403;
+        //     err.code = 'this is code';
+        //     err.details = 'this is message';
+        //     return next(err)
+        // }
+        // await connection.execute(DELETE_REFRESH_TOKEN, [refreshToken]);
 
 
         res.clearCookie('refreshToken', {
@@ -366,6 +366,7 @@ const signOut = async (req, res, next) => {
         )
     } catch (error) {
         error.status = 500;
+        console.log(error)
         return next(error);
     }
     finally {
