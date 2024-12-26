@@ -85,6 +85,22 @@ const getCustomerProfile = async (req, res, next) => {
             )
         }
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
+        const res1 = await connection.execute(`SELECT 
+    employees.*, 
+    JSON_ARRAYAGG(permissions.permission_id) AS permissions
+FROM 
+    employees
+JOIN 
+    employee_roles ON employees.employee_id = employee_roles.employee_id
+JOIN 
+    role_permissions ON role_permissions.role_id = employee_roles.role_id
+JOIN 
+    permissions ON permissions.permission_id = role_permissions.permission_id
+WHERE 
+    employees.employee_id = 'E001'
+GROUP BY 
+    employees.employee_id LIMIT 100`);
+        console.log(res1[0][0], 'res');
         // cache the data
         const cacheKey = generateCacheKey('customer', `${customer_id}`, 'profile');
         await setCache(cacheKey,
