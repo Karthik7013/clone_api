@@ -8,7 +8,7 @@ const GET_CUSTOMER_ID = 'SELECT * FROM customers WHERE customer_id = ?';
 
 const UPDATE_CUSTOMER_BY_ID = 'UPDATE customers set email = ? ,dob = ?, gender=?,address=?,state=?,city=?,pincode=?,country=?,marital_status=?,bio=? WHERE customer_id = ?';
 
-const GET_EMPLOYEE_ID = 'SELECT * FROM employees WHERE employee_id = ?';
+const GET_EMPLOYEE_ID = 'SELECT employees.*,JSON_ARRAYAGG(permissions.permission_id) AS permissions FROM employees JOIN  employee_roles ON employees.employee_id = employee_roles.employee_id JOIN role_permissions ON role_permissions.role_id = employee_roles.role_id JOIN permissions ON permissions.permission_id = role_permissions.permission_id WHERE employees.employee_id = ? GROUP BY employees.employee_id';
 
 const GET_AGENT_ID = 'SELECT * FROM agents WHERE agent_id = ?';
 

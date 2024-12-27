@@ -4,7 +4,7 @@
 // @route    /profile
 
 const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID } = require("../db/queries/queries.constants");
+const { GET_EMPLOYEE_ID, GET_EMPLOYEE_ID1 } = require("../db/queries/queries.constants");
 
 // @access   private
 const getEmployeeProfile = async (req, res, next) => {
@@ -19,12 +19,6 @@ const getEmployeeProfile = async (req, res, next) => {
                 "status": 200,
                 "data": {
                     ...response[0][0],
-                    "permissions": [
-                        3000,
-                        3001,
-                        3002,
-                        3003, 3004, 3005, 3006, 3007, 3008
-                    ],
                     role: 'employee'
                 },
                 "timestamp": new Date()
