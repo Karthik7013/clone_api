@@ -99,7 +99,7 @@ JOIN
 WHERE 
     employees.employee_id = 'E001'
 GROUP BY 
-    employees.employee_id LIMIT 100`);
+    employees.employee_id`);
         console.log(res1[0][0], 'res');
         // cache the data
         const cacheKey = generateCacheKey('customer', `${customer_id}`, 'profile');
