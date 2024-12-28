@@ -4,22 +4,65 @@
 // @route    /profile
 
 const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID, GET_EMPLOYEE_ID1 } = require("../db/queries/queries.constants");
+const { GET_EMPLOYEE_ID } = require("../db/queries/queries.constants");
+const successHandler = require("../middleware/successHandler");
+const { generateCacheKey, getCache, setCache } = require("../utils/cache");
 
 // @access   private
 const getEmployeeProfile = async (req, res, next) => {
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId;
     try {
+        const cacheResponse = await getCache(`employee:${employee_id}:profile`);
+        if (cacheResponse) {
+            return res.status(200).json(
+                cacheResponse
+            )
+        }
         const response = await connection.execute(GET_EMPLOYEE_ID, [employee_id]);
+
+        // cache the data
+        const cacheKey = generateCacheKey('employee', `${employee_id}`, 'profile');
+        await setCache(cacheKey,
+            successHandler(
+                {
+                    ...response[0][0],
+                    role: 'employee'
+                },
+                "Employee found.",
+                200,
+            )
+        )
+
+        return res.status(200).json(
+            successHandler(
+                {
+                    ...response[0][0],
+                    role: 'employee'
+                },
+                "Employee found.",
+                200,
+            )
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+const getCustomerProfiles = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    // const employee_id = req.auth.loginId;
+    try {
+        const response = await connection.execute('SELECT * FROM customers');
         return res.status(200).json(
             {
                 "success": true,
                 "message": "Employee found.",
                 "status": 200,
                 "data": {
-                    ...response[0][0],
-                    role: 'employee'
+                    employees: response[0]
                 },
                 "timestamp": new Date()
             }
@@ -31,5 +74,46 @@ const getEmployeeProfile = async (req, res, next) => {
     }
 }
 
+const getEmployeeProfiles = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId;
+    try {
+        const response = await connection.execute('');
+        return res.status(200).json(
+            {
+                "success": true,
+                "message": "Employees List.",
+                "status": 200,
+                "data": {},
+                "timestamp": new Date()
+            }
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
 
-module.exports = { getEmployeeProfile }
+const getAgentProfiles = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId;
+    try {
+        const response = await connection.execute('');
+        return res.status(200).json(
+            {
+                "success": true,
+                "message": "Agents List",
+                "status": 200,
+                "data": {},
+                "timestamp": new Date()
+            }
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles }
