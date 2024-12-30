@@ -4,7 +4,7 @@
 // @route    /profile
 
 const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID } = require("../db/queries/queries.constants");
+const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
 const { generateCacheKey, getCache, setCache } = require("../utils/cache");
 
@@ -55,7 +55,7 @@ const getCustomerProfiles = async (req, res, next) => {
     const connection = await connectToDatabase();
     // const employee_id = req.auth.loginId;
     try {
-        const response = await connection.execute('SELECT * FROM customers');
+        const response = await connection.execute(GET_ALL_CUSTOMERS);
         return res.status(200).json(
             {
                 "success": true,
@@ -78,13 +78,13 @@ const getEmployeeProfiles = async (req, res, next) => {
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId;
     try {
-        const response = await connection.execute('');
+        const response = await connection.execute(GET_ALL_EMPLOYEES);
         return res.status(200).json(
             {
                 "success": true,
                 "message": "Employees List.",
                 "status": 200,
-                "data": {},
+                "data": response[0],
                 "timestamp": new Date()
             }
         )
@@ -99,13 +99,13 @@ const getAgentProfiles = async (req, res, next) => {
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId;
     try {
-        const response = await connection.execute('');
+        const response = await connection.execute(GET_ALL_AGENTS);
         return res.status(200).json(
             {
                 "success": true,
                 "message": "Agents List",
                 "status": 200,
-                "data": {},
+                "data": response[0],
                 "timestamp": new Date()
             }
         )

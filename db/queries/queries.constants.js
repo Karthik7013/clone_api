@@ -42,7 +42,7 @@ const INSERT_CLAIM = 'INSERT INTO claims (claim_id,register_claim_id,claim_date,
 
 const CREATE_POLICY = 'INSERT INTO policies (application_id, policy_number,policy_type,insured_name,insured_company,customer_id,agent_id,employee_id,start_date,end_date,premium_amount,coverage_amount,status,mode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
 
-const CUSTOMER_APPLICATION_QUEUE =  'SELECT * FROM applications WHERE customer_id = ? ORDER BY created_at DESC';
+const CUSTOMER_APPLICATION_QUEUE = 'SELECT * FROM applications WHERE customer_id = ? ORDER BY created_at DESC';
 
 const CREATE_PAYMENT = "INSERT INTO payments(payment_id, policy_id, amount) VALUES(?,?,?)";
 const UPDATE_PAYMENT = "UPDATE payments SET payment_date=?, payment_status=?, payment_mode=?,currency=? WHERE payment_id = ?";
@@ -52,6 +52,12 @@ const UPDATE_PAYMENT = "UPDATE payments SET payment_date=?, payment_status=?, pa
 const GET_AGENT_CUSTOMERS = 'SELECT * FROM customers where refered_by_agent = ?';
 const GET_AGENT_POLICIES = 'SELECT * FROM policies where  agent_id = ?'
 const CREATE_AGENT_CUSTOMERS = 'INSERT INTO customers (customer_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,marital_status,refered_by_agent) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+
+
+// EMPLOYEE QUERIES
+const GET_ALL_CUSTOMERS = 'SELECT * FROM customers';
+const GET_ALL_AGENTS = 'SELECT * FROM agents'
+const GET_ALL_EMPLOYEES = 'SELECT * FROM employees'
 
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
@@ -77,5 +83,9 @@ module.exports = {
     CUSTOMER_APPLICATION_QUEUE,
     GET_AGENT_CUSTOMERS,
     GET_AGENT_POLICIES,
-    CREATE_AGENT_CUSTOMERS
+    CREATE_AGENT_CUSTOMERS,
+    GET_ALL_AGENTS,
+    GET_ALL_CUSTOMERS,
+    GET_ALL_EMPLOYEES
+
 }

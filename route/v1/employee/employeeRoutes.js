@@ -5,7 +5,7 @@ const { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerPr
 const employeeRoutes = Router();
 employeeRoutes.get('/profile', isAuthenticated(['employee']), getEmployeeProfile)
 employeeRoutes.get('/customers', getCustomerProfiles)
-employeeRoutes.get('/employees', isAuthenticated(['employee']), (req,res)=>{})
-employeeRoutes.get('/agents', isAuthenticated(['employee']), (req,res)=>{})
+employeeRoutes.get('/employees', isAuthenticated(['employee']), getEmployeeProfiles)
+employeeRoutes.get('/agents', isAuthenticated(['employee']), getAgentProfiles)
 
 module.exports = employeeRoutes;
