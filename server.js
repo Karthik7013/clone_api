@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(rateLimiter);
 app.use(logger);
 const corsOptions = {
-  origin: 'http://localhost:5173', // Change to your frontend URL
+  origin: ['http://localhost:5173'], // Change to your frontend URL
   credentials: true,
 };
 

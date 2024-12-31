@@ -58,6 +58,7 @@ const CREATE_AGENT_CUSTOMERS = 'INSERT INTO customers (customer_id,firstname,las
 const GET_ALL_CUSTOMERS = 'SELECT * FROM customers';
 const GET_ALL_AGENTS = 'SELECT * FROM agents'
 const GET_ALL_EMPLOYEES = 'SELECT * FROM employees'
+const GET_ALL_CLAIMS = 'SELECT * FROM claims join register_claims on register_claims.register_claim_id = claims.register_claim_id';
 
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
@@ -86,6 +87,6 @@ module.exports = {
     CREATE_AGENT_CUSTOMERS,
     GET_ALL_AGENTS,
     GET_ALL_CUSTOMERS,
-    GET_ALL_EMPLOYEES
-
+    GET_ALL_EMPLOYEES,
+    GET_ALL_CLAIMS
 }

@@ -14,11 +14,18 @@ const getCustomerStats = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
+        // check cache
+        const cacheResponse = await getCache(`customer:${customer_id}:stats`);
+        if (cacheResponse) {
+            return res.status(200).json(cacheResponse)
+        }
         const active_policy = await connection.execute(GET_CUSTOMER_ACTIVE_POLICIES, [customer_id]);
         const expire_policy = await connection.execute(GET_CUSTOMER_RENEWAL_POLICIES, [customer_id]);
         const claim_policy = await connection.execute(GET_CUSTOMER_CLAIMS, [customer_id]);
         const register_policy = await connection.execute(GET_CUSTOMER_REGISTER_POLICIES, [customer_id]);
-        res.send(successHandler({
+        // cache responses
+        const cacheKey = generateCacheKey('customer', `${customer_id}`, 'stats');
+        await setCache(cacheKey, successHandler({
             "activePolicies": {
                 "count": active_policy[0].length,
                 "percentage": 83.33,
@@ -41,6 +48,34 @@ const getCustomerStats = async (req, res, next) => {
 
             }
         }, 'Customer Stats', 200))
+
+        return res.status(200).json(
+            successHandler({
+                "activePolicies": {
+                    "count": active_policy[0].length,
+                    "percentage": 83.33,
+                },
+
+                "renewalPolicies": {
+                    "count": expire_policy[0].length,
+                    "percentage": 20.83,
+                },
+                "claimPolicies": {
+                    "count": claim_policy[0].length,
+                    "percentage": 33.33,
+                    "pending": "",
+                    "reject": "",
+                    "approved": ""
+                },
+                "registeredClaimPolicies": {
+                    "count": register_policy[0].length,
+                    "percentage": 37.5,
+
+                }
+            }, 'Customer Stats', 200)
+        )
+
+
     } catch (error) {
         next(error)
     } finally {
@@ -55,7 +90,20 @@ const getCustomerPolicyQueues = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
+        // check cache
+        const cacheResponse = await getCache(`customer:${customer_id}:policyQueues`);
+        if (cacheResponse) {
+            return res.status(200).json(cacheResponse)
+        }
         const response = await connection.execute(CUSTOMER_APPLICATION_QUEUE, [customer_id]);
+
+        // cache the data
+        const cacheKey = generateCacheKey('customer', `${customer_id}`, 'policyQueues');
+        await setCache(cacheKey, successHandler(
+            response[0],
+            'customer applications', 200
+        ))
+
         return res.status(200).json(
             successHandler(
                 response[0],
@@ -78,63 +126,43 @@ const getCustomerProfile = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
+        // check cache
         const cacheResponse = await getCache(`customer:${customer_id}:profile`);
         if (cacheResponse) {
-            return res.status(200).json(
-                cacheResponse
-            )
+            return res.status(200).json(cacheResponse)
         }
+
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
-//         const res1 = await connection.execute(`SELECT 
-//     employees.*, 
-//     JSON_ARRAYAGG(permissions.permission_id) AS permissions
-// FROM 
-//     employees
-// JOIN 
-//     employee_roles ON employees.employee_id = employee_roles.employee_id
-// JOIN 
-//     role_permissions ON role_permissions.role_id = employee_roles.role_id
-// JOIN 
-//     permissions ON permissions.permission_id = role_permissions.permission_id
-// WHERE 
-//     employees.employee_id = 'E001'
-// GROUP BY 
-//     employees.employee_id`);
-        // console.log(res1[0][0], 'res');
+
         // cache the data
         const cacheKey = generateCacheKey('customer', `${customer_id}`, 'profile');
-        await setCache(cacheKey,
-            successHandler(
-                {
-                    ...response[0][0],
-                    "permissions": [
-                        1000,
-                        1001,
-                        1002,
-                        1003, 1004, 1005
-                    ],
-                    role: 'customer'
-                },
-                "Customer found.",
-                200,
-            )
-        )
-        return res.status(200).json(
-            successHandler(
-                {
-                    ...response[0][0],
-                    "permissions": [
-                        1000,
-                        1001,
-                        1002,
-                        1003, 1004, 1005
-                    ],
-                    role: 'customer'
-                },
-                "Customer found.",
-                200,
-            )
-        )
+        await setCache(cacheKey, successHandler({
+            ...response[0][0],
+            "permissions": [
+                1000,
+                1001,
+                1002,
+                1003, 1004, 1005
+            ],
+            role: 'customer'
+        },
+            "Customer found.",
+            200
+        ))
+
+        return res.status(200).json(successHandler({
+            ...response[0][0],
+            "permissions": [
+                1000,
+                1001,
+                1002,
+                1003, 1004, 1005
+            ],
+            role: 'customer'
+        },
+            "Customer found.",
+            200,
+        ))
     } catch (error) {
         next(error)
     } finally {
@@ -187,7 +215,16 @@ const getCustomerPolicies = async (req, res, next) => {
     const customer_id = req.auth.loginId;
     const connection = await connectToDatabase();
     try {
+        // check cache
+        const cacheResponse = await getCache(`customer:${customer_id}:policies`);
+        if (cacheResponse) {
+            return res.status(200).json(cacheResponse)
+        }
         const response = await connection.execute(GET_CUSTOMER_POLICIES, [customer_id]);
+        // cache the data
+        const cacheKey = generateCacheKey('customer', `${customer_id}`, 'policies');
+        await setCache(cacheKey, successHandler(response[0], "Customer Policies", 200))
+
         return res.status(200).json(
             successHandler(response[0], "Customer Policies", 200)
         )
@@ -206,7 +243,17 @@ const getPolicyPayments = async (req, res, next) => {
     const connection = await connectToDatabase();
     const customer_id = req.auth.loginId;
     try {
+        // check cache
+        const cacheResponse = await getCache(`customer:${customer_id}:payments`);
+        if (cacheResponse) {
+            return res.status(200).json(cacheResponse)
+        }
+
         const response = await connection.execute(GET_POLICY_PAYMENT, [customer_id]);
+        // cache the data
+        const cacheKey = generateCacheKey('customer', `${customer_id}`, 'payments');
+        await setCache(cacheKey, successHandler(response[0], "Policies Payment Status", 200))
+
         return res.status(200).json(
             successHandler(response[0], "Policies Payment Status", 200)
         )
@@ -404,7 +451,21 @@ const getCustomerClaims = async (req, res, next) => {
     const customer_id = req.auth.loginId;
     const connection = await connectToDatabase();
     try {
+        // check cache
+        const cacheResponse = await getCache(`customer:${customer_id}:claims`);
+        if (cacheResponse) {
+            return res.status(200).json(cacheResponse)
+        }
+
         const response = await connection.execute(GET_CUSTOMER_CLAIMS, [customer_id]);
+        // cache the data
+        const cacheKey = generateCacheKey('customer', `${customer_id}`, 'claims');
+        await setCache(cacheKey, successHandler(
+            response[0],
+            "Customer Claims",
+            200
+        ))
+
         return res.status(200).json(
             successHandler(
                 response[0],

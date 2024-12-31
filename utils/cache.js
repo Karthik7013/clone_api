@@ -5,7 +5,7 @@ const valkey = require("../db/redisClient")
 const getCache = async (key) => {
     try {
         const cacheData = await valkey.get(key);
-        const data = JSON.parse(cacheData)
+        const data = JSON.parse(cacheData);
         return data;
     } catch (error) {
         console.log('failed to get Cache !')
@@ -21,7 +21,6 @@ const setCache = async (key, value, expires = 10) => {
     try {
         const strValue = JSON.stringify(value);
         await valkey.set(key, strValue, 'EX', expires);
-        // await valkey.set(key, value);
     } catch (error) {
         console.log('failed to set cache !')
     }
