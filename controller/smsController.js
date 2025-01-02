@@ -29,7 +29,27 @@ const sendOtp = async (req, res, next) => {
 }
 
 
-const verifyOtp = (req, res, next) => {
-    res.send(successHandler({}, 'Otp verified successfull', 200))
+
+
+
+const verifyOtp = async (req, res, next) => {
+    try {
+        const verifyRes = await fetch('https://www.tataaig.com/lambda/prod-genericService/verifyOTP', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(req.body)
+        })
+        const data = await verifyRes.json();
+        res.status(200).json(successHandler(data, 'OTP verified successfully', 200));
+    } catch (error) {
+        console.error('Error Verifying OTP:', error);
+        res.status(500).json({
+            message: 'An error occurred while verifying OTP',
+            error: error.message,
+        });
+    }
 }
+
 module.exports = { sendOtp, verifyOtp }
