@@ -55,8 +55,8 @@ const CREATE_AGENT_CUSTOMERS = 'INSERT INTO customers (customer_id,firstname,las
 
 
 // EMPLOYEE QUERIES
-const GET_ALL_CUSTOMERS = 'SELECT * FROM customers';
-const GET_ALL_AGENTS = 'SELECT * FROM agents'
+const GET_ALL_CUSTOMERS = 'SELECT * FROM customers order by customer_id desc';
+const GET_ALL_AGENTS = 'SELECT * FROM agents order by agent_id desc'
 const GET_ALL_EMPLOYEES = 'SELECT * FROM employees order by employee_id desc'
 const GET_ALL_CLAIMS = 'SELECT * FROM claims join register_claims on register_claims.register_claim_id = claims.register_claim_id';
 

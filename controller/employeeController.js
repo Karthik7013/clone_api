@@ -59,11 +59,9 @@ const getCustomerProfiles = async (req, res, next) => {
         return res.status(200).json(
             {
                 "success": true,
-                "message": "Employee found.",
+                "message": "Customer List.",
                 "status": 200,
-                "data": {
-                    employees: response[0]
-                },
+                "data": response[0],
                 "timestamp": new Date()
             }
         )
