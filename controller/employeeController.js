@@ -20,6 +20,7 @@ const getEmployeeProfile = async (req, res, next) => {
             )
         }
         const response = await connection.execute(GET_EMPLOYEE_ID, [employee_id]);
+        console.log(response[0])
 
         // cache the data
         const cacheKey = generateCacheKey('employee', `${employee_id}`, 'profile');
@@ -53,18 +54,30 @@ const getEmployeeProfile = async (req, res, next) => {
 
 const getCustomerProfiles = async (req, res, next) => {
     const connection = await connectToDatabase();
-    // const employee_id = req.auth.loginId;
+    const employee_id = req.auth.loginId;
     try {
+        const cacheResponse = await getCache(`employee:${employee_id}:allCustomerProfiles`);
+        if (cacheResponse) {
+            return res.status(200).json(
+                cacheResponse
+            )
+        }
         const response = await connection.execute(GET_ALL_CUSTOMERS);
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "Customer List.",
-                "status": 200,
-                "data": response[0],
-                "timestamp": new Date()
-            }
+        // cache the data
+        const cacheKey = generateCacheKey('employee', `${employee_id}`, 'allCustomerProfiles');
+        await setCache(cacheKey,
+            successHandler(
+                response[0],
+                "Customer List",
+                200,
+            )
         )
+        return res.status(200).json(
+            successHandler(
+                response[0],
+                "Customer List",
+                200,
+            ))
     } catch (error) {
         next(error)
     } finally {
@@ -76,15 +89,28 @@ const getEmployeeProfiles = async (req, res, next) => {
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId;
     try {
+        const cacheResponse = await getCache(`employee:${employee_id}:allEmployeesProfiles`);
+        if (cacheResponse) {
+            return res.status(200).json(
+                cacheResponse
+            )
+        }
         const response = await connection.execute(GET_ALL_EMPLOYEES);
+        // cache the data
+        const cacheKey = generateCacheKey('employee', `${employee_id}`, 'allEmployeesProfiles');
+        await setCache(cacheKey,
+            successHandler(
+                response[0],
+                "Employee List",
+                200,
+            )
+        )
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "Employees List.",
-                "status": 200,
-                "data": response[0],
-                "timestamp": new Date()
-            }
+            successHandler(
+                response[0],
+                "Employee List",
+                200,
+            )
         )
     } catch (error) {
         next(error)
@@ -97,15 +123,28 @@ const getAgentProfiles = async (req, res, next) => {
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId;
     try {
+        const cacheResponse = await getCache(`employee:${employee_id}:allAgentsProfiles`);
+        if (cacheResponse) {
+            return res.status(200).json(
+                cacheResponse
+            )
+        }
         const response = await connection.execute(GET_ALL_AGENTS);
+        // cache the data
+        const cacheKey = generateCacheKey('employee', `${employee_id}`, 'allAgentsProfiles');
+        await setCache(cacheKey,
+            successHandler(
+                response[0],
+                "Agent List",
+                200,
+            )
+        )
         return res.status(200).json(
-            {
-                "success": true,
-                "message": "Agents List",
-                "status": 200,
-                "data": response[0],
-                "timestamp": new Date()
-            }
+            successHandler(
+                response[0],
+                "Agent List",
+                200,
+            )
         )
     } catch (error) {
         next(error)
