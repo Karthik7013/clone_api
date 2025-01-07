@@ -4,10 +4,10 @@
 // @route    /profile
 
 const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES, GET_ALL_CLAIMS } = require("../db/queries/queries.constants");
+const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES, GET_ALL_CLAIMS, CREATE_NEW_EMPLOYEE, CREATE_EMP_ROLE } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
 const { generateCacheKey, getCache, setCache } = require("../utils/cache");
-
+const { v4: uuid } = require('uuid');
 // @access   private
 const getEmployeeProfile = async (req, res, next) => {
     const connection = await connectToDatabase();
@@ -173,4 +173,44 @@ const getClaims = async (req, res, next) => {
     }
 }
 
-module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims }
+
+const createEmployee = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission for this id to create a customer
+    const { body } = req;
+    const new_employee_id = uuid().split('-')[0];
+    const values = [
+        new_employee_id,
+        body?.firstName,
+        body?.lastName,
+        body?.phone,
+        body?.email,
+        body?.dob,
+        body?.gender,
+        body?.address,
+        body?.state,
+        body?.city,
+        body?.pincode,
+        body?.country,
+        body?.salary,
+        body?.department,
+        body?.role,
+        body?.joinDate,
+        body?.status
+    ]
+    try {
+        const res1 = await connection.execute(CREATE_NEW_EMPLOYEE, values);
+        const new_role_id = uuid().split('-')[0]
+        const res2 = await connection.execute(CREATE_EMP_ROLE, [new_role_id, new_employee_id, body?.reporting]);
+        return res.status(200).json(
+            successHandler({
+            }, 'Employee Created Successfully !', 201)
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee }

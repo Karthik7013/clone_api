@@ -58,6 +58,8 @@ const GET_ALL_CUSTOMERS = 'SELECT * FROM customers order by customer_id desc';
 const GET_ALL_AGENTS = 'SELECT * FROM agents order by agent_id desc'
 const GET_ALL_EMPLOYEES = 'SELECT * FROM employees order by employee_id desc'
 const GET_ALL_CLAIMS = 'SELECT * FROM claims join register_claims on register_claims.register_claim_id = claims.register_claim_id';
+const CREATE_NEW_EMPLOYEE = 'INSERT into employee_profile (employee_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,salary,department,designation,joinedate,status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+const CREATE_EMP_ROLE = 'INSERT INTO employee_roles (role_id,employee_id,reporting) VALUES(?,?,?)'
 
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
@@ -87,5 +89,7 @@ module.exports = {
     GET_ALL_AGENTS,
     GET_ALL_CUSTOMERS,
     GET_ALL_EMPLOYEES,
-    GET_ALL_CLAIMS
+    GET_ALL_CLAIMS,
+    CREATE_NEW_EMPLOYEE,
+    CREATE_EMP_ROLE
 }

@@ -16,9 +16,10 @@ const botRoutes = require("./route/v1/bot/botRoutes");
 const { flushCache } = require("./utils/cache");
 const app = express();
 const PORT = process.env.PORT || 8000;
-
+const { v4: uuid } = require('uuid');
 // middlewares
 app.use(express.json());
+console.log(uuid().split('-')[0])
 app.use(rateLimiter);
 app.use(logger);
 const corsOptions = {
