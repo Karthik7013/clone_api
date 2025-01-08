@@ -4,7 +4,7 @@
 // @route    /profile
 
 const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES, GET_ALL_CLAIMS, CREATE_NEW_EMPLOYEE, CREATE_EMP_ROLE } = require("../db/queries/queries.constants");
+const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES, GET_ALL_CLAIMS, CREATE_NEW_EMPLOYEE, CREATE_EMP_ROLE, CREATE_ROLE, CREATE_PERMISSION, GET_ROLES, GET_PERMISSIONS } = require("../db/queries/queries.constants");
 const successHandler = require("../middleware/successHandler");
 const { generateCacheKey, getCache, setCache } = require("../utils/cache");
 const { v4: uuid } = require('uuid');
@@ -39,6 +39,7 @@ const getEmployeeProfile = async (req, res, next) => {
             successHandler(
                 {
                     ...response[0][0],
+                
                     role: 'employee'
                 },
                 "Employee found.",
@@ -194,14 +195,13 @@ const createEmployee = async (req, res, next) => {
         body?.country,
         body?.salary,
         body?.department,
-        body?.role,
+        body?.role.role_name,
         body?.joinDate,
         body?.status
     ]
     try {
         const res1 = await connection.execute(CREATE_NEW_EMPLOYEE, values);
-        const new_role_id = uuid().split('-')[0]
-        const res2 = await connection.execute(CREATE_EMP_ROLE, [new_role_id, new_employee_id, body?.reporting]);
+        const res2 = await connection.execute(CREATE_EMP_ROLE, [body?.role.role_id, new_employee_id, body?.reporting]);
         return res.status(200).json(
             successHandler({
             }, 'Employee Created Successfully !', 201)
@@ -213,4 +213,85 @@ const createEmployee = async (req, res, next) => {
     }
 }
 
-module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee }
+const createRole = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission for this id to create a customer
+    const { body } = req;
+    const new_role_id = uuid().split('-')[0];
+    const values = [
+        new_role_id,
+        body?.role_name,
+        body?.role_description,
+        body?.department,
+        body?.level
+    ]
+    try {
+        const res1 = await connection.execute(CREATE_ROLE, values);
+        return res.status(200).json(
+            successHandler({
+            }, 'Role Created Successfully !', 201)
+        )
+
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+const createPermission = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission for this id to create a customer
+    const { body } = req;
+    const new_permission_id = uuid().split('-')[0];
+    const values = [
+        new_permission_id,
+        body?.permission_name,
+        body?.permission_description
+    ]
+    try {
+        const res1 = await connection.execute(CREATE_PERMISSION, values);
+        return res.status(200).json(
+            successHandler({
+            }, 'Permission Created Successfully !', 201)
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+const getRoles = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission for this id to create a customer
+    try {
+        const res1 = await connection.execute(GET_ROLES);
+        return res.status(200).json(
+            successHandler(
+                res1[0]
+                , 'Employee roles', 200)
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+const getPermissions = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission for this id to create a customer
+    try {
+        const res1 = await connection.execute(GET_PERMISSIONS);
+        return res.status(200).json(
+            successHandler(
+                res1[0]
+                , 'Employee Permissions', 200)
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles,getPermissions }

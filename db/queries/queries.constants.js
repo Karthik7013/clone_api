@@ -8,7 +8,7 @@ const GET_CUSTOMER_ID = 'SELECT * FROM customers WHERE customer_id = ?';
 
 const UPDATE_CUSTOMER_BY_ID = 'UPDATE customers set email = ? ,dob = ?, gender=?,address=?,state=?,city=?,pincode=?,country=?,marital_status=?,bio=? WHERE customer_id = ?';
 
-const GET_EMPLOYEE_ID = 'SELECT employees.*, COALESCE(JSON_ARRAYAGG(permissions.permission_id), JSON_ARRAY()) AS permissions FROM employees LEFT JOIN employee_roles ON employees.employee_id = employee_roles.employee_id LEFT JOIN role_permissions ON role_permissions.role_id = employee_roles.role_id LEFT JOIN permissions ON permissions.permission_id = role_permissions.permission_id WHERE employees.employee_id = ? GROUP BY employees.employee_id'
+const GET_EMPLOYEE_ID = 'SELECT * from employees WHERE employee_id = ?'
 const GET_AGENT_ID = 'SELECT * FROM agents WHERE agent_id = ?';
 
 const CREATE_CUSTOMER = 'INSERT INTO customer (customer_id,first_name,last_name,phone,created_at) VALUES(?,?,?,?,?)'
@@ -60,6 +60,11 @@ const GET_ALL_EMPLOYEES = 'SELECT * FROM employees order by employee_id desc'
 const GET_ALL_CLAIMS = 'SELECT * FROM claims join register_claims on register_claims.register_claim_id = claims.register_claim_id';
 const CREATE_NEW_EMPLOYEE = 'INSERT into employee_profile (employee_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,salary,department,designation,joinedate,status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const CREATE_EMP_ROLE = 'INSERT INTO employee_roles (role_id,employee_id,reporting) VALUES(?,?,?)'
+const CREATE_ROLE = 'INSERT INTO roles (role_id,role_name,role_description,department,level) VALUES(?,?,?,?,?)'
+const CREATE_PERMISSION = 'INSERT INTO permissions (permission_id,permission_name,permission_description) VALUES(?,?,?)';
+const GET_ROLES = 'SELECT * FROM roles';
+const GET_PERMISSIONS = 'SELECT * FROM permissions';
+
 
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
@@ -91,5 +96,9 @@ module.exports = {
     GET_ALL_EMPLOYEES,
     GET_ALL_CLAIMS,
     CREATE_NEW_EMPLOYEE,
-    CREATE_EMP_ROLE
+    CREATE_EMP_ROLE,
+    CREATE_ROLE,
+    CREATE_PERMISSION,
+    GET_ROLES,
+    GET_PERMISSIONS
 }
