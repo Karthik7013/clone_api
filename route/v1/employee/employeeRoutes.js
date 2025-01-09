@@ -11,7 +11,7 @@ employeeRoutes.get('/claims', isAuthenticated(['employee']), getClaims)
 employeeRoutes.post('/create-new-employee', isAuthenticated(['employee']), createEmployee);
 employeeRoutes.get('/get-roles', isAuthenticated(['employee']), getRoles);
 employeeRoutes.get('/get-permissions', isAuthenticated(['employee']), getPermissions);
-
+// create - new- employee
 
 
 

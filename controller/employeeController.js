@@ -20,7 +20,7 @@ const getEmployeeProfile = async (req, res, next) => {
             )
         }
         const response = await connection.execute(GET_EMPLOYEE_ID, [employee_id]);
-        console.log(response[0])
+        console.log(response[0], 'employee')
 
         // cache the data
         const cacheKey = generateCacheKey('employee', `${employee_id}`, 'profile');
@@ -28,7 +28,7 @@ const getEmployeeProfile = async (req, res, next) => {
             successHandler(
                 {
                     ...response[0][0],
-                    role: 'employee'
+                    role: 'employee',
                 },
                 "Employee found.",
                 200,
@@ -39,7 +39,6 @@ const getEmployeeProfile = async (req, res, next) => {
             successHandler(
                 {
                     ...response[0][0],
-                
                     role: 'employee'
                 },
                 "Employee found.",
@@ -194,14 +193,14 @@ const createEmployee = async (req, res, next) => {
         body?.pincode,
         body?.country,
         body?.salary,
-        body?.department,
-        body?.role.role_name,
         body?.joinDate,
         body?.status
     ]
+    // body?.department,
+    //     body?.role,
     try {
         const res1 = await connection.execute(CREATE_NEW_EMPLOYEE, values);
-        const res2 = await connection.execute(CREATE_EMP_ROLE, [body?.role.role_id, new_employee_id, body?.reporting]);
+        const res2 = await connection.execute(CREATE_EMP_ROLE, [body?.role, new_employee_id, body?.reporting]);
         return res.status(200).json(
             successHandler({
             }, 'Employee Created Successfully !', 201)
@@ -294,4 +293,4 @@ const getPermissions = async (req, res, next) => {
     }
 }
 
-module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles,getPermissions }
+module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles, getPermissions }
