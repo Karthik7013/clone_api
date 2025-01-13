@@ -17,6 +17,7 @@ const { flushCache } = require("./utils/cache");
 const app = express();
 const PORT = process.env.PORT || 8000;
 const { v4: uuid } = require('uuid');
+const analyticsRoutes = require("./route/v1/analytics/analyticsRoute");
 // middlewares
 app.use(express.json());
 console.log(uuid().split('-')[0])
@@ -41,6 +42,7 @@ app.use('/api/v1/customer', customerRoutes)
 app.use('/api/v1/agent', agentRoutes)
 app.use('/api/v1/employee', employeeRoutes)
 app.use('/api/v1/bot', botRoutes)
+app.use('/api/v1/analytics', analyticsRoutes)
 
 app.use(errorHandler);
 app.use(notFound)

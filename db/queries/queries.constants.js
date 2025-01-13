@@ -57,10 +57,17 @@ const CREATE_AGENT_CUSTOMERS = 'INSERT INTO customers (customer_id,firstname,las
 // EMPLOYEE QUERIES
 const GET_ALL_CUSTOMERS = 'SELECT * FROM customers order by customer_id desc';
 const GET_ALL_AGENTS = 'SELECT * FROM agents order by agent_id desc'
-const GET_ALL_EMPLOYEES = 'SELECT * FROM employees order by employee_id desc'
+const GET_ALL_EMPLOYEES = 'SELECT * FROM employees JOIN employee_roles ON employees.employee_id = employee_roles.employee_id join roles ON roles.role_id = employee_roles.role_id order by employees.employee_id desc'
 const GET_ALL_CLAIMS = 'SELECT * FROM claims join register_claims on register_claims.register_claim_id = claims.register_claim_id';
 const CREATE_NEW_EMPLOYEE = 'INSERT into employees (employee_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,salary,joinedate,status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const CREATE_EMP_ROLE = 'INSERT INTO employee_roles (role_id,employee_id,reporting) VALUES(?,?,?)'
+
+
+const combine = `START TRANSACTION;
+INSERT into employees (employee_id,firstname,lastname,phone,email,dob,gender,address,state,city,pincode,country,salary,joinedate,status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO employee_roles (role_id,employee_id,reporting) VALUES(?,?,?)
+COMMIT;`
+
 const CREATE_ROLE = 'INSERT INTO roles (role_id,role_name,role_description,department,level) VALUES(?,?,?,?,?)'
 const CREATE_PERMISSION = 'INSERT INTO permissions (permission_id,permission_name,permission_description) VALUES(?,?,?)';
 const GET_ROLES = 'SELECT * FROM roles';

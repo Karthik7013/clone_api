@@ -176,7 +176,7 @@ const getClaims = async (req, res, next) => {
 
 const createEmployee = async (req, res, next) => {
     const connection = await connectToDatabase();
-    const employee_id = req.auth.loginId; // check permission for this id to create a customer
+    const employee_id = req.auth.loginId; // check permission to create a customer
     const { body } = req;
     const new_employee_id = uuid().split('-')[0];
     const values = [
@@ -196,8 +196,6 @@ const createEmployee = async (req, res, next) => {
         body?.joinDate,
         body?.status
     ]
-    // body?.department,
-    //     body?.role,
     try {
         const res1 = await connection.execute(CREATE_NEW_EMPLOYEE, values);
         const res2 = await connection.execute(CREATE_EMP_ROLE, [body?.role, new_employee_id, body?.reporting]);
