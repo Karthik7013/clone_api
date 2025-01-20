@@ -291,4 +291,22 @@ const getPermissions = async (req, res, next) => {
     }
 }
 
-module.exports = { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles, getPermissions }
+// add permissions to the new employee
+const addPermissions = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission for this id to attach permissions to employee
+    try {
+        return res.status(200).json(
+            successHandler(
+                {}
+                , 'Employee Permissions', 200)
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
+
+module.exports = { addPermissions, getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles, getPermissions }
