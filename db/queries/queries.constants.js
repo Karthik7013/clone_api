@@ -8,8 +8,7 @@ const GET_CUSTOMER_ID = 'SELECT * FROM customers WHERE customer_id = ?';
 
 const UPDATE_CUSTOMER_BY_ID = 'UPDATE customers set email = ? ,dob = ?, gender=?,address=?,state=?,city=?,pincode=?,country=?,marital_status=?,bio=? WHERE customer_id = ?';
 
-const GET_EMPLOYEE_ID = 'SELECT employees.*,COALESCE(JSON_ARRAYAGG(role_permissions.permission_id), JSON_ARRAY()) AS permissions FROM employees LEFT JOIN employee_roles ON employees.employee_id = employee_roles.employee_id LEFT JOIN role_permissions ON employee_roles.employee_role_id = role_permissions.employee_role_id WHERE employees.employee_id = ? GROUP BY employees.employee_id';
-
+const GET_EMPLOYEE_ID = 'SELECT employees.*, employee_roles.employee_role_id, COALESCE(JSON_ARRAYAGG(role_permissions.permission_id), JSON_ARRAY()) AS permissions FROM employees JOIN employee_roles ON employees.employee_id = employee_roles.employee_id LEFT JOIN role_permissions ON employee_roles.employee_role_id = role_permissions.employee_role_id WHERE employees.employee_id = ? GROUP BY employees.employee_id, employee_roles.employee_role_id'
 const GET_AGENT_ID = 'SELECT * FROM agents WHERE agent_id = ?';
 
 const CREATE_CUSTOMER = 'INSERT INTO customer (customer_id,first_name,last_name,phone,created_at) VALUES(?,?,?,?,?)'

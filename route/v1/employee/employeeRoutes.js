@@ -6,7 +6,7 @@ const isAuthorized = require('../../../middleware/authorization');
 const employeeRoutes = Router();
 employeeRoutes.get('/profile', isAuthenticated(['employee']), getEmployeeProfile)
 employeeRoutes.get('/customers', isAuthenticated(['employee']), getCustomerProfiles)
-employeeRoutes.get('/employees', isAuthenticated(['employee']), getEmployeeProfiles)
+employeeRoutes.get('/employees', isAuthenticated(['employee']), isAuthorized('7b8d75a2'), getEmployeeProfiles)
 employeeRoutes.get('/agents', isAuthenticated(['employee']), getAgentProfiles)
 employeeRoutes.get('/claims', isAuthenticated(['employee']), getClaims)
 employeeRoutes.post('/create-new-employee', isAuthenticated(['employee']), createEmployee);

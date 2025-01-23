@@ -21,7 +21,7 @@ const analyticsRoutes = require("./route/v1/analytics/analyticsRoute");
 // middlewares
 app.use(express.json());
 console.log(uuid().split('-')[0])
-app.use(rateLimiter);
+// app.use(rateLimiter);
 app.use(logger);
 const corsOptions = {
   origin: ['http://localhost:5173'], // Change to your frontend URL
