@@ -296,6 +296,7 @@ const addPermissions = async (req, res, next) => {
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId; // check permission for this id to attach permissions to employee
     try {
+        
         return res.status(200).json(
             successHandler(
                 {}
