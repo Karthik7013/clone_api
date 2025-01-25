@@ -3,8 +3,8 @@ const successHandler = (data, message, status) => {
     return {
         success: true,
         message,
-        status: status || 200,
         data,
+        status: status || 200,
         timestamp: new Date()
     }
 }

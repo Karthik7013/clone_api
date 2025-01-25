@@ -166,7 +166,7 @@ const verfiyCustomer = async (req, res, next) => {
                 exp: accessTokenExpire,
                 role: 'customer',
             },
-                "User Found",
+                "Login Success",
                 200
             )
         )
@@ -234,7 +234,7 @@ const verfiyAgent = async (req, res, next) => {
                 exp: accessTokenExpire,
                 role: 'agent',
             },
-                "Agent Found",
+                "Login Success",
                 200
             )
         )
@@ -309,7 +309,7 @@ const verfiyEmployee = async (req, res, next) => {
                 exp: accessTokenExpire,
                 role: 'employee',
             },
-                "Employee Found",
+                "Login Success",
                 200
             )
         )
