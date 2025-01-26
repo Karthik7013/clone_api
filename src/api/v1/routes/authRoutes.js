@@ -7,8 +7,8 @@ const { verfiyAgent,
     createEmployee,
     getAccessToken,
     signOut
-} = require('../../../controller/authController');
-const { sendOtp, verifyOtp } = require('../../../controller/smsController');
+} = require('../controller/authController');
+const { sendOtp, verifyOtp } = require('../controller/smsController');
 
 const authRoutes = Router();
 

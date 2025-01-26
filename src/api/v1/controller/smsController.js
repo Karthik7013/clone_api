@@ -1,4 +1,4 @@
-const successHandler = require('../middleware/successHandler')
+const successHandler = require('../../middleware/successHandler')
 const sendOtp = async (req, res, next) => {
     try {
         const otpRes = await fetch('https://www.tataaig.com/lambda/prod-genericService/sendOTP', {

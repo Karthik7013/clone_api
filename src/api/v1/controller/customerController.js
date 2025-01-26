@@ -1,10 +1,10 @@
-const connectToDatabase = require("../db/db");
-const valkey = require("../db/redisClient");
-const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE } = require("../db/queries/queries.constants");
+const connectToDatabase = require("../../config/db");
+const valkey = require("../../config/redisClient");
 const { v4: uuidv4 } = require('uuid');
-const successHandler = require('../middleware/successHandler');
-const transporter = require('../mail/transporter');
-const { generateCacheKey, setCache, getCache } = require('../utils/cache')
+const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE } = require("../../config/queries.constants");
+const successHandler = require('../../middleware/successHandler');
+const transporter = require('../service/transporter');
+const { generateCacheKey, setCache, getCache } = require('../../utils/cache')
 
 
 // @desc     get customer stats

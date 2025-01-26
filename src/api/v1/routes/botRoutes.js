@@ -1,5 +1,5 @@
 const Router = require('express');
-const successHandler = require('../../../middleware/successHandler');
+const successHandler = require('../../middleware/successHandler');
 const botRoutes = Router();
 
 
@@ -28,7 +28,7 @@ botRoutes.post('/ask', async (req, res, next) => {
         const data = await response.json();
 
         return res.status(200).json(
-            successHandler({response:data.candidates[0].content.parts[0].text},
+            successHandler({ response: data.candidates[0].content.parts[0].text },
                 "Bot Response",
                 200
             )

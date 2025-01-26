@@ -1,4 +1,4 @@
-const valkey = require("../db/redisClient")
+const valkey = require("../config/redisClient")
 
 // generate cache key => cache data with that key => get cache data with that key
 

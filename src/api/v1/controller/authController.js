@@ -1,13 +1,13 @@
-const connectToDatabase = require("../db/db");
 const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken');
-const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, INSERT_REFRESH_TOKEN, DELETE_REFRESH_TOKEN } = require("../db/queries/queries.constants");
-const successHandler = require("../middleware/successHandler");
+const connectToDatabase = require("../../config/db");
+const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, INSERT_REFRESH_TOKEN } = require("../../config/queries.constants");
+const successHandler = require("../../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
 const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRES
 const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES;
-const transporter = require('../mail/transporter');
+const transporter = require('../service/transporter');
 
 // @desc     verify customer number
 // @route    /verify/customer

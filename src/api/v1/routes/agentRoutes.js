@@ -1,13 +1,13 @@
 const { Router } = require('express');
-const isAuthenticated = require('../../../middleware/auth');
-const { getAgentProfile, getAgentCustomers, getAgentPolicies, createAgentCustomer } = require('../../../controller/agentController');
+const isAuthenticated = require('../../middleware/auth');
+const { getAgentProfile, getAgentCustomers, getAgentPolicies, createAgentCustomer } = require('../controller/agentController');
 
 
 const agentRoutes = Router();
 agentRoutes.get('/profile', isAuthenticated(['agent']), getAgentProfile);
-agentRoutes.get('/mycustomers',isAuthenticated(['agent']),getAgentCustomers)
-agentRoutes.get('/policies', isAuthenticated(['agent']),getAgentPolicies)
-agentRoutes.get('/createcustomer',isAuthenticated(['agent']), createAgentCustomer)
+agentRoutes.get('/mycustomers', isAuthenticated(['agent']), getAgentCustomers)
+agentRoutes.get('/policies', isAuthenticated(['agent']), getAgentPolicies)
+agentRoutes.get('/createcustomer', isAuthenticated(['agent']), createAgentCustomer)
 
 
 agentRoutes.post('/profile/update', isAuthenticated(['agent']), () => { });

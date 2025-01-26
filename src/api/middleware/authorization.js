@@ -1,5 +1,5 @@
-const connectToDatabase = require("../db/db");
-const { GET_EMPLOYEE_ID } = require("../db/queries/queries.constants");
+const connectToDatabase = require("../config/db");
+const { GET_EMPLOYEE_ID } = require("../config/queries.constants");
 const { getCache, generateCacheKey, setCache } = require("../utils/cache");
 const successHandler = require("./successHandler");
 

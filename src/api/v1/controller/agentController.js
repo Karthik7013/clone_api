@@ -1,9 +1,9 @@
-const connectToDatabase = require("../db/db");
-const { GET_AGENT_ID, GET_AGENT_CUSTOMERS, GET_AGENT_POLICIES, CREATE_AGENT_CUSTOMERS } = require("../db/queries/queries.constants");
-const successHandler = require("../middleware/successHandler");
+const connectToDatabase = require("../../config/db");
+const { GET_AGENT_ID, GET_AGENT_CUSTOMERS, GET_AGENT_POLICIES, CREATE_AGENT_CUSTOMERS } = require("../../config/queries.constants");
+const successHandler = require("../../middleware/successHandler");
 // import { v4 as uuidv4 } from 'uuid';
 const uuidv4 = require('uuid');
-const { getCache, setCache, generateCacheKey } = require("../utils/cache");
+const { getCache, setCache, generateCacheKey } = require("../../utils/cache");
 // @desc     get agent profile
 // @route    /profile
 // @access   private

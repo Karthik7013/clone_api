@@ -1,7 +1,7 @@
 const { Router } = require('express');
-const isAuthenticated = require('../../../middleware/auth');
-const { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createPermission, createRole, getRoles, getPermissions, addPermissions, removePermissions } = require('../../../controller/employeeController');
-const isAuthorized = require('../../../middleware/authorization');
+const isAuthenticated = require('../../middleware/auth');
+const { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createPermission, createRole, getRoles, getPermissions, addPermissions, removePermissions } = require('../controller/employeeController');
+const isAuthorized = require('../../middleware/authorization');
 
 const employeeRoutes = Router();
 employeeRoutes.get('/profile', isAuthenticated(['employee']), getEmployeeProfile)
