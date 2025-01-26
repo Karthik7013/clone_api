@@ -71,7 +71,9 @@ const CREATE_ROLE = 'INSERT INTO roles (role_id,role_name,role_description,depar
 const CREATE_PERMISSION = 'INSERT INTO permissions (permission_id,permission_name,permission_description) VALUES(?,?,?)';
 const GET_ROLES = 'SELECT * FROM roles';
 const GET_PERMISSIONS = 'SELECT * FROM permissions';
-
+const GET_PERMISSION = 'SELECT permission_id, employee_role_id from role_permissions WHERE permission_id = ? AND employee_role_id= ?'
+const ADD_PERMISSION = 'INSERT INTO role_permissions (permission_id, employee_role_id) VALUES(?,?)'
+const DELETE_PERMISSION = 'DELETE FROM role_permissions WHERE permission_id = ? AND employee_role_id = ?'
 
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
@@ -107,5 +109,8 @@ module.exports = {
     CREATE_ROLE,
     CREATE_PERMISSION,
     GET_ROLES,
-    GET_PERMISSIONS
+    GET_PERMISSIONS,
+    ADD_PERMISSION,
+    DELETE_PERMISSION,
+    GET_PERMISSION
 }

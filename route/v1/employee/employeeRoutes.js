@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const isAuthenticated = require('../../../middleware/auth');
-const { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createPermission, createRole, getRoles, getPermissions, addPermissions } = require('../../../controller/employeeController');
+const { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createPermission, createRole, getRoles, getPermissions, addPermissions, removePermissions } = require('../../../controller/employeeController');
 const isAuthorized = require('../../../middleware/authorization');
 
 const employeeRoutes = Router();
@@ -17,7 +17,7 @@ employeeRoutes.get('/get-permissions', isAuthenticated(['employee']), getPermiss
 employeeRoutes.post('/create-role', isAuthenticated(['employee']), createRole);
 employeeRoutes.post('/create-permission', isAuthenticated(['employee']), createPermission);
 employeeRoutes.post('/attach-permissions', isAuthenticated(['employee']), addPermissions);
-
+employeeRoutes.post('/remove-permissions', isAuthenticated(['employee']), removePermissions)
 
 
 module.exports = employeeRoutes;

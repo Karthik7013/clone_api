@@ -1,4 +1,4 @@
-// NAEMLIX 360 INSURANCE APPLICATION
+// NAEMLIX 360 TOTAL INSURANCE APPLICATION
 //
 const express = require("express");
 const path = require('path')
@@ -22,7 +22,7 @@ const webhookRoutes = require("./route/v1/webhooks/webhookRoutes");
 // middlewares
 app.use(express.json());
 console.log(uuid().split('-')[0])
-// app.use(rateLimiter);
+app.use(rateLimiter);
 app.use(logger);
 const corsOptions = {
   origin: ['http://localhost:5173'], // Change to your frontend URL
