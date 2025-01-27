@@ -16,6 +16,7 @@ const verfiyCustomer = async (req, res, next) => {
     const user_agent = req.headers['user-agent'];
     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const connection = await connectToDatabase();
+    console.log(req.body.phone)
     try {
         if (!connection) {
             const dbTimeOutErr = new Error("Error in connecting to db");
