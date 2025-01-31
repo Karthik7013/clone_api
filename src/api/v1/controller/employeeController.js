@@ -211,6 +211,35 @@ const createEmployee = async (req, res, next) => {
     }
 }
 
+const deleteEmployee = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission to create a customer
+    try {
+        return res.status(200).json(
+            successHandler({
+            }, 'Employee delete Successfully !', 200)
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+const editEmployee = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId; // check permission to create a customer
+    try {
+        return res.status(200).json(
+            successHandler({
+            }, 'Employee delete Successfully !', 200)
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
 const createRole = async (req, res, next) => {
     const connection = await connectToDatabase();
     const employee_id = req.auth.loginId; // check permission for this id to create a customer
@@ -354,4 +383,4 @@ const removePermissions = async (req, res, next) => {
 }
 
 
-module.exports = { addPermissions, getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles, getPermissions, removePermissions }
+module.exports = { addPermissions, getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles, getPermissions, removePermissions, deleteEmployee,editEmployee }

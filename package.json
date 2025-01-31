@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "finding the best solutions for your problems and post your coding doubts here.",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "test": "mocha '__tests__/v1/*.test.js'",
     "dev": "nodemon src/api/server.js",
@@ -23,13 +24,12 @@
     "mongoose": "^8.5.2",
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.16",
-    "nodemon": "^3.1.7",
-    "uninstall": "^0.0.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
     "chai": "^5.1.2",
     "chai-http": "^5.1.1",
-    "mocha": "^11.1.0"
+    "mocha": "^11.1.0",
+    "nodemon": "^3.1.9"
   }
 }
