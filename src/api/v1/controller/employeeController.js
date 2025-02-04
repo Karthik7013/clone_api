@@ -4,7 +4,7 @@
 // @route    /profile
 
 const connectToDatabase = require("../../config/db");
-const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES, GET_ALL_CLAIMS, CREATE_NEW_EMPLOYEE, CREATE_EMP_ROLE, CREATE_ROLE, CREATE_PERMISSION, GET_ROLES, GET_PERMISSIONS, ADD_PERMISSION, GET_PERMISSION, DELETE_PERMISSION } = require("../../config/queries.constants");
+const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES, GET_ALL_CLAIMS, CREATE_NEW_EMPLOYEE, CREATE_EMP_ROLE, CREATE_ROLE, CREATE_PERMISSION, GET_ROLES, GET_PERMISSIONS, ADD_PERMISSION, GET_PERMISSION, DELETE_PERMISSION, GET_EMPLOYEE_PERMISSIONS } = require("../../config/queries.constants");
 const successHandler = require("../../middleware/successHandler");
 const { generateCacheKey, getCache, setCache } = require("../../utils/cache");
 const { v4: uuid } = require('uuid');
@@ -321,6 +321,44 @@ const getPermissions = async (req, res, next) => {
     }
 }
 
+const getEmployeePermissions = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const employee_id = req.auth.loginId;
+    try {
+        const cacheResponse = await getCache(`employee:${employee_id}:all-permissions`);
+        if (cacheResponse) {
+            console.log('fromcache')
+            return res.status(200).json(
+                cacheResponse
+            )
+        }
+        const response = await connection.execute(GET_EMPLOYEE_PERMISSIONS);
+
+        // cache the data
+        const cacheKey = generateCacheKey('employee', `${employee_id}`, 'all-permissions');
+        await setCache(cacheKey,
+            successHandler(
+                response[0]
+                ,
+                "Employees permissions",
+                200,
+            )
+        )
+        return res.status(200).json(
+            successHandler(
+                response[0]
+                ,
+                "Employees Permissions.",
+                200,
+            )
+        )
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
+
 // add permissions to the new employee
 const addPermissions = async (req, res, next) => {
     const connection = await connectToDatabase();
@@ -383,4 +421,4 @@ const removePermissions = async (req, res, next) => {
 }
 
 
-module.exports = { addPermissions, getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles, getPermissions, removePermissions, deleteEmployee,editEmployee }
+module.exports = { addPermissions, getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createRole, createPermission, getRoles, getPermissions, removePermissions, deleteEmployee, editEmployee, getEmployeePermissions }

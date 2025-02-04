@@ -75,6 +75,8 @@ const GET_PERMISSION = 'SELECT permission_id, employee_role_id from role_permiss
 const ADD_PERMISSION = 'INSERT INTO role_permissions (permission_id, employee_role_id) VALUES(?,?)'
 const DELETE_PERMISSION = 'DELETE FROM role_permissions WHERE permission_id = ? AND employee_role_id = ?'
 
+const GET_EMPLOYEE_PERMISSIONS = 'SELECT employees.*,roles.department,roles.role_name, employee_roles.employee_role_id, COALESCE(JSON_ARRAYAGG(role_permissions.permission_id), JSON_ARRAY()) AS permissions FROM employees JOIN employee_roles ON employees.employee_id = employee_roles.employee_id JOIN roles on employee_roles.role_id = roles.role_id LEFT JOIN role_permissions ON employee_roles.employee_role_id = role_permissions.employee_role_id GROUP BY employees.employee_id, employee_roles.employee_role_id';
+
 module.exports = {
     GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
     GET_CUSTOMER_MAX_ID,
@@ -112,5 +114,6 @@ module.exports = {
     GET_PERMISSIONS,
     ADD_PERMISSION,
     DELETE_PERMISSION,
-    GET_PERMISSION
+    GET_PERMISSION,
+    GET_EMPLOYEE_PERMISSIONS
 }
