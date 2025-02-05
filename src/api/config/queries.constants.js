@@ -70,7 +70,7 @@ COMMIT;`
 const CREATE_ROLE = 'INSERT INTO roles (role_id,role_name,role_description,department,level) VALUES(?,?,?,?,?)'
 const CREATE_PERMISSION = 'INSERT INTO permissions (permission_id,permission_name,permission_description) VALUES(?,?,?)';
 const GET_ROLES = 'SELECT * FROM roles';
-const GET_PERMISSIONS = 'SELECT * FROM permissions';
+const GET_PERMISSIONS = 'SELECT * FROM permissions ORDER BY permission_name';
 const GET_PERMISSION = 'SELECT permission_id, employee_role_id from role_permissions WHERE permission_id = ? AND employee_role_id= ?'
 const ADD_PERMISSION = 'INSERT INTO role_permissions (permission_id, employee_role_id) VALUES(?,?)'
 const DELETE_PERMISSION = 'DELETE FROM role_permissions WHERE permission_id = ? AND employee_role_id = ?'
