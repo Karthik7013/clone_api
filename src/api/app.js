@@ -35,8 +35,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
-
-app.use('/public', express.static(path.join(__dirname, '../../public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 
 app.use('/api/v1/auth', authRoutes)
