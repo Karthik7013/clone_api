@@ -530,14 +530,16 @@ const createEmployee = async (req, res, next) => {
 // @access   public
 const getAccessToken = (req, res, next) => {
     const { refreshToken } = req.cookies
+    if (!refreshToken) {
+        const err = new Error('Token not found');
+        err.status = 401;
+        err.code = 'this is code';
+        err.details = 'Refresh token not found';
+        return next(err)
+        // return res.redirect('http://localhost:5173')
+    }
     try {
-        if (!refreshToken) {
-            const err = new Error('Token not found');
-            err.status = 401;
-            err.code = 'this is code';
-            err.details = 'Refresh token not found';
-            return next(err)
-        }
+
         jwt.verify(refreshToken, jwtRefreshSecretKey, (err, decode) => {
             if (err) {
                 const err = new Error("Token expired/invalid !");
@@ -561,6 +563,7 @@ const getAccessToken = (req, res, next) => {
 
         })
     } catch (error) {
+        // return res.redirect('http://localhost:5173')
         next(error)
     }
 }
