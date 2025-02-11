@@ -16,8 +16,6 @@ employeeRoutes.delete('/delete', isAuthenticated(['employee']), deleteEmployee);
 employeeRoutes.post('/edit', isAuthenticated(['employee']), editEmployee);
 employeeRoutes.get('/get-roles', isAuthenticated(['employee']), getRoles);
 employeeRoutes.get('/get-permissions', isAuthenticated(['employee']), getPermissions);
-// create - new- employee
-
 employeeRoutes.post('/create-role', isAuthenticated(['employee']), createRole);
 employeeRoutes.post('/create-permission', isAuthenticated(['employee']), createPermission);
 employeeRoutes.post('/attach-permissions', isAuthenticated(['employee']), addPermissions);
@@ -28,11 +26,10 @@ module.exports = employeeRoutes;
 
 // ============= correct routing system ==============>
 employeeRoutes.get('/profiles', async (req, res, next) => {
-
     const { limit = 2, page = 1 } = req.query;
     const connection = await connectToDatabase();
     try {
-        const result = await connection.execute(`SELECT * FROM employees limit ${limit} OFFSET ${limit*page}`);
+        const result = await connection.execute(`SELECT * FROM employees limit ${limit} OFFSET ${limit * page}`);
         return res.status(200).json(
             successHandler(
                 {
@@ -56,7 +53,8 @@ employeeRoutes.get('/profiles', async (req, res, next) => {
     } finally {
         await connection.end();
     }
-}) // all profiles pagination filters 
+})
+// all profiles pagination filters
 // employeeRoutes.get('profile/:id', () => { }) // profile by id
 // employeeRoutes.post('profile', () => { }) // new employee
 // employeeRoutes.put('profile/:id', () => { }) // edit employee by id
