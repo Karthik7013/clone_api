@@ -288,7 +288,8 @@ const verfiyEmployee = async (req, res, next) => {
             // maxAge: 3600000,
             // secure: process.env.NODE_ENV === 'PRODUCTION' && req.secure,
             // sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'Strict' : 'Lax'
-            sameSite: 'None'
+            sameSite: 'None',
+            secure: true
         });
 
         res.cookie('accessToken', accessToken, {
@@ -296,7 +297,8 @@ const verfiyEmployee = async (req, res, next) => {
             // maxAge: 900000,
             // secure: process.env.NODE_ENV === 'PRODUCTION' && req.secure,
             // sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'Strict' : 'Lax',
-            sameSite: 'None'
+            sameSite: 'None',
+            secure: true
         });
 
         res.cookie('role', 'employee', {
@@ -304,7 +306,8 @@ const verfiyEmployee = async (req, res, next) => {
             // maxAge: 3600000,
             // secure: process.env.NODE_ENV === 'PRODUCTION' && req.secure,
             // sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'Strict' : 'Lax',
-            sameSite: 'None'
+            sameSite: 'None',
+            secure: true
         });
 
         return res.status(200).json(
