@@ -284,27 +284,27 @@ const verfiyEmployee = async (req, res, next) => {
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
         await connection.execute(INSERT_REFRESH_TOKEN, [null, employee_id, null, refreshToken, new Date(), user_agent, ipAddress])
         res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
+            // httpOnly: true,
             // maxAge: 3600000,
             // secure: process.env.NODE_ENV === 'PRODUCTION' && req.secure,
             // sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'Strict' : 'Lax'
-            sameSite: 'None'
+            // sameSite: 'None'
         });
 
         res.cookie('accessToken', accessToken, {
-            httpOnly: true,
+            // httpOnly: true,
             // maxAge: 900000,
             // secure: process.env.NODE_ENV === 'PRODUCTION' && req.secure,
             // sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'Strict' : 'Lax',
-            sameSite: 'None'
+            // sameSite: 'None'
         });
 
         res.cookie('role', 'employee', {
-            httpOnly: true,
+            // httpOnly: true,
             // maxAge: 3600000,
             // secure: process.env.NODE_ENV === 'PRODUCTION' && req.secure,
             // sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'Strict' : 'Lax',
-            sameSite: 'None'
+            // sameSite: 'None'
         });
 
         return res.status(200).json(
