@@ -466,12 +466,13 @@ const getCustomerClaims = async (req, res, next) => {
             200
         ))
 
-        return successHandler(
+        return res.status(200).json(
+            successHandler(
                 response[0],
                 "Customer Claims",
                 200
             )
-        
+        )
     } catch (error) {
         next(error)
     } finally {

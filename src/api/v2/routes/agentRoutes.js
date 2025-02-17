@@ -4,18 +4,7 @@ const { getAgentProfile, getAgentCustomers, getAgentPolicies, createAgentCustome
 
 
 const agentRoutes = Router();
-agentRoutes.get('/profile', isAuthenticated(['agent']), getAgentProfile);
-agentRoutes.get('/mycustomers', isAuthenticated(['agent']), getAgentCustomers)
-agentRoutes.get('/policies', isAuthenticated(['agent']), getAgentPolicies)
-agentRoutes.get('/createcustomer', isAuthenticated(['agent']), createAgentCustomer)
 
-
-agentRoutes.post('/profile/update', isAuthenticated(['agent']), () => { });
-agentRoutes.post('/createPolicy', isAuthenticated(['agent']), () => { })
-agentRoutes.get('/claims', isAuthenticated(['agent']), () => { })
-agentRoutes.post('/register-claims', isAuthenticated(['agent']), () => { })
-
-module.exports = agentRoutes;
 // ======== proper routing for agent =========>
 
 
@@ -31,3 +20,6 @@ agentRoutes.get('/claim/:id', ()=>{});    // pagination claims
 
 agentRoutes.delete('/profile/:id', ()=>{});
 agentRoutes.delete('/profile/:id', ()=>{});
+
+
+module.exports = agentRoutes;
