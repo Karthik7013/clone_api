@@ -122,14 +122,13 @@ const getCustomerPolicyQueues = async (req, res, next) => {
 // @desc     get customer policies
 // @route    /profile
 // @access   private
-const getCustomerProfile = async (req, res, next) => {
+const getCustomerProfile = async (customer_id) => {
     const connection = await connectToDatabase();
-    const customer_id = req.auth.loginId; // get customer_id by params <=======> and check for permission or not
     try {
         // check cache
         const cacheResponse = await getCache(`customer:${customer_id}:profile`);
         if (cacheResponse) {
-            return res.status(200).json(cacheResponse)
+            return cacheResponse
         }
 
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
@@ -150,7 +149,7 @@ const getCustomerProfile = async (req, res, next) => {
             200
         ))
 
-        return res.status(200).json(successHandler({
+        return successHandler({
             ...response[0][0],
             "permissions": [
                 1000,
@@ -162,9 +161,9 @@ const getCustomerProfile = async (req, res, next) => {
         },
             "Customer found.",
             200,
-        ))
+        )
     } catch (error) {
-        next(error)
+        console.log(error, 'something went wrong')
     } finally {
         await connection.end();
     }

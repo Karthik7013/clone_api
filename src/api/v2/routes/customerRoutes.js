@@ -1,10 +1,10 @@
 const { Router } = require('express');
 const { getCustomerPolicies, registerClaim, getCustomerClaims, getPolicyPayments, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile } = require('../controller/customerController');
 const isAuthenticated = require('../../middleware/auth');
-const {customerProfileHandler, customerApplicationHandler, customerPolicyHandler, customerPaymentHandler, customerClaimsHandler} = require('../handler/customerHandler');
+const { customerProfileHandler, customerApplicationHandler, customerPolicyHandler, customerPaymentHandler, customerClaimsHandler } = require('../handler/customerHandler');
 const customerRoutes = Router();
 
-customerRoutes.get('/profile/:id',isAuthenticated(['customer']),customerProfileHandler) // get customer profile
+customerRoutes.get('/profile/:id', isAuthenticated(['customer']), customerProfileHandler)
 customerRoutes.post('/profile', customerProfileHandler) // add customer profile
 customerRoutes.put('/profile/:id', customerProfileHandler) // update customer profile
 customerRoutes.delete('/profile/:id', customerProfileHandler) // delete customer profile by id
