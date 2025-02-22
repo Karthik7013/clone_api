@@ -2,11 +2,45 @@ const { Router } = require('express');
 const { getCustomerPolicies, registerClaim, getCustomerClaims, getPolicyPayments, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile } = require('../controller/customerController');
 const isAuthenticated = require('../../middleware/auth');
 const { customerProfileHandler, customerApplicationHandler, customerPolicyHandler, customerPaymentHandler, customerClaimsHandler } = require('../handler/customerHandler');
+const successHandler = require('../../middleware/successHandler');
 const customerRoutes = Router();
 
-customerRoutes.get('/profile/:id', isAuthenticated(['customer']), customerProfileHandler)
+customerRoutes.get('/profile/:id', isAuthenticated(['customer']),
+    async (req, res, next) => {
+        try {
+            const response = await customerProfileHandler(req);
+            return res.status(200).json(successHandler({
+                ...response,
+                "permissions": [
+                    1000,
+                    1001,
+                    1002,
+                    1003, 1004, 1005
+                ],
+                role: 'customer'
+            },
+                "Customer found.",
+                200,
+            ))
+        } catch (error) {
+            next(error)
+        }
+    })
+
 customerRoutes.post('/profile', customerProfileHandler) // add customer profile
-customerRoutes.put('/profile/:id', customerProfileHandler) // update customer profile
+customerRoutes.put('/profile/:id', isAuthenticated(['customer']), async (req, res, next) => {
+    try {
+        const response = await customerProfileHandler(req);
+        return res.status(200).json(successHandler(
+            response,
+            "Customer Details updated successfully.",
+            200,
+        ))
+    } catch (error) {
+        next(error)
+    }
+}) // update customer profile
+
 customerRoutes.delete('/profile/:id', customerProfileHandler) // delete customer profile by id
 
 customerRoutes.get('/application/:id', customerApplicationHandler) //get customer application by id

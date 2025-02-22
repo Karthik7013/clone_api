@@ -123,47 +123,20 @@ const getCustomerPolicyQueues = async (req, res, next) => {
 // @route    /profile
 // @access   private
 const getCustomerProfile = async (customer_id) => {
+    if (!customer_id) throw new Error("customer_id invalid/not_found");
     const connection = await connectToDatabase();
     try {
         // check cache
         const cacheResponse = await getCache(`customer:${customer_id}:profile`);
-        if (cacheResponse) {
-            return cacheResponse
-        }
-
+        if (cacheResponse) return cacheResponse
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
-
+        if (!response[0][0]) throw new Error('Customer Not Found !')
         // cache the data
         const cacheKey = generateCacheKey('customer', `${customer_id}`, 'profile');
-        await setCache(cacheKey, successHandler({
-            ...response[0][0],
-            "permissions": [
-                1000,
-                1001,
-                1002,
-                1003, 1004, 1005
-            ],
-            role: 'customer'
-        },
-            "Customer found.",
-            200
-        ))
-
-        return successHandler({
-            ...response[0][0],
-            "permissions": [
-                1000,
-                1001,
-                1002,
-                1003, 1004, 1005
-            ],
-            role: 'customer'
-        },
-            "Customer found.",
-            200,
-        )
+        await setCache(cacheKey, response[0][0]);
+        return response[0][0]
     } catch (error) {
-        console.log(error, 'something went wrong')
+        throw error
     } finally {
         await connection.end();
     }
@@ -172,9 +145,9 @@ const getCustomerProfile = async (customer_id) => {
 // @desc     get customer policies
 // @route    /profile
 // @access   private
-const updateCustomerProfile = async (req, res, next) => {
+const updateCustomerProfile = async (customer_id, updateDetails) => {
+    if (!customer_id) throw new Error("customer_id invalid/not_found");
     const connection = await connectToDatabase();
-    const customer_id = req.auth.loginId;
     const {
         email,
         dob,
@@ -184,8 +157,9 @@ const updateCustomerProfile = async (req, res, next) => {
         city,
         pincode,
         country,
-        marital_status, bio
-    } = req.body;
+        marital_status,
+        bio
+    } = updateDetails;
     try {
         const response = await connection.execute(UPDATE_CUSTOMER_BY_ID, [email, dob, gender, address, state, city, pincode, country, marital_status, bio, customer_id]);
 
@@ -197,7 +171,7 @@ const updateCustomerProfile = async (req, res, next) => {
             )
         )
     } catch (error) {
-        next(error)
+        throw error;
     } finally {
         await connection.end();
     }
