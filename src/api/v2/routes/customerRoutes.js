@@ -4,7 +4,10 @@ const isAuthenticated = require('../../middleware/auth');
 const { customerProfileHandler, customerApplicationHandler, customerPolicyHandler, customerPaymentHandler, customerClaimsHandler } = require('../handler/customerHandler');
 const customerRoutes = Router();
 
-customerRoutes.get('/profile/:id', isAuthenticated(['customer']), customerProfileHandler)
+customerRoutes.get('/profile/:id', isAuthenticated(['customer']), (req,res,next)=>{
+    const response = customerProfileHandler(req);
+
+})
 customerRoutes.post('/profile', customerProfileHandler) // add customer profile
 customerRoutes.put('/profile/:id', customerProfileHandler) // update customer profile
 customerRoutes.delete('/profile/:id', customerProfileHandler) // delete customer profile by id
