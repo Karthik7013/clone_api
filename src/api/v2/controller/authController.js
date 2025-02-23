@@ -12,28 +12,17 @@ const transporter = require('../service/transporter');
 // @desc     verify customer number
 // @route    /verify/customer
 // @access   public
-const verfiyCustomer = async (req, res, next) => {
-    const user_agent = req.headers['user-agent'];
-    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+const verfiyCustomer = async (phone) => {
     const connection = await connectToDatabase();
-    console.log(req.body.phone)
     try {
-        if (!connection) {
-            const dbTimeOutErr = new Error("Error in connecting to db");
-            next(dbTimeOutErr)
-        }
-        const { phone } = req.body;
-        if (!phone) {
-            const customerErr = new Error("Customer Phone Number is Required !");
-            next(customerErr)
-        }
+        if (!connection) throw new Error("Error in connecting to db")
         const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone]); // Execute the query
         if (!results.length) {
             const err = new Error('Customer Not Found !');
             err.status = 404;
             err.code = 'this is code';
             err.details = 'this is message';
-            return next(err)
+            throw err
         }
         const customer_id = results[0].customer_id;
         const loginCredentials = {
@@ -43,137 +32,14 @@ const verfiyCustomer = async (req, res, next) => {
 
         const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
-
-        await connection.execute(INSERT_REFRESH_TOKEN, [customer_id, null, null, refreshToken, new Date(), user_agent, ipAddress])
-
-        // Email options
-        const mailOptions = {
-            from: 'karthiktumala143@gmail.com', // Sender address
-            to: `${results[0].email}`, // List of recipients
-            subject: 'Namelix 360° Total Insurance',
-            html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Login Notification</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f4f9;
-          margin: 0;
-          padding: 0;
+        return {
+            accessToken,
+            refreshToken,
+            exp: accessTokenExpire,
+            role: 'customer',
         }
-        .container {
-          max-width: 600px;
-          margin: 0 auto;
-          background-color: #ffffff;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-          background-color: #23a8fa;
-          color: white;
-          padding: 10px;
-          text-align: center;
-          border-radius: 8px 8px 0 0;
-        }
-        .content {
-          margin-top: 20px;
-          padding: 20px;
-          background-color: #f9f9f9;
-          border-radius: 8px;
-          border: 1px solid #e0e0e0;
-        }
-        .footer {
-          margin-top: 30px;
-          text-align: center;
-          font-size: 14px;
-          color: #888888;
-        }
-        .important {
-          color: #D8000C;
-          font-weight: bold;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <!-- Header -->
-        <div class="header">
-          <h1>Login Notification</h1>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-          <h2>Dear ${results[0].firstname}</h2>
-          <p>We wanted to let you know that a successful login was made to your account on <strong>Namelix 360° Total Insurance</strong> at <strong>${new Date()}</strong>.</p>
-
-          <h3>Device Details:</h3>
-          <ul>
-            <li><strong>IP Address:</strong> ${ipAddress}</li>
-            <li><strong>Device:</strong> ${user_agent}</li>
-          </ul>
-
-          <p>If you did not initiate this login or suspect any suspicious activity, please immediately change your password and contact our support team at <a href="mailto:[Support Email]">karthiktumala143@gmail.com</a> for assistance.</p>
-
-          <p>Thank you for using <strong>Namelix 360° Total Insurance</strong>.</p>
-          <p>Best regards, <br>The <strong>Namelix 360° Total Insurance</strong> Team</p>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-          <p>If you have any issues or questions, feel free to contact our support at <a href="mailto:[Support Email]">karthiktumala143@gmail.com</a>.</p>
-          <p>&copy; 2024 Namelix 360° Total Insurance. All rights reserved.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-    `};
-
-        // Send the email
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.log('Error sending email:', error);
-            } else {
-                console.log('Email sent successfully:', info.response);
-            }
-        });
-
-
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION',
-        });
-
-        res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            maxAge: 900000,
-            secure: process.env.NODE_ENV === 'PRODUCTION',
-        });
-
-        res.cookie('role', 'customer', {
-            httpOnly: true,
-            maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION',
-        });
-
-        return res.status(200).json(
-            successHandler({
-                accessToken,
-                exp: accessTokenExpire,
-                role: 'customer',
-            },
-                "Login Success",
-                200
-            )
-        )
     } catch (error) {
-        error.status = 500;
-        return next(error);
+        throw error
     } finally {
         if (connection) await connection.end();
     }

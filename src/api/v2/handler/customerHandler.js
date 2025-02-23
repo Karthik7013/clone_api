@@ -1,4 +1,5 @@
-const { getCustomerProfile, updateCustomerProfile } = require('../controller/customerController')
+const { getCustomerProfile, updateCustomerProfile, deleteCustomerProfile } = require('../controller/customerController')
+
 const customerProfileHandler = async (event) => {
     const customer_id = event.params.id;
     const updatedCustomerDetails = event.body;
@@ -10,11 +11,11 @@ const customerProfileHandler = async (event) => {
             console.log(event.method, 'eventbody--CUSTOMER ADD---');
             break;
         case 'PUT':
-            let updatedProfile = await updateCustomerProfile(customer_id, updatedCustomerDetails)
-            return updatedProfile;
+        let updatedProfile = await updateCustomerProfile(customer_id, updatedCustomerDetails)
+        return updatedProfile;
         case 'DELETE':
-            console.log(event.method, 'eventbody--DELETE CUSTOMER---');
-            break;
+            let deleteProfile = await deleteCustomerProfile(customer_id);
+            return deleteProfile;
         default:
             break;
     }
