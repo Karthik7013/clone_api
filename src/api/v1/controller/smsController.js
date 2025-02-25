@@ -4,22 +4,22 @@ const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/
 const successHandler = require("../../middleware/successHandler");
 
 const sendOtp = async (req, res, next) => {
-    try {
-        const phno = req.body.phno;
-        const email = req.body.email;
-        const name = req.body.name || 'Customer'
-        if (!email) {
-            const err = new Error("Email is requried !");
-            err.status = 400;
-            next(err);
-        }
-        const otp = otpGenerator();
-        // Email options
-        const mailOptions = {
-            from: process.env.EMAIL, // Sender address
-            to: `${email}`, // List of recipients
-            subject: 'Account Verification - OTP',
-            html: `
+  try {
+    const phno = req.body.phno;
+    const email = req.body.email;
+    const name = req.body.name || 'Customer'
+    if (!email) {
+      const err = new Error("Email is requried !");
+      err.status = 400;
+      next(err);
+    }
+    const otp = otpGenerator();
+    // Email options
+    const mailOptions = {
+      from: process.env.EMAIL, // Sender address
+      to: `${email}`, // List of recipients
+      subject: 'Account Verification - OTP',
+      html: `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -98,21 +98,21 @@ const sendOtp = async (req, res, next) => {
     </html>
             `};
 
-        // Send the email
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                next(error);
-            } else {
-                const smsKey = generateCacheKey('sms', email, 'send');
-                setCache(smsKey, otp, 50);
-                console.log('Email sent successfully:', info.response);
-                return res.status(200).json(successHandler({}, "OTP sent successfully.", 200))
-            }
-        });
-    } catch (error) {
-        error.status = 500;
-        return next(error);
-    }
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        next(error);
+      } else {
+        const smsKey = generateCacheKey('sms', email, 'send');
+        setCache(smsKey, otp, 50);
+        console.log('Email sent successfully:', info.response);
+        return res.status(200).json(successHandler({}, "OTP sent successfully.", 200))
+      }
+    });
+  } catch (error) {
+    error.status = 500;
+    return next(error);
+  }
 }
 
 //     async (req, res, next) => {
@@ -149,20 +149,20 @@ const sendOtp = async (req, res, next) => {
 
 
 const verifyOtp = async (req, res, next) => {
-    try {
-        const { otp, email } = req.body;
-        const verifyKey = generateCacheKey('sms', email, 'send')
-        const verify = await getCache(verifyKey);
+  try {
+    const { otp, email } = req.body;
+    const verifyKey = generateCacheKey('sms', email, 'send')
+    const verify = await getCache(verifyKey);
 
-        if (otp === verify) {
-            await delCache(verifyKey);
-            return res.status(200).json({ message: 'Verified successfully' })
-        }
-        throw new Error('Failed to verify')
-    } catch (error) {
-        error.status = 500;
-        next(error)
+    if (otp === verify) {
+      await delCache(verifyKey);
+      return res.status(200).json(successHandler({}, "Verified successfully", 200))
     }
+    throw new Error('Failed to verify')
+  } catch (error) {
+    error.status = 500;
+    next(error)
+  }
 }
 //     async (req, res, next) => {
 //     try {
