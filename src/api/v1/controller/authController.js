@@ -48,7 +48,7 @@ const verfiyCustomer = async (req, res, next) => {
 
         // Email options
         const mailOptions = {
-            from: 'karthiktumala143@gmail.com', // Sender address
+            from: process.env.EMAIL, // Sender address
             to: `${results[0].email}`, // List of recipients
             subject: 'Namelix 360° Total Insurance',
             html: `
@@ -117,7 +117,7 @@ const verfiyCustomer = async (req, res, next) => {
             <li><strong>Device:</strong> ${user_agent}</li>
           </ul>
 
-          <p>If you did not initiate this login or suspect any suspicious activity, please immediately change your password and contact our support team at <a href="mailto:[Support Email]">karthiktumala143@gmail.com</a> for assistance.</p>
+          <p>If you did not initiate this login or suspect any suspicious activity, please immediately change your password and contact our support team at <a href="mailto:[Support Email]">${process.env.EMAIL}</a> for assistance.</p>
 
           <p>Thank you for using <strong>Namelix 360° Total Insurance</strong>.</p>
           <p>Best regards, <br>The <strong>Namelix 360° Total Insurance</strong> Team</p>
@@ -125,7 +125,7 @@ const verfiyCustomer = async (req, res, next) => {
 
         <!-- Footer -->
         <div class="footer">
-          <p>If you have any issues or questions, feel free to contact our support at <a href="mailto:[Support Email]">karthiktumala143@gmail.com</a>.</p>
+          <p>If you have any issues or questions, feel free to contact our support at <a href="mailto:[Support Email]">${process.env.EMAIL}</a>.</p>
           <p>&copy; 2024 Namelix 360° Total Insurance. All rights reserved.</p>
         </div>
       </div>

@@ -317,7 +317,7 @@ const registerClaim = async (req, res, next) => {
 
         // Email options
         const mailOptions = {
-            from: 'karthiktumala143@gmail.com', // Sender address
+            from: process.env.EMAIL, // Sender address
             to: `${email}`, // List of recipients
             subject: 'Claim Process Initiated',
             html: `
@@ -405,7 +405,7 @@ const registerClaim = async (req, res, next) => {
         </tr>
       </table>
 
-      <p>If you have any questions or need further assistance, please feel free to contact our support team at karthiktumala143@gmail.com or call 7013140693.</p>
+      <p>If you have any questions or need further assistance, please feel free to contact our support team at ${process.env.EMAIL} or call 7013140693.</p>
 
       <p>We appreciate your trust in us and will keep you updated on the progress of your claim.</p>
 

@@ -34,7 +34,7 @@ const app = express();
 
 // middlewares
 app.use(express.json());
-// app.use(rateLimiter);
+app.use(rateLimiter);
 app.use(logger);
 
 // ================| CORS OPTIONS |=================>
@@ -73,7 +73,6 @@ app.use('/api/v2/webhooks', webhookRoutesV2)
 app.use(errorHandler);
 app.use(notFound)
 // flushCache()
-// dummy
 
 
 module.exports = app;
