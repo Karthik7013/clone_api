@@ -19,6 +19,7 @@ const employeeRoutes = require("./v1/routes/employeeRoutes");
 const botRoutes = require("./v1/routes/botRoutes");
 const analyticsRoutes = require("./v1/routes/analyticsRoute");
 const webhookRoutes = require("./v1/routes/webhookRoutes");
+const smsRoutes = require("./v1/routes/smsRoutes");
 
 // ================|        V1 ROUTES      |================>
 const authRoutesV2 = require('./v2/routes/authRoutes');
@@ -56,6 +57,7 @@ app.use('/api/v1/employee', employeeRoutes)
 app.use('/api/v1/bot', botRoutes)
 app.use('/api/v1/analytics', analyticsRoutes)
 app.use('/api/v1/webhooks', webhookRoutes)
+app.use('/api/v1/sms', smsRoutes)
 
 
 // ==========================| VERSION 0.2 |===========================>
