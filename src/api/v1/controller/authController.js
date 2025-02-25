@@ -144,21 +144,27 @@ const verfiyCustomer = async (req, res, next) => {
 
 
         res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION',
+            // httpOnly: true,
+            // maxAge: 3600000,
+            // secure: process.env.NODE_ENV === 'PRODUCTION',
+            sameSite: 'None',
+            secure: true
         });
 
         res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            maxAge: 900000,
-            secure: process.env.NODE_ENV === 'PRODUCTION',
+            // httpOnly: true,
+            // maxAge: 900000,
+            // secure: process.env.NODE_ENV === 'PRODUCTION',
+            sameSite: 'None',
+            secure: true
         });
 
         res.cookie('role', 'customer', {
-            httpOnly: true,
-            maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION',
+            // httpOnly: true,
+            // maxAge: 3600000,
+            // secure: process.env.NODE_ENV === 'PRODUCTION',
+            sameSite: 'None',
+            secure: true
         });
 
         return res.status(200).json(
@@ -213,21 +219,27 @@ const verfiyAgent = async (req, res, next) => {
         const refreshToken = jwt.sign(loginCredentials, jwtRefreshSecretKey, { expiresIn: refreshTokenExpire });
         await connection.execute(INSERT_REFRESH_TOKEN, [null, null, agent_id, refreshToken, new Date(), user_agent, ipAddress])
         res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION'
+            // httpOnly: true,
+            // maxAge: 3600000,
+            // secure: process.env.NODE_ENV === 'PRODUCTION'
+            sameSite: 'None',
+            secure: true
         });
 
         res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            maxAge: 900000,
-            secure: process.env.NODE_ENV === 'PRODUCTION'
+            // httpOnly: true,
+            // maxAge: 900000,
+            // secure: process.env.NODE_ENV === 'PRODUCTION',
+            sameSite: 'None',
+            secure: true
         });
 
         res.cookie('role', 'agent', {
-            httpOnly: true,
-            maxAge: 3600000,
-            secure: process.env.NODE_ENV === 'PRODUCTION'
+            // httpOnly: true,
+            // maxAge: 3600000,
+            // secure: process.env.NODE_ENV === 'PRODUCTION'
+            sameSite: 'None',
+            secure: true
         });
         return res.status(200).json(
             successHandler({
