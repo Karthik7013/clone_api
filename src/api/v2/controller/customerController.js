@@ -1,7 +1,7 @@
 const connectToDatabase = require("../../config/db");
 const valkey = require("../../config/redisClient");
 const { v4: uuidv4 } = require('uuid');
-const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE } = require("../../config/queries.constants");
+const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE, DELETE_CUSTOMER_BY_ID } = require("../../config/queries.constants");
 const successHandler = require('../../middleware/successHandler');
 const transporter = require('../service/transporter');
 const { generateCacheKey, setCache, getCache } = require('../../utils/cache')
@@ -123,49 +123,47 @@ const getCustomerPolicyQueues = async (req, res, next) => {
 // @route    /profile
 // @access   private
 const getCustomerProfile = async (customer_id) => {
+    if (!customer_id) throw new Error("customer_id invalid/not_found");
     const connection = await connectToDatabase();
     try {
         // check cache
         const cacheResponse = await getCache(`customer:${customer_id}:profile`);
-        if (cacheResponse) {
-            return cacheResponse
-        }
-
+        if (cacheResponse) return cacheResponse
         const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
-
+        if (!response[0][0]) throw new Error('Customer Not Found !')
         // cache the data
         const cacheKey = generateCacheKey('customer', `${customer_id}`, 'profile');
-        await setCache(cacheKey, successHandler({
-            ...response[0][0],
-            "permissions": [
-                1000,
-                1001,
-                1002,
-                1003, 1004, 1005
-            ],
-            role: 'customer'
-        },
-            "Customer found.",
-            200
-        ))
-
-        return successHandler({
-            ...response[0][0],
-            "permissions": [
-                1000,
-                1001,
-                1002,
-                1003,
-                1004,
-                1005
-            ],
-            role: 'customer'
-        },
-            "Customer found.",
-            200,
-        )
+        await setCache(cacheKey, response[0][0]);
+        return response[0][0]
     } catch (error) {
-        console.log(error, 'something went wrong')
+        throw error
+    } finally {
+        await connection.end();
+    }
+}
+
+// for employee purpose
+const getCustomerProfiles = async (filter = {
+    limit: 10, //default limit
+    page: 1    //default page
+}) => {
+    const { limit, page } = filter;
+    // add extra filter in body to get only assigned customers
+    // dynamic query
+    // SELECT * FROM CUSTOMER WHERE employee_id = ? limit=limit offset=page-1
+    const connection = await connectToDatabase();
+    try {
+        // check cache
+        const cacheResponse = await getCache(`customer:${customer_id}:profile`);
+        if (cacheResponse) return cacheResponse
+
+        const response = await connection.execute(GET_CUSTOMER_ID, [customer_id]);
+        // cache the data
+        const cacheKey = generateCacheKey('customer', `${customer_id}`, 'profile');
+        await setCache(cacheKey, response[0][0]);
+        return response[0][0]
+    } catch (error) {
+        throw error
     } finally {
         await connection.end();
     }
@@ -174,9 +172,9 @@ const getCustomerProfile = async (customer_id) => {
 // @desc     get customer policies
 // @route    /profile
 // @access   private
-const updateCustomerProfile = async (req, res, next) => {
+const updateCustomerProfile = async (customer_id, updateDetails) => {
+    console.log(updateDetails, "updatedCustomerDetails");
     const connection = await connectToDatabase();
-    const customer_id = req.auth.loginId;
     const {
         email,
         dob,
@@ -186,20 +184,25 @@ const updateCustomerProfile = async (req, res, next) => {
         city,
         pincode,
         country,
-        marital_status, bio
-    } = req.body;
+        marital_status,
+        bio
+    } = updateDetails;
     try {
         const response = await connection.execute(UPDATE_CUSTOMER_BY_ID, [email, dob, gender, address, state, city, pincode, country, marital_status, bio, customer_id]);
-
-        return res.status(200).json(
-            successHandler(
-                {},
-                "Customer Details Updated Successfull.",
-                200,
-            )
-        )
+        return { data: "update successfully !" }
     } catch (error) {
-        next(error)
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
+const deleteCustomerProfile = async (customer_id) => {
+    const connection = await connectToDatabase();
+    try {
+        await connection.execute(DELETE_CUSTOMER_BY_ID, [customer_id]);
+    } catch (error) {
+        throw error;
     } finally {
         await connection.end();
     }
@@ -554,4 +557,4 @@ const updatePaymentDetails = async (req, res, next) => {
     }
 }
 
-module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile }
+module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, deleteCustomerProfile, getCustomerProfile, getCustomerProfiles, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile }

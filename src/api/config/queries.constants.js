@@ -8,6 +8,8 @@ const GET_CUSTOMER_ID = 'SELECT * FROM customers WHERE customer_id = ?';
 
 const UPDATE_CUSTOMER_BY_ID = 'UPDATE customers set email = ? ,dob = ?, gender=?,address=?,state=?,city=?,pincode=?,country=?,marital_status=?,bio=? WHERE customer_id = ?';
 
+const DELETE_CUSTOMER_BY_ID = 'DELETE FROM customers WHERE customer_id = ?';
+
 const GET_EMPLOYEE_ID = 'SELECT employees.*, employee_roles.employee_role_id, COALESCE(JSON_ARRAYAGG(role_permissions.permission_id), JSON_ARRAY()) AS permissions FROM employees JOIN employee_roles ON employees.employee_id = employee_roles.employee_id LEFT JOIN role_permissions ON employee_roles.employee_role_id = role_permissions.employee_role_id WHERE employees.employee_id = ? GROUP BY employees.employee_id, employee_roles.employee_role_id'
 const GET_AGENT_ID = 'SELECT * FROM agents WHERE agent_id = ?';
 
@@ -84,6 +86,7 @@ module.exports = {
     GET_EMPLOYEE_MAX_ID,
     GET_CUSTOMER_ID,
     UPDATE_CUSTOMER_BY_ID,
+    DELETE_CUSTOMER_BY_ID,
     GET_EMPLOYEE_ID,
     GET_AGENT_ID,
     INSERT_REFRESH_TOKEN,

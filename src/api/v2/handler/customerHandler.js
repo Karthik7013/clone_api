@@ -1,27 +1,24 @@
-const { getCustomerProfile } = require('../controller/customerController')
+const { getCustomerProfile, updateCustomerProfile, deleteCustomerProfile } = require('../controller/customerController')
+
 const customerProfileHandler = async (event) => {
     const customer_id = event.params.id;
+    const updatedCustomerDetails = event.body;
     switch (event.method) {
         case 'GET':
-            console.log(event.method, 'eventbody-----');
             let profile = await getCustomerProfile(customer_id);
-            console.log(profile, "profile_customer")
-            break;
+            return profile;
         case 'POST':
-            console.log(event.method, 'eventbody-----');
+            console.log(event.method, 'eventbody--CUSTOMER ADD---');
             break;
         case 'PUT':
-            console.log(event.method, 'eventbody-----');
-            break;
+        let updatedProfile = await updateCustomerProfile(customer_id, updatedCustomerDetails)
+        return updatedProfile;
         case 'DELETE':
-            console.log(event.method, 'eventbody-----');
-            break;
+            let deleteProfile = await deleteCustomerProfile(customer_id);
+            return deleteProfile;
         default:
             break;
     }
-
-
-
 }
 
 const customerApplicationHandler = (event) => {
@@ -124,7 +121,5 @@ const customerPreferenceHandler = (event) => {
     }
     return response
 }
-
-// this is my change in another branch
 
 module.exports = { customerProfileHandler, customerApplicationHandler, customerPolicyHandler, customerPaymentHandler, customerClaimsHandler };
