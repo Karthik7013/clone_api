@@ -29,6 +29,7 @@ const employeeRoutesV2 = require("./v2/routes/employeeRoutes");
 const botRoutesV2 = require("./v2/routes/botRoutes");
 const analyticsRoutesV2 = require("./v2/routes/analyticsRoute");
 const webhookRoutesV2 = require("./v2/routes/webhookRoutes");
+const smsRoutesV2 = require("./v2/routes/smsRoutes");
 
 const app = express();
 
@@ -69,6 +70,28 @@ app.use('/api/v2/employee', employeeRoutesV2)
 app.use('/api/v2/bot', botRoutesV2)
 app.use('/api/v2/analytics', analyticsRoutesV2)
 app.use('/api/v2/webhooks', webhookRoutesV2)
+app.use('/api/v2/sms', smsRoutesV2)
+
+// SSE
+app.get('/', async (req, res) => {
+    // res.setHeader('Content-Type', 'text/event-stream')
+    // res.setHeader('Cache-Control', 'no-cache')
+    // res.setHeader('Connection', 'keep-alive');
+    // res.setHeader('Transfer-Encoding', 'chunked');
+    const api1 = new Promise((resolve, reject) => {
+        setTimeout(resolve, 1000)
+    });
+    const api2 = new Promise((resolve, reject) => {
+        setTimeout(resolve, 6000)
+    })
+    // setTimeout(()=> res.end(),10000)
+    api1.then((data = "api1") => {
+        res.write(data);
+    })
+    api2.then((data = "api2") => {
+        res.write(data);
+    })
+})
 
 app.use(errorHandler);
 app.use(notFound)

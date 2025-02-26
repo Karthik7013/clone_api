@@ -5,7 +5,17 @@ const smsRoutes = Router();
 
 smsRoutes.post('/sendOtp', sendOtp);
 smsRoutes.post('/verifyOtp', verifyOtp);
-smsRoutes.post('/resendOtp', sendOtp)
+smsRoutes.post('/resendOtp', sendOtp);
+smsRoutes.post('/resetPassword', (req, res, next) => {
+    // body = {
+    // newPsw:
+    // cnfPsw:
+    // otp: 
+    // }
+})
+smsRoutes.post('forgotPassword', (req, res, next) => {
+
+})
 
 module.exports = smsRoutes;
 

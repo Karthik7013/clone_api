@@ -164,6 +164,30 @@ const verifyOtp = async (req, res, next) => {
     next(error)
   }
 }
+
+// resetpassword steps
+
+// click reset  password
+// sent otp to register mail
+// take new password
+// confirm password
+// verify the otp
+// if true update password
+
+
+// or -----------
+
+// generate a key 
+
+
+// resetpassword/key => redirect
+// send this key to email
+
+
+// 
+
+
+
 //     async (req, res, next) => {
 //     try {
 //         const verifyRes = await fetch('https://www.tataaig.com/lambda/prod-genericService/verifyOTP', {
