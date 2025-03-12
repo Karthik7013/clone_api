@@ -26,10 +26,10 @@ botRoutes.post('/ask', async (req, res, next) => {
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         })
         const markDown = await response.json();
-        const data = marked.parse(markDown);
+        const data = marked.parse(markDown.candidates[0].content.parts[0].text);
 
         return res.status(200).json(
-            successHandler({ response: data.candidates[0].content.parts[0].text },
+            successHandler({ response: data },
                 "Bot Response",
                 200
             )
