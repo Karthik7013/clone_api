@@ -21,6 +21,7 @@
     "express-rate-limit": "^7.4.0",
     "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
+    "marked": "^15.0.7",
     "mongoose": "^8.5.2",
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.16",

@@ -1,7 +1,7 @@
 const Router = require('express');
 const successHandler = require('../../middleware/successHandler');
 const botRoutes = Router();
-
+const marked = require('marked');
 
 botRoutes.post('/ask', async (req, res, next) => {
     try {
@@ -25,7 +25,8 @@ botRoutes.post('/ask', async (req, res, next) => {
             },
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         })
-        const data = await response.json();
+        const markDown = await response.json();
+        const data = marked.parse(markDown);
 
         return res.status(200).json(
             successHandler({ response: data.candidates[0].content.parts[0].text },
