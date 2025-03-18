@@ -47,7 +47,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-const count = 0;
+let count = 0;
 
 app.use('/public', express.static(path.join(__dirname, '../../public')));
 
