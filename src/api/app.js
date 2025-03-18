@@ -30,6 +30,7 @@ const botRoutesV2 = require("./v2/routes/botRoutes");
 const analyticsRoutesV2 = require("./v2/routes/analyticsRoute");
 const webhookRoutesV2 = require("./v2/routes/webhookRoutes");
 const smsRoutesV2 = require("./v2/routes/smsRoutes");
+const successHandler = require("./middleware/successHandler");
 
 const app = express();
 
@@ -97,10 +98,11 @@ app.get('/', async (req, res) => {
 
 app.get('/add', (req, res) => {
     ++count;
-    return res.json(200).json({ message: 'count increase !' })
+    // return res.json(200).json(successHandler(count,"count increased",200))
+    return res.status(200).json(successHandler(count,'added',200))
 })
 app.get('/getCount', (req, res) => {
-    return res.json(200).json({ count })
+    return res.status(200).json(successHandler(count,'count',200))
 })
 
 app.use(errorHandler);
