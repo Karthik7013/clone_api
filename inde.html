@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>The following code snippets generate the first 100 prime numbers in several programming languages. Note that
+        efficiency varies between implementations; for significantly larger numbers of primes, more sophisticated
+        algorithms
+        would be necessary.</p>\n<p><strong>Python:</strong></p>\n
+    <pre><code class=\"language-python\">def is_prime(n):\n  &quot;&quot;&quot;Checks if a number is prime.&quot;&quot;&quot;\n  if n &lt;= 1:\n    return False\n  for i in range(2, int(n**0.5) + 1):\n    if n % i == 0:\n      return False\n  return True\n\nprimes = []\nnum = 2\nwhile len(primes) &lt; 100:\n  if is_prime(num):\n    primes.append(num)\n  num += 1\n\nprint(primes)\n</code></pre>
+    \n<p><strong>JavaScript:</strong></p>\n
+    <pre><code class=\"language-javascript\">function isPrime(n) {\n  if (n &lt;= 1) return false;\n  for (let i = 2; i &lt;= Math.sqrt(n); i++) {\n    if (n % i === 0) return false;\n  }\n  return true;\n}\n\nconst primes = [];\nlet num = 2;\nwhile (primes.length &lt; 100) {\n  if (isPrime(num)) {\n    primes.push(num);\n  }\n  num++;\n}\n\nconsole.log(primes);\n</code></pre>
+    \n<p><strong>C++:</strong></p>\n
+    <pre><code class=\"language-cpp\">#include &lt;iostream&gt;\n#include &lt;vector&gt;\n#include &lt;cmath&gt;\n\nbool isPrime(int n) {\n  if (n &lt;= 1) return false;\n  for (int i = 2; i &lt;= sqrt(n); i++) {\n    if (n % i == 0) return false;\n  }\n  return true;\n}\n\nint main() {\n  std::vector&lt;int&gt; primes;\n  int num = 2;\n  while (primes.size() &lt; 100) {\n    if (isPrime(num)) {\n      primes.push_back(num);\n    }\n    num++;\n  }\n\n  for (int p : primes) {\n    std::cout &lt;&lt; p &lt;&lt; &quot; &quot;;\n  }\n  std::cout &lt;&lt; std::endl;\n  return 0;\n}\n</code></pre>
+    \n<p><strong>Java:</strong></p>\n
+    <pre><code class=\"language-java\">import java.util.ArrayList;\nimport java.util.List;\n\npublic class PrimeNumbers {\n\n    public static boolean isPrime(int n) {\n        if (n &lt;= 1) return false;\n        for (int i = 2; i &lt;= Math.sqrt(n); i++) {\n            if (n % i == 0) return false;\n        }\n        return true;\n    }\n\n    public static void main(String[] args) {\n        List&lt;Integer&gt; primes = new ArrayList&lt;&gt;();\n        int num = 2;\n        while (primes.size() &lt; 100) {\n            if (isPrime(num)) {\n                primes.add(num);\n            }\n            num++;\n        }\n        System.out.println(primes);\n    }\n}\n</code></pre>
+    \n<p><strong>Go:</strong></p>\n
+    <pre><code class=\"language-go\">package main\n\nimport (\n\t&quot;fmt&quot;\n\t&quot;math&quot;\n)\n\nfunc isPrime(n int) bool {\n\tif n &lt;= 1 {\n\t\treturn false\n\t}\n\tfor i := 2; i &lt;= int(math.Sqrt(float64(n))); i++ {\n\t\tif n%i == 0 {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}\n\nfunc main() {\n\tprimes := []int{}\n\tnum := 2\n\tfor len(primes) &lt; 100 {\n\t\tif isPrime(num) {\n\t\t\tprimes = append(primes, num)\n\t\t}\n\t\tnum++\n\t}\n\tfmt.Println(primes)\n}\n</code></pre>
+    \n<p>Remember to compile the C++ and Java code before running. These examples all use a basic trial division method
+        for
+        primality testing. For significantly larger numbers of primes, consider using more efficient algorithms like the
+        Sieve of Eratosthenes.</p>\n
+</body>
+
+</html>
