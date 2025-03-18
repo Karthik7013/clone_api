@@ -30,7 +30,6 @@ const botRoutesV2 = require("./v2/routes/botRoutes");
 const analyticsRoutesV2 = require("./v2/routes/analyticsRoute");
 const webhookRoutesV2 = require("./v2/routes/webhookRoutes");
 const smsRoutesV2 = require("./v2/routes/smsRoutes");
-const isAuthenticated = require("./middleware/auth");
 
 const app = express();
 
