@@ -47,6 +47,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
+const count = 0;
+
 app.use('/public', express.static(path.join(__dirname, '../../public')));
 
 // ==========================| VERSION 0.1 |===========================>
@@ -91,6 +93,14 @@ app.get('/', async (req, res) => {
     api2.then((data = "api2") => {
         res.write(data);
     })
+})
+
+app.get('/add', (req, res) => {
+    ++count;
+    return res.json(200).json({ message: 'count increase !' })
+})
+app.get('/getCount', (req, res) => {
+    return res.json(200).json({ count })
 })
 
 app.use(errorHandler);
