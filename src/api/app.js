@@ -30,6 +30,8 @@ const botRoutesV2 = require("./v2/routes/botRoutes");
 const analyticsRoutesV2 = require("./v2/routes/analyticsRoute");
 const webhookRoutesV2 = require("./v2/routes/webhookRoutes");
 const smsRoutesV2 = require("./v2/routes/smsRoutes");
+const successHandler = require("./middleware/successHandler");
+const connectToDatabase = require("./config/db");
 
 const app = express();
 
@@ -59,6 +61,16 @@ app.use('/api/v1/bot', botRoutes)
 app.use('/api/v1/analytics', analyticsRoutes)
 app.use('/api/v1/webhooks', webhookRoutes)
 app.use('/api/v1/sms', smsRoutes)
+app.post('/api/v1/errorlog', async (req, res) => {
+    const today = new Date();
+    const defaultToDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`; // 
+    today.setDate(today.getDate() - 10);
+    const defaultFromDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    const { fromDate = defaultFromDate, toDate = defaultToDate, limit = 10, page = 1 } = req.body;
+    const connection = await connectToDatabase();
+    const response = await connection.execute(`SELECT ErrorID,ErrorMessage,ErrorType,Severity,ErrorSource,StackTrace,ErrorCode,UserID,IPAddress,Timestamp from ErrorLog WHERE Timestamp BETWEEN '${fromDate}' AND '${toDate}'  LIMIT ${limit} OFFSET ${(page - 1) * limit}`);
+    return res.status(200).json(successHandler(response[0], 'Error Logs', 200))
+})
 
 // ==========================| VERSION 0.2 |===========================>
 
