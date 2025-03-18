@@ -4,7 +4,7 @@ const path = require('path')
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { flushCache } = require("./utils/cache");
-
+const fs = require('fs');
 // ================|        MIDDLEWARES      |================>
 const rateLimiter = require("./middleware/rateLimiter");
 const logger = require("./middleware/logger");
@@ -99,13 +99,24 @@ app.get('/', async (req, res) => {
 app.get('/add', (req, res) => {
     ++count;
     // return res.json(200).json(successHandler(count,"count increased",200))
-    return res.status(200).json(successHandler(count,'added',200))
+    return res.status(200).json(successHandler(count, 'added', 200))
 })
 app.get('/getCount', (req, res) => {
-    return res.status(200).json(successHandler(count,'count',200))
+    return res.status(200).json(successHandler(count, 'count', 200))
+})
+console.log(path.join(__dirname+""),'thisi')
+app.get('/crash', (req, res) => {
+    try {
+        console.log(err)
+    } catch (error) {
+        console.log(error.message)
+        fs.writeFile(path.join(__dirname+'/log.txt'), error.message,(fileError)=>{
+            if(fileError) console.log('failed to write !');
+        })
+    }
 })
 
-app.use(errorHandler);
+// app.use(errorHandler);
 app.use(notFound)
 // flushCache()
 
