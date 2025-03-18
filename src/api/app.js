@@ -93,10 +93,6 @@ app.get('/', async (req, res) => {
     })
 })
 
-app.get('/crash', isAuthenticated(['customer']), (req, res) => {
-    console.log(y)
-})
-
 app.use(errorHandler);
 app.use(notFound);
 // flushCache()
