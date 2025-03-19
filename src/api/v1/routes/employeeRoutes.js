@@ -20,7 +20,18 @@ employeeRoutes.post('/create-role', isAuthenticated(['employee']), createRole);
 employeeRoutes.post('/create-permission', isAuthenticated(['employee']), createPermission);
 employeeRoutes.post('/attach-permissions', isAuthenticated(['employee']), addPermissions);
 employeeRoutes.post('/remove-permissions', isAuthenticated(['employee']), removePermissions);
-employeeRoutes.get('/employee-permissions', isAuthenticated(['employee']), getEmployeePermissions)
+employeeRoutes.get('/employee-permissions', isAuthenticated(['employee']), getEmployeePermissions);
+employeeRoutes.post('/errorlog', async (req, res) => {
+    const today = new Date();
+    const defaultToDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`; // 
+    today.setDate(today.getDate() - 10);
+    const defaultFromDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    const { fromDate = defaultFromDate, toDate = defaultToDate, limit = 10, page = 1 } = req.body;
+    const connection = await connectToDatabase();
+    const response = await connection.execute(`SELECT ErrorID,ErrorMessage,ErrorType,Severity,ErrorSource,StackTrace,ErrorCode,UserID,IPAddress,Timestamp from ErrorLog WHERE Timestamp BETWEEN '${fromDate}' AND '${toDate}'  LIMIT ${limit} OFFSET ${(page - 1) * limit}`);
+    return res.status(200).json(successHandler(response[0], 'Error Logs', 200));
+});
+
 
 module.exports = employeeRoutes;
 
@@ -78,8 +89,8 @@ employeeRoutes.post('role', () => { }) // new roles
 
 employeeRoutes.get('permissions', () => { }) // get permissions
 employeeRoutes.post('permission', () => { }) // create permissions
-employeeRoutes.post('permission/:id',()=>{}) // add permission to employee by empid
-employeeRoutes.delete('permission/:id',()=>{}) // delete permission to employee by empid
+employeeRoutes.post('permission/:id', () => { }) // add permission to employee by empid
+employeeRoutes.delete('permission/:id', () => { }) // delete permission to employee by empid
 
 
 
@@ -88,9 +99,9 @@ employeeRoutes.get('customer/:id', () => { })
 employeeRoutes.put('customer/:id', () => { })
 employeeRoutes.delete('customer/:id', () => { })
 
-    
+
 
 employeeRoutes.get('agents', () => { })
 employeeRoutes.get('agent/:id', () => { })
-employeeRoutes.put('agent/:id', () => { })  
+employeeRoutes.put('agent/:id', () => { })
 employeeRoutes.delete('agent/:id', () => { })
