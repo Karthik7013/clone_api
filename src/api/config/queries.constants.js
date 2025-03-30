@@ -29,13 +29,20 @@ const DELETE_REFRESH_TOKEN = 'DELETE FROM refresh_token where refresh_token = ?'
 
 const GET_CUSTOMER_POLICIES = 'SELECT * FROM policies WHERE customer_id = ? ORDER BY created_at DESC'
 const GET_CUSTOMER_ACTIVE_POLICIES = "SELECT * FROM policies WHERE status = 'active' AND customer_id = ?   ORDER BY created_at DESC LIMIT 100"
+const GET_COUNT_CUSTOMER_ACTIVE_POLICIES = `SELECT COUNT(*) as active_policies FROM policies WHERE status = 'active' AND customer_id = ? ORDER BY created_at DESC LIMIT 100`;
 const GET_CUSTOMER_RENEWAL_POLICIES = "SELECT * FROM policies WHERE status = 'inactive' AND customer_id = ?   ORDER BY created_at DESC LIMIT 100"
+const GET_COUNT_CUSTOMER_RENEWAL_POLICIES = `SELECT COUNT(*) as renewal_policies FROM policies WHERE status = 'inactive' AND customer_id = ? ORDER BY created_at DESC LIMIT 100`;
+
 const GET_CUSTOMER_REGISTER_POLICIES = "SELECT * FROM register_claims JOIN policies ON policies.policy_number = register_claims.policy_number JOIN customers on customers.customer_id = policies.customer_id WHERE customers.customer_id = ? ORDER BY register_claims.created_date DESC LIMIT 100"
 
+const GET_COUNT_CUSTOMER_REGISTER_POLICIES = `SELECT COUNT(*) as register_policies FROM register_claims JOIN policies ON policies.policy_number = register_claims.policy_number JOIN customers on customers.customer_id = policies.customer_id WHERE customers.customer_id = ? ORDER BY register_claims.created_date DESC LIMIT 100`
 
-const GET_CUSTOMER_CLAIMS = 'SELECT * from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ? where  ORDER BY claims.created_at DESC';
 
-const GET_APPROVED_CLAIMS = 'SELECT COUNT(*) from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ? AND claims.claim_status = "Approved" ORDER BY claims.created_at DESC LIMIT 100'
+const GET_CUSTOMER_CLAIMS = 'SELECT * from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ?  ORDER BY claims.created_at DESC';
+
+const GET_APPROVED_CLAIMS = `SELECT * from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ? AND claims.claim_status = 'Approved' ORDER BY claims.created_at DESC LIMIT 100`;
+
+const GET_COUNT_CUSTOMER_APPROVED_CLAIMS = `SELECT COUNT(*) as approved_policies from customers JOIN policies ON customers.customer_id = policies.customer_id JOIN register_claims ON register_claims.policy_number = policies.policy_number  JOIN claims ON claims.register_claim_id = register_claims.register_claim_id WHERE customers.customer_id = ? AND claims.claim_status = 'Approved' ORDER BY claims.created_at DESC LIMIT 100`
 
 const GET_POLICY_PAYMENT = 'SELECT payments.payment_id,payments.application_id,payments.amount,payments.payment_method,payments.payment_date,payments.status,payments.transaction_id,applications.product_type,payments.description,payments.created_at FROM payments JOIN applications ON payments.application_id = applications.application_id JOIN customers on applications.customer_id = customers.customer_id WHERE customers.customer_id = ? ORDER BY payments.created_at'
 
@@ -124,5 +131,9 @@ module.exports = {
     GET_PERMISSION,
     GET_EMPLOYEE_PERMISSIONS,
     INSERT_ERR_LOG,
-    GET_APPROVED_CLAIMS
+    GET_APPROVED_CLAIMS,
+    GET_COUNT_CUSTOMER_ACTIVE_POLICIES,
+    GET_COUNT_CUSTOMER_RENEWAL_POLICIES,
+    GET_COUNT_CUSTOMER_APPROVED_CLAIMS,
+    GET_COUNT_CUSTOMER_REGISTER_POLICIES
 }

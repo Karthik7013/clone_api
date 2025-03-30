@@ -1,7 +1,7 @@
 const connectToDatabase = require("../../config/db");
 const valkey = require("../../config/redisClient");
 const { v4: uuidv4 } = require('uuid');
-const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE, GET_APPROVED_CLAIMS } = require("../../config/queries.constants");
+const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE, GET_APPROVED_CLAIMS, GET_COUNT_CUSTOMER_ACTIVE_POLICIES, GET_COUNT_CUSTOMER_RENEWAL_POLICIES, GET_COUNT_CUSTOMER_APPROVED_CLAIMS, GET_COUNT_CUSTOMER_REGISTER_POLICIES } = require("../../config/queries.constants");
 const successHandler = require('../../middleware/successHandler');
 const transporter = require('../service/transporter');
 const { generateCacheKey, setCache, getCache } = require('../../utils/cache')
@@ -19,31 +19,28 @@ const getCustomerStats = async (req, res, next) => {
         if (cacheResponse) {
             return res.status(200).json(cacheResponse)
         }
-        const active_policy = await connection.execute(GET_CUSTOMER_ACTIVE_POLICIES, [customer_id]);
-        const expire_policy = await connection.execute(GET_CUSTOMER_RENEWAL_POLICIES, [customer_id]);
-        const claim_policy = await connection.execute(GET_APPROVED_CLAIMS, [customer_id]);
-        const register_policy = await connection.execute(GET_CUSTOMER_REGISTER_POLICIES, [customer_id]);
+        const active_policy = await connection.execute(GET_COUNT_CUSTOMER_ACTIVE_POLICIES, [customer_id]);
+        const expire_policy = await connection.execute(GET_COUNT_CUSTOMER_RENEWAL_POLICIES, [customer_id]);
+        const claim_policy = await connection.execute(GET_COUNT_CUSTOMER_APPROVED_CLAIMS, [customer_id]);
+        const register_policy = await connection.execute(GET_COUNT_CUSTOMER_REGISTER_POLICIES, [customer_id]);
         // cache responses
         const cacheKey = generateCacheKey('customer', `${customer_id}`, 'stats');
         await setCache(cacheKey, successHandler({
             "activePolicies": {
-                "count": active_policy[0].length,
+                "count": active_policy[0][0].active_policies,
                 "percentage": 83.33,
             },
 
             "renewalPolicies": {
-                "count": expire_policy[0].length,
+                "count": expire_policy[0][0].renewal_policies,
                 "percentage": 20.83,
             },
             "claimPolicies": {
-                "count": claim_policy[0].length,
-                "percentage": 33.33,
-                "pending": "",
-                "reject": "",
-                "approved": ""
+                "count": claim_policy[0][0].approved_policies,
+                "percentage": 33.33
             },
             "registeredClaimPolicies": {
-                "count": register_policy[0].length,
+                "count": register_policy[0][0].register_policies,
                 "percentage": 37.5,
 
             }
@@ -52,25 +49,21 @@ const getCustomerStats = async (req, res, next) => {
         return res.status(200).json(
             successHandler({
                 "activePolicies": {
-                    "count": active_policy[0].length,
+                    "count": active_policy[0][0].active_policies,
                     "percentage": 83.33,
                 },
 
                 "renewalPolicies": {
-                    "count": expire_policy[0].length,
+                    "count": expire_policy[0][0].renewal_policies,
                     "percentage": 20.83,
                 },
                 "claimPolicies": {
-                    "count": claim_policy[0].length,
+                    "count": claim_policy[0][0].approved_policies,
                     "percentage": 33.33,
-                    "pending": "",
-                    "reject": "",
-                    "approved": ""
                 },
                 "registeredClaimPolicies": {
-                    "count": register_policy[0].length,
+                    "count": register_policy[0][0].register_policies,
                     "percentage": 37.5,
-
                 }
             }, 'Customer Stats', 200)
         )
