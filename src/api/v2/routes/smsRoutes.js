@@ -1,8 +1,6 @@
 const { Router } = require("express");
-const { verifyOtp, sendOtp } = require("../controller/smsController");
 const successHandler = require("../../middleware/successHandler");
 const { smsHandler } = require("../handler/smsHandler");
-
 const smsRoutes = Router();
 
 smsRoutes.post('/sendOtp', async (req, res, next) => {
@@ -21,17 +19,6 @@ smsRoutes.post('/verifyOtp', async (req, res, next) => {
         next(error)
     }
 });
-smsRoutes.post('/resendOtp', sendOtp);
-smsRoutes.post('/resetPassword', (req, res, next) => {
-    // body = {
-    // newPsw:
-    // cnfPsw:
-    // otp: 
-    // }
-})
-smsRoutes.post('forgotPassword', (req, res, next) => {
-
-})
 
 module.exports = smsRoutes;
 

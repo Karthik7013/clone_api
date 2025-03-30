@@ -1,16 +1,13 @@
 const { otpGenerator } = require("../../utils/randOtp");
 const transporter = require('../service/transporter');
 const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/cache");
-const successHandler = require("../../middleware/successHandler");
 
 const sendOtp = async (user) => {
   try {
     const phno = user.phno;
     const email = user.email;
     const name = user.name || 'Customer'
-
     const otp = otpGenerator();
-    console.log(otp)
     // Email options
     const mailOptions = {
       from: process.env.EMAIL, // Sender address
@@ -101,9 +98,6 @@ const sendOtp = async (user) => {
         throw error
       } else {
         const smsKey = generateCacheKey('sms', email, 'send');
-
-        // name, phone/email 
-
         setCache(smsKey, { otp, email, name, phno }, 30);
         console.log('Email sent successfully:', info.response);
       }
@@ -116,11 +110,12 @@ const sendOtp = async (user) => {
 
 const verifyOtp = async (verifyUser) => {
   try {
-    const { otp, email } = verifyUser;
+    const { otp, email, name } = verifyUser;
+    console.log(otp, email, 'see')
     const verifyKey = generateCacheKey('sms', email, 'send')
     const verify = await getCache(verifyKey);
+    console.log('verifyres:', verify);
     if (otp === verify.otp) {
-      console.log('customer created with:', verify.email, verify.phno, verify.name)
       // create a customer with the phone and email
       // create a session
       await delCache(verifyKey);
