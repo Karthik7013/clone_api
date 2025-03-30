@@ -101,7 +101,10 @@ const sendOtp = async (user) => {
         throw error
       } else {
         const smsKey = generateCacheKey('sms', email, 'send');
-        setCache(smsKey, otp, 30);
+
+        // name, phone/email 
+
+        setCache(smsKey, { otp, email, name, phno }, 30);
         console.log('Email sent successfully:', info.response);
       }
     });
@@ -111,45 +114,15 @@ const sendOtp = async (user) => {
   }
 }
 
-//     async (req, res, next) => {
-//     try {
-//         const otpRes = await fetch('https://www.tataaig.com/lambda/prod-genericService/sendOTP', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(req.body)
-//         })
-
-//         if (!otpRes.ok) {
-//             const errorData = await otpRes.json();
-//             return res.status(otpRes.status).json({
-//                 message: 'Failed to send OTP',
-//                 error: errorData,
-//             });
-//         }
-
-//         const data = await otpRes.json();
-//         res.status(200).json(successHandler(data, 'OTP sent successfully', 200));
-//     } catch (error) {
-//         console.error('Error sending OTP:', error);
-//         res.status(500).json({
-//             message: 'An error occurred while sending OTP',
-//             error: error.message,
-//         });
-//     }
-// }
-
-
-
-
-
 const verifyOtp = async (verifyUser) => {
   try {
     const { otp, email } = verifyUser;
     const verifyKey = generateCacheKey('sms', email, 'send')
     const verify = await getCache(verifyKey);
-    if (otp === verify) {
+    if (otp === verify.otp) {
+      console.log('customer created with:', verify.email, verify.phno, verify.name)
+      // create a customer with the phone and email
+      // create a session
       await delCache(verifyKey);
     }
     else {

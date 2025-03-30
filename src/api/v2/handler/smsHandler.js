@@ -12,7 +12,7 @@ const smsHandler = async (event) => {
             await sendOtp({ phone, email, name });
             break;
         case 'VERIFY':
-            await verifyOtp({ otp, email });
+            await verifyOtp({ otp, email, name });
             break;
         default:
             throw new Error('Invalid Method');
