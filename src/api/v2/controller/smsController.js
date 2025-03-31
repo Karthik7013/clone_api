@@ -98,7 +98,7 @@ const sendOtp = async (user) => {
         throw error
       } else {
         const smsKey = generateCacheKey('sms', email, 'send');
-        setCache(smsKey, { otp, email, name, phno }, 30);
+        setCache(smsKey, { otp, email, name, phno }, 500);
         console.log('Email sent successfully:', info.response);
       }
     });
@@ -110,8 +110,7 @@ const sendOtp = async (user) => {
 
 const verifyOtp = async (verifyUser) => {
   try {
-    const { otp, email, name } = verifyUser;
-    console.log(otp, email, 'see')
+    const { otp, email } = verifyUser;
     const verifyKey = generateCacheKey('sms', email, 'send')
     const verify = await getCache(verifyKey);
     console.log('verifyres:', verify);

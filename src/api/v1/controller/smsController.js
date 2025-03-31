@@ -13,6 +13,7 @@ const sendOtp = async (req, res, next) => {
     const referBy = req.body.referBy || null
     const refered_by_agent = req.body.refered_by_agent || null // IF AGENT LOGIN PASS AGENT ID
     const refered_by_employee = req.body.refered_by_employee || null // IF EMPLOYEE LOGIN PASS EMP ID
+    console.log(referBy, refered_by_agent, refered_by_employee)
 
     if (!email && !phno) {
       const err = new Error("Email/phone is requried !");
@@ -20,7 +21,7 @@ const sendOtp = async (req, res, next) => {
       next(err);
     }
     const otp = otpGenerator();
-    console.log(otp, 'top')
+    console.log('otp :', otp);
     // Email options
     const mailOptions = {
       from: process.env.EMAIL, // Sender address
@@ -111,7 +112,7 @@ const sendOtp = async (req, res, next) => {
         next(error);
       } else {
         const smsKey = generateCacheKey('sms', email, 'send');
-        setCache(smsKey, { otp, email, phno, first_name, last_name, referBy, refered_by_agent, refered_by_employee }, 50);
+        setCache(smsKey, { otp, email, phno, first_name, last_name, referBy, refered_by_agent, refered_by_employee }, 500);
         console.log('Email sent successfully:', info.response);
         return res.status(200).json(successHandler({}, "OTP sent successfully.", 200))
       }
@@ -132,9 +133,6 @@ const verifyOtp = async (req, res, next) => {
     const verify = await getCache(verifyKey);
     if (!verify) throw new Error('otp expired/invalid')
     if (otp === verify.otp) {
-
-      // implement in another controller 
-      // INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES('Bhaskar','Rao',null,'bhaskarbunny1371@gmail.com', null,'E001')
       const customerData = {
         first_name: verify.first_name,
         last_name: verify.last_name,
@@ -144,10 +142,8 @@ const verifyOtp = async (req, res, next) => {
         refered_by_agent: verify.referBy === 'AGENT' ? verify.refered_by_agent : null,
         refered_by_employee: verify.referBy === 'EMPLOYEE' ? verify.refered_by_employee : null
       }
-      console.log(customerData);
-      const values = [customerData.first_name, customerData.last_name, customerData.phone, customerData.email, customerData.refered_by_agent, customerData.refered_by_employee]
-      console.log(values)
-      await connection.execute('INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES(?,?,?,?,?,?)', values);
+      // const values = [customerData.first_name, customerData.last_name, customerData.phone, customerData.email, customerData.refered_by_agent, customerData.refered_by_employee]
+      // await connection.execute('INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES(?,?,?,?,?,?)', values);
       console.log(customerData, 'user created with this details');
 
       await delCache(verifyKey);
