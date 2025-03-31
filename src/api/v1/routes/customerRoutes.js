@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { getCustomerPolicies, registerClaim, getCustomerClaims, getPolicyPayments, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile } = require('../controller/customerController');
 const isAuthenticated = require('../../middleware/auth');
+const { createCustomer } = require('../controller/authController');
 
 const customerRoutes = Router();
 customerRoutes.get('/profile', isAuthenticated(['customer']), getCustomerProfile)
@@ -23,11 +24,11 @@ module.exports = customerRoutes;
 // ================== proper routing for customer ===========>
 // controller check /**
 // if(type === 'customer') req.auth.loginId === params.id
-// 
-// 
-// 
-// 
-// 
+//
+//
+//
+//
+//
 //  */
 
 

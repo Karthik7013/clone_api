@@ -2,18 +2,25 @@ const { otpGenerator } = require("../../utils/randOtp");
 const transporter = require('../service/transporter');
 const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/cache");
 const successHandler = require("../../middleware/successHandler");
+const connectToDatabase = require("../../config/db");
 
 const sendOtp = async (req, res, next) => {
   try {
     const phno = req.body.phno;
     const email = req.body.email;
-    const name = req.body.name || 'Customer'
-    if (!email) {
-      const err = new Error("Email is requried !");
+    const name = req.body.name || 'Customer';
+    const [first_name, last_name] = name.split(' ');
+    const referBy = req.body.referBy || null
+    const refered_by_agent = req.body.refered_by_agent || null // IF AGENT LOGIN PASS AGENT ID
+    const refered_by_employee = req.body.refered_by_employee || null // IF EMPLOYEE LOGIN PASS EMP ID
+
+    if (!email && !phno) {
+      const err = new Error("Email/phone is requried !");
       err.status = 400;
       next(err);
     }
     const otp = otpGenerator();
+    console.log(otp, 'top')
     // Email options
     const mailOptions = {
       from: process.env.EMAIL, // Sender address
@@ -104,7 +111,7 @@ const sendOtp = async (req, res, next) => {
         next(error);
       } else {
         const smsKey = generateCacheKey('sms', email, 'send');
-        setCache(smsKey, otp, 50);
+        setCache(smsKey, { otp, email, phno, first_name, last_name, referBy, refered_by_agent, refered_by_employee }, 50);
         console.log('Email sent successfully:', info.response);
         return res.status(200).json(successHandler({}, "OTP sent successfully.", 200))
       }
@@ -115,46 +122,34 @@ const sendOtp = async (req, res, next) => {
   }
 }
 
-//     async (req, res, next) => {
-//     try {
-//         const otpRes = await fetch('https://www.tataaig.com/lambda/prod-genericService/sendOTP', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(req.body)
-//         })
-
-//         if (!otpRes.ok) {
-//             const errorData = await otpRes.json();
-//             return res.status(otpRes.status).json({
-//                 message: 'Failed to send OTP',
-//                 error: errorData,
-//             });
-//         }
-
-//         const data = await otpRes.json();
-//         res.status(200).json(successHandler(data, 'OTP sent successfully', 200));
-//     } catch (error) {
-//         console.error('Error sending OTP:', error);
-//         res.status(500).json({
-//             message: 'An error occurred while sending OTP',
-//             error: error.message,
-//         });
-//     }
-// }
-
-
-
 
 
 const verifyOtp = async (req, res, next) => {
+  const connection = await connectToDatabase();
   try {
     const { otp, email } = req.body;
     const verifyKey = generateCacheKey('sms', email, 'send')
     const verify = await getCache(verifyKey);
+    if (!verify) throw new Error('otp expired/invalid')
+    if (otp === verify.otp) {
 
-    if (otp === verify) {
+      // implement in another controller 
+      // INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES('Bhaskar','Rao',null,'bhaskarbunny1371@gmail.com', null,'E001')
+      const customerData = {
+        first_name: verify.first_name,
+        last_name: verify.last_name,
+        phone: verify.phno || null,
+        email: verify.email,
+        referBy: verify.referBy,
+        refered_by_agent: verify.referBy === 'AGENT' ? verify.refered_by_agent : null,
+        refered_by_employee: verify.referBy === 'EMPLOYEE' ? verify.refered_by_employee : null
+      }
+      console.log(customerData);
+      const values = [customerData.first_name, customerData.last_name, customerData.phone, customerData.email, customerData.refered_by_agent, customerData.refered_by_employee]
+      console.log(values)
+      await connection.execute('INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES(?,?,?,?,?,?)', values);
+      console.log(customerData, 'user created with this details');
+
       await delCache(verifyKey);
       return res.status(200).json(successHandler({}, "Verified successfully", 200))
     }
