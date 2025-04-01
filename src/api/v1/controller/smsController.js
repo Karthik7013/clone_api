@@ -3,6 +3,9 @@ const transporter = require('../service/transporter');
 const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/cache");
 const successHandler = require("../../middleware/successHandler");
 const connectToDatabase = require("../../config/db");
+const customerController = require('./customerController');
+
+
 
 const sendOtp = async (req, res, next) => {
   try {
@@ -153,11 +156,9 @@ const verifyOtp = async (req, res, next) => {
         refered_by_agent: verify.referBy === 'AGENT' ? verify.refered_by_agent : null,
         refered_by_employee: verify.referBy === 'EMPLOYEE' ? verify.refered_by_employee : null
       }
-      // const values = [customerData.first_name, customerData.last_name, customerData.phone, customerData.email, customerData.refered_by_agent, customerData.refered_by_employee]
-      // await connection.execute('INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES(?,?,?,?,?,?)', values);
-      console.log(customerData, 'user created with this details');
-
       await delCache(verifyKey);
+      req.body = customerData
+      customerController.createCustomer(req, res, next) // createCustomer
       return res.status(200).json(successHandler({}, "Verified successfully", 200))
     }
     throw new Error('Failed to verify')

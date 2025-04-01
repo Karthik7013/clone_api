@@ -75,6 +75,32 @@ const getCustomerStats = async (req, res, next) => {
         await connection.end();
     }
 }
+/***
+ * 
+ * 
+ * 
+ * 
+ */
+const createCustomer = async (req, res, next) => {
+    const connection = await connectToDatabase();
+    const customerData = req.body;
+    try {
+        const values = [
+            customerData.first_name,
+            customerData.last_name,
+            customerData.phone,
+            customerData.email,
+            customerData.refered_by_agent,
+            customerData.refered_by_employee
+        ]
+        await connection.execute('INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES(?,?,?,?,?,?)', values);
+        console.log(customerData, 'user created with this details');
+    } catch (error) {
+        next(error)
+    } finally {
+        await connection.end();
+    }
+}
 
 // @desc     get customer policies queues
 // @route    /stats
@@ -544,4 +570,4 @@ const updatePaymentDetails = async (req, res, next) => {
     }
 }
 
-module.exports = { getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile }
+module.exports = { createCustomer, getCustomerPolicies, getPolicyPayments, getCustomerClaims, registerClaim, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile }
