@@ -73,6 +73,17 @@ const sendOtp = async (req, res, next) => {
           color: #D8000C;
           font-weight: bold;
         }
+        .otp{
+          font-weight: 600;
+          text-align: center;
+          font-size: 2em;
+          background-color: #EBEBE4;
+          width: fit-content;
+          letter-spacing: 0.3em;
+          padding: 6px 8px;
+          border-radius: 0.2em;
+          margin: auto;
+        }
       </style>
     </head>
     <body>
