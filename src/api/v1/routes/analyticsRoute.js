@@ -24,6 +24,9 @@ analyticsRoutes.get('/cron-job', async (req, res) => {
     // 3. Navigate to profile page
     await page.goto('https://www.naukri.com/mnjuser/profile', { waitUntil: 'networkidle2' });
 
+    await page.click('.hdn> em');
+    await page.click('#saveBasicDetailsBtn');
+
     // 4. Wait to ensure the page registers the refresh
     await new Promise(resolve => setTimeout(resolve, 5000));
 
