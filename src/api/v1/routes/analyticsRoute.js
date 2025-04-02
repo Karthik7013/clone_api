@@ -7,7 +7,8 @@ analyticsRoutes.get('/cron-job', async (req, res) => {
     const currentTime = new Date().toISOString();
     // return res.send('cronjob-triggered !');
     const browser = await puppeteer.launch({
-        headless: process.env.NODE_ENV === 'PRODUCTION'
+        headless: process.env.NODE_ENV === 'PRODUCTION',
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
