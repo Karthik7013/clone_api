@@ -4,5 +4,5 @@ dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () =>
-    console.log(` -----------------------------\n| server running on port ${PORT} |\n -----------------------------`)
+    console.log(` --------------------------------\n| server running on port ${PORT} 🚀 |\n --------------------------------`)
 );
