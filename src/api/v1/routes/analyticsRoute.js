@@ -6,6 +6,7 @@ const puppeteer = require('puppeteer');
 
 
 analyticsRoutes.get('/cron-job', async (req, res) => {
+    return res.send('cronjob-triggered !');
     const browser = await puppeteer.launch({ headless: false }); // Set to true for background
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
@@ -25,9 +26,12 @@ analyticsRoutes.get('/cron-job', async (req, res) => {
     await page.goto('https://www.naukri.com/mnjuser/profile', { waitUntil: 'networkidle2' });
 
     await page.click('.hdn> em');
-    await page.click('#saveBasicDetailsBtn');
-
     // 4. Wait to ensure the page registers the refresh
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.click('#saveBasicDetailsBtn');
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.goto('https://www.naukri.com/mnjuser/profile', { waitUntil: 'networkidle2' });
+    
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     console.log('/============== NAUKRI PROFILE REFRESHED ==================/')
