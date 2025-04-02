@@ -3,12 +3,12 @@ const analyticsRoutes = Router();
 const puppeteer = require('puppeteer');
 
 
-
-
 analyticsRoutes.get('/cron-job', async (req, res) => {
     const currentTime = new Date().toISOString();
     // return res.send('cronjob-triggered !');
-    const browser = await puppeteer.launch({ headless: false }); // Set to true for background
+    const browser = await puppeteer.launch({
+        headless: process.env.NODE_ENV === 'PRODUCTION'
+    });
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
 
