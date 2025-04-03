@@ -74,23 +74,30 @@ app.use('/api/v2/webhooks', webhookRoutesV2)
 app.use('/api/v2/sms', smsRoutesV2)
 
 // SSE
-app.get('/', async (req, res) => {
-    // res.setHeader('Content-Type', 'text/event-stream')
-    // res.setHeader('Cache-Control', 'no-cache')
-    // res.setHeader('Connection', 'keep-alive');
-    // res.setHeader('Transfer-Encoding', 'chunked');
-    const api1 = new Promise((resolve, reject) => {
-        setTimeout(resolve, 1000)
-    });
-    const api2 = new Promise((resolve, reject) => {
-        setTimeout(resolve, 6000)
-    })
-    // setTimeout(()=> res.end(),10000)
-    api1.then((data = "api1") => {
-        res.write(data);
-    })
-    api2.then((data = "api2") => {
-        res.write(data);
+app.get('/event', async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive');
+    const randInt = () => {
+        return Math.floor(Math.random() * 100)
+    }
+
+    const interval = setInterval(() => {
+        const dataMap = [
+            {
+                name: 'Sales',
+                data: new Array(7).fill(0).map(() => randInt()),
+            }
+        ]
+        console.log('triggerd!')
+        
+        res.write(`data: ${JSON.stringify(dataMap)}\n\n`);
+    }, 1000)
+
+    req.on('close', () => {
+        console.log('event aborted !')
+        clearInterval(interval);
+        res.end()
     })
 })
 
