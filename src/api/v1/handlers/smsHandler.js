@@ -131,6 +131,11 @@ const sendOtp = async (req) => {
 const verifyOtp = async (req) => {
     try {
         const { otp, email } = req.body;
+        if (!otp || !email) {
+            const err = new Error('otp/email is required !')
+            err.status = 400;
+            throw err;
+        }
         const verifyKey = generateCacheKey('sms', email, 'send')
         const verify = await getCache(verifyKey);
         const expireOtp = new Error('otp expired');
