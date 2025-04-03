@@ -21,17 +21,6 @@ const analyticsRoutes = require("./v1/routes/analyticsRoute");
 const webhookRoutes = require("./v1/routes/webhookRoutes");
 const smsRoutes = require("./v1/routes/smsRoutes");
 
-// ================|        V1 ROUTES      |================>
-const authRoutesV2 = require('./v2/routes/authRoutes');
-const customerRoutesV2 = require("./v2/routes/customerRoutes");
-const agentRoutesV2 = require("./v2/routes/agentRoutes");
-const employeeRoutesV2 = require("./v2/routes/employeeRoutes");
-const botRoutesV2 = require("./v2/routes/botRoutes");
-const analyticsRoutesV2 = require("./v2/routes/analyticsRoute");
-const webhookRoutesV2 = require("./v2/routes/webhookRoutes");
-const smsRoutesV2 = require("./v2/routes/smsRoutes");
-const successHandler = require("./middleware/successHandler");
-const connectToDatabase = require("./config/db");
 
 const app = express();
 
