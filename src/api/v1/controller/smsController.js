@@ -6,7 +6,6 @@ const connectToDatabase = require("../../config/db");
 const customerController = require('./customerController');
 
 
-
 const sendOtp = async (req, res, next) => {
   try {
     const phno = req.body.phno;
