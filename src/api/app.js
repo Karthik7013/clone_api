@@ -62,17 +62,6 @@ app.use('/api/v1/analytics', analyticsRoutes)
 app.use('/api/v1/webhooks', webhookRoutes)
 app.use('/api/v1/sms', smsRoutes)
 
-// ==========================| VERSION 0.2 |===========================>
-
-app.use('/api/v2/auth', authRoutesV2)
-app.use('/api/v2/customer', customerRoutesV2)
-app.use('/api/v2/agent', agentRoutesV2)
-app.use('/api/v2/employee', employeeRoutesV2)
-app.use('/api/v2/bot', botRoutesV2)
-app.use('/api/v2/analytics', analyticsRoutesV2)
-app.use('/api/v2/webhooks', webhookRoutesV2)
-app.use('/api/v2/sms', smsRoutesV2)
-
 // SSE
 app.get('/event', async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream')
@@ -90,7 +79,7 @@ app.get('/event', async (req, res) => {
             }
         ]
         console.log('triggerd!')
-        
+
         res.write(`data: ${JSON.stringify(dataMap)}\n\n`);
     }, 1000)
 
