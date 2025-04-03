@@ -7,12 +7,24 @@ botRoutes.post('/ask', async (req, res, next) => {
     try {
         const URI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const { t } = req.body;
+
+
+        const preFetchBody = `
+        - you are my chatbot.
+        - this is a insurance app.
+        - you need to give response on insurance related information.
+        - if it is not related to insurance information.
+        - give response as sorry i can give you the information.pls contact Customer Care.
+        - this is my query : ${t}
+        
+        `;
+
         const requestBody = {
             contents: [
                 {
                     parts: [
                         {
-                            text: t
+                            text: preFetchBody
                         }
                     ]
                 }
