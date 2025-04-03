@@ -1,4 +1,4 @@
-const GET_CUSTOMER_PHONE = 'SELECT * FROM customers WHERE phone = ?';
+const GET_CUSTOMER_PHONE = 'SELECT * FROM customers WHERE phone = ? OR email = ?'
 
 const GET_EMPLOYEE_PHONE = 'SELECT * FROM employees WHERE phone = ?';
 

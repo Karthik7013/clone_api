@@ -27,7 +27,7 @@ const verfiyCustomer = async (req, res, next) => {
             const customerErr = new Error("Customer Phone Number is Required !");
             next(customerErr)
         }
-        const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone]); // Execute the query
+        const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone,phone]); // Execute the query
         if (!results.length) {
             const err = new Error('Customer Not Found !');
             err.status = 404;
