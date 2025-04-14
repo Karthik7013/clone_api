@@ -136,7 +136,7 @@ const verifyOtp = async (req) => {
             err.status = 400;
             throw err;
         }
-        const verifyKey = generateCacheKey('sms', email, 'send')
+        const verifyKey = generateCacheKey('sms', email, 'send');
         const verify = await getCache(verifyKey);
         const expireOtp = new Error('otp expired');
         expireOtp.status = 403;

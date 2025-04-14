@@ -1,7 +1,6 @@
-const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken');
 const connectToDatabase = require("../../config/db");
-const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_AGENT, CREATE_EMPLOYEE, INSERT_REFRESH_TOKEN } = require("../../config/queries.constants");
+const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, INSERT_REFRESH_TOKEN } = require("../../config/queries.constants");
 const successHandler = require("../../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
@@ -16,7 +15,7 @@ const verfiyCustomer = async (req, res, next) => {
     const user_agent = req.headers['user-agent'];
     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const connection = await connectToDatabase();
-    console.log(req.body.phone)
+
     try {
         if (!connection) {
             const dbTimeOutErr = new Error("Error in connecting to db");
@@ -27,7 +26,7 @@ const verfiyCustomer = async (req, res, next) => {
             const customerErr = new Error("Customer Phone Number is Required !");
             next(customerErr)
         }
-        const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone,phone]); // Execute the query
+        const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone, phone]); // Execute the query
         if (!results.length) {
             const err = new Error('Customer Not Found !');
             err.status = 404;
@@ -396,153 +395,6 @@ const signOut = async (req, res, next) => {
     }
 }
 
-
-// @desc     create new customer
-// @route    /signup/customer
-// @access   public
-const createCustomer = async (req, res, next) => {
-    const connection = await connectToDatabase();
-    generateCustomerId(async (customer_id) => {
-        try {
-            const { first_name, last_name, phone } = req.body;
-            const VALUES = [customer_id, first_name, last_name, phone, new Date()]
-            await connection.execute(CREATE_CUSTOMER, VALUES);
-            return res.status(201).json(
-                {
-                    "success": true,
-                    "message": "Customer created successfully.",
-                    "status": 201,
-                    "data": {
-                        customer_id,
-                        first_name,
-                        last_name,
-                        phone
-                    },
-                    "timestamp": new Date()
-                }
-            )
-        } catch (error) {
-            error.status = 500;
-            return next(error);
-        } finally {
-            await connection.end();
-        }
-
-    })
-}
-
-// @desc     create new Agent
-// @route    /signup/agent
-// @access   public
-const createAgent = async (req, res, next) => {
-    const connection = await connectToDatabase();
-    generateAgentId(async (agent_id) => {
-        try {
-            const { first_name, last_name, phone } = req.body;
-            const VALUES = [agent_id, first_name, last_name, phone, new Date()]
-            await connection.execute(CREATE_AGENT, VALUES);
-            return res.status(201).json(
-                {
-                    "success": true,
-                    "message": "Agent created successfully.",
-                    "status": 201,
-                    "data": {
-                        agent_id,
-                        first_name,
-                        last_name,
-                        phone,
-                    },
-                    "timestamp": new Date()
-                }
-            )
-        } catch (error) {
-            error.status = 500;
-            return next(error);
-        } finally {
-            await connection.end();
-        }
-    })
-
-}
-// @desc     create new Employee
-// @route    /signup/employee
-// @access   public
-const createEmployee = async (req, res, next) => {
-    const connection = await connectToDatabase();
-    generateEmployeeId(async (employee_id) => {
-        try {
-            const {
-                first_name,
-                last_name,
-                phone,
-                email,
-                dob,
-                gender,
-                address_line1,
-                address_line2,
-                state,
-                city,
-                pincode,
-                country,
-                position,
-                department,
-                hire_date,
-                salary,
-            } = req.body;
-            const VALUES = [employee_id,
-                first_name,
-                last_name,
-                phone,
-                email,
-                dob,
-                gender,
-                address_line1,
-                address_line2,
-                state,
-                city,
-                pincode,
-                country,
-                position,
-                department,
-                hire_date,
-                salary, new Date()]
-            await connection.execute(CREATE_EMPLOYEE, VALUES);
-            return res.status(201).json(
-                {
-                    "success": true,
-                    "message": "Employee created successfully.",
-                    "status": 201,
-                    "data": {
-                        employee_id,
-                        first_name,
-                        last_name,
-                        phone,
-                        email,
-                        dob,
-                        gender,
-                        address_line1,
-                        address_line2,
-                        state,
-                        city,
-                        pincode,
-                        country,
-                        position,
-                        department,
-                        hire_date,
-                        salary
-                    },
-                    "timestamp": new Date()
-                }
-            )
-        } catch (error) {
-            error.status = 500;
-            return next(error);
-        } finally {
-            await connection.end();
-        }
-    })
-}
-
 // @desc     get access token
 // @route    /generate-access-token
 // @access   public
@@ -586,4 +438,4 @@ const getAccessToken = (req, res, next) => {
     }
 }
 
-module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, createCustomer, createAgent, createEmployee, getAccessToken, signOut };
+module.exports = { verfiyCustomer, verfiyAgent, verfiyEmployee, getAccessToken, signOut };

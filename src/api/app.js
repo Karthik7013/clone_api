@@ -18,12 +18,11 @@ const agentRoutes = require("./v1/routes/agentRoutes");
 const employeeRoutes = require("./v1/routes/employeeRoutes");
 const botRoutes = require("./v1/routes/botRoutes");
 const analyticsRoutes = require("./v1/routes/analyticsRoute");
-const webhookRoutes = require("./v1/routes/webhookRoutes");
 const smsRoutes = require("./v1/routes/smsRoutes");
 
 
 const app = express();
-
+const VERSION = 'v1';
 // middlewares
 app.use(express.json());
 app.use(rateLimiter);
@@ -42,13 +41,16 @@ app.use('/public', express.static(path.join(__dirname, '../../public')));
 
 // ==========================| VERSION 0.1 |===========================>
 
-app.use('/api/v1/auth', authRoutes)
-app.use('/api/v1/customer', customerRoutes)
-app.use('/api/v1/agent', agentRoutes)
-app.use('/api/v1/employee', employeeRoutes)
-app.use('/api/v1/bot', botRoutes)
+
+app.use(`/api/${VERSION}/customers`, customerRoutes)
+app.use(`/api/${VERSION}/agents`, agentRoutes)
+app.use(`/api/${VERSION}/employees`, employeeRoutes)
+
 app.use('/api/v1/analytics', analyticsRoutes)
-app.use('/api/v1/webhooks', webhookRoutes)
+
+// 
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/bot', botRoutes)
 app.use('/api/v1/sms', smsRoutes)
 
 // SSE

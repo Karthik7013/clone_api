@@ -17,19 +17,27 @@ customerRoutes.patch('/paymentDetails', isAuthenticated(['customer']), updatePay
 customerRoutes.get('/analytics', isAuthenticated(['customer']), getCustomerStats)
 customerRoutes.get('/policyQueue', isAuthenticated(['customer']), getCustomerPolicyQueues)
 
+// modified
+
+customerRoutes.get("")
+
+/**
+ * 
+ * customers/   -> pagination required !
+ * / -> pagination required limit, page
+ * /:id [GET]
+ * /:id [post]
+ * /:id [delete]
+ * 
+ * 
+ * 
+ * /claims -> pagination required
+ * /:id [GET]
+ * 
+ * /:id/stats [GET]
+ * 
+ * 
+ * 
+ */
+
 module.exports = customerRoutes;
-
-
-
-// ================== proper routing for customer ===========>
-// controller check /**
-// if(type === 'customer') req.auth.loginId === params.id
-//
-//
-//
-//
-//
-//  */
-
-
-
