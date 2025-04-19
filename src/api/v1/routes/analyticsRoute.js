@@ -4,7 +4,7 @@ const puppeteer = require('puppeteer');
 
 
 analyticsRoutes.get('/cron-job', async (req, res) => {
-return res.status(200).json({msg:"triggered !"}):
+        return res.status(200).json({});
     const currentTime = new Date().toISOString();
     // return res.send('cronjob-triggered !');
     const browser = await puppeteer.launch({
