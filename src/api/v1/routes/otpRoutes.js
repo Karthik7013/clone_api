@@ -4,7 +4,7 @@ const successHandler = require("../../middleware/successHandler");
 const { otpGenerator } = require("../../utils/randOtp");
 const transporter = require("../service/transporter");
 const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/cache");
-const { setCookie, getCookie } = require("../../utils/cookies");
+const { setCookie, getCookie, clearCookie } = require("../../utils/cookies");
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
 const otpRoutes = Router();
@@ -171,9 +171,11 @@ otpRoutes.post('/send', async (req, res, next) => {
 
 otpRoutes.post('/verify', async (req, res, next) => {
   try {
-    const messageId = getCookie(req, "otpSessionId");
+    const key = "otpSessionId"
+    const messageId = getCookie(req, key);
     const { otp } = req.body;
     const response = await verifyOtp(otp, messageId);
+    clearCookie(res, key);
     return res.status(200).json(successHandler(response, 'OTP verified successfully', 200))
   } catch (error) {
     next(error);
