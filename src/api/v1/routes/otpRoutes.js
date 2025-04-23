@@ -2,47 +2,33 @@ const { Router } = require("express");
 const smsHandler = require("../handlers/smsHandler");
 const successHandler = require("../../middleware/successHandler");
 const { otpGenerator } = require("../../utils/randOtp");
-
+const transporter = require("../service/transporter");
+const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/cache");
+const { setCookie, getCookie } = require("../../utils/cookies");
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
 const otpRoutes = Router();
 
-otpRoutes.post('/send', async (req, res, next) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
-    try {
-            const phno = req.body.phno;
-            const email = req.body.email;
-            const name = req.body.name || 'Customer';
-            const [first_name, last_name] = name.split(' ');
-            if (!email) {
-                const err = new Error("Email/phone is requried !");
-                err.status = 400;
-                throw err;
-            }
-            if (email && emailRegex.test(email)) {
-                console.log('otp send via email');
-            }
-
-
-            // if (!emailRegex.test(email)) {
-            //     const inValidEmail = new Error("Enter Valid Email Address");
-            //     inValidEmail.status = 400;
-            //     throw inValidEmail;
-            // }
-            // if (!phoneRegex.test(phno)) {
-            //     const inValidPhone = new Error("Enter Valid Phone Number");
-            //     inValidPhone.status = 400;
-            //     throw inValidPhone;
-            // }
-
-            const otp = otpGenerator();
-            return res.send({ otp })
-
-            // Email options
-            const mailOptions = {
-                from: process.env.EMAIL, // Sender address
-                to: `${email}`, // List of recipients
-                subject: 'Account Verification - OTP',
-                html: `
+const sendOtp2Email = async (email, name = "Customer") => {
+  try {
+    const [first_name, last_name] = name.split(' ');
+    if (!email) {
+      const err = new Error("Email is requried !");
+      err.status = 400;
+      throw err;
+    }
+    if (email === '' || !emailRegex.test(email)) {
+      const inValidEmail = new Error("Enter Valid Email Address");
+      inValidEmail.status = 400;
+      throw inValidEmail;
+    }
+    const otp = otpGenerator();
+    // Email options
+    const mailOptions = {
+      from: process.env.EMAIL, // Sender address
+      to: `${email}`, // List of recipients
+      subject: 'Account Verification - OTP',
+      html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -110,7 +96,7 @@ otpRoutes.post('/send', async (req, res, next) => {
     
             <!-- Content -->
             <div class="content">
-              <p>Dear ${name},</p>
+              <p>Dear ${first_name},</p>
                 <p>Below is your One-Time Password (OTP) for the account verification process:</p>
                 
                 <p class="otp">${otp}</p>
@@ -131,31 +117,67 @@ otpRoutes.post('/send', async (req, res, next) => {
         </body>
         </html>
                 `};
+    const emailResponse = await transporter.sendMail(mailOptions);
 
-            // Send the email
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    throw error;
-                } else {
-                    const smsKey = generateCacheKey('sms', email, 'send');
-                    setCache(smsKey, { otp, email, phno, first_name, last_name }, 500);
-                    return {};
-                }
-            });
-       
+    const messageId = emailResponse.messageId;
+    const emailKey = generateCacheKey('otp', messageId, 'send');
+    setCache(emailKey, { messageId, email, otp }, 500);
+    return { messageId, email, expiresIn: '5 min' };
+  } catch (error) {
+    throw error;
+  }
+}
 
-    } catch (error) {
-        next(error);
+const verifyOtp = async (otp, messageId) => {
+  if (!otp) {
+    const err = new Error("Enter OTP");
+    throw err;
+  }
+  if (!messageId) {
+    const err = new Error("Missing message ID in headers");
+    throw err;
+  }
+  const verifyKey = generateCacheKey('otp', messageId, 'send');
+  const verify = await getCache(verifyKey);
+  const expireOtp = new Error('OTP expired');
+  expireOtp.status = 403;
+  if (!verify) throw expireOtp;
+  if (otp === verify.otp) {
+    await delCache(verifyKey);
+    return { isVerified: true }
+  }
+  throw new Error('invalid otp');
+}
+
+otpRoutes.post('/send', async (req, res, next) => {
+  try {
+    const identity = 'email';
+    switch (identity) {
+      case 'email':
+        const name = req.body.name;
+        const email = req.body.email;
+        const response = await sendOtp2Email(email, name);
+        setCookie(res, 'otpSessionId', response.messageId, {
+          maxAge: 5 * 60 * 1000  // 5 minutes
+        })
+        return res.status(200).json(successHandler(response, 'OTP sent successfully', 200))
+      default:
+        res.send({ msg: "not implemented" });
     }
+  } catch (error) {
+    next(error);
+  }
 })
 
-otpRoutes.post('/verifyOtp', async (req, res, next) => {
-    try {
-        const response = await smsHandler.verifyOtp(req);
-        return res.status(200).json(successHandler(response, 'Otp Verified Successfully', 200))
-    } catch (error) {
-        next(error);
-    }
+otpRoutes.post('/verify', async (req, res, next) => {
+  try {
+    const messageId = getCookie(req, "otpSessionId");
+    const { otp } = req.body;
+    const response = await verifyOtp(otp, messageId);
+    return res.status(200).json(successHandler(response, 'OTP verified successfully', 200))
+  } catch (error) {
+    next(error);
+  }
 })
 
 module.exports = otpRoutes;
@@ -254,4 +276,4 @@ module.exports = otpRoutes;
 //                     </div>
 
 //                 </body>
-//             </html>
+// </html>
