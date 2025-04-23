@@ -19,6 +19,7 @@ const employeeRoutes = require("./v1/routes/employeeRoutes");
 const botRoutes = require("./v1/routes/botRoutes");
 const analyticsRoutes = require("./v1/routes/analyticsRoute");
 const smsRoutes = require("./v1/routes/smsRoutes");
+const otpRoutes = require("./v1/routes/otpRoutes");
 
 
 const app = express();
@@ -52,6 +53,9 @@ app.use('/api/v1/analytics', analyticsRoutes)
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/bot', botRoutes)
 app.use('/api/v1/sms', smsRoutes)
+
+
+app.use('/api/v1/otp',otpRoutes);
 
 // SSE
 app.get('/event', async (req, res) => {
