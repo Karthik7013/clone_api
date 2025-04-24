@@ -7,10 +7,6 @@ const askBot = async (req) => {
 
         const preFetchBody = `
         - you are my chatbot.
-        - this is a insurance app.
-        - you need to give response on insurance related information.
-        - if it is not related to insurance information.
-        - give response as sorry i can give you the information.pls contact Customer Care.
         - this is my query : ${t}`;
 
         const requestBody = {
