@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const authHandler = require("../handlers/authHandler");
 const successHandler = require('../../middleware/successHandler');
+const { getCookie, setCookie } = require('../../utils/cookies');
 const authRoutes = Router();
 
 
@@ -8,9 +9,17 @@ authRoutes.post('/customer', async (req, res, next) => {
     try {
         const response = await authHandler.verfiyCustomer(req);
         if (req.body.method === 'SEND') {
-            return res.status(200).json(successHandler(response, "otp send to register email/phone", 200))
+            setCookie(res, 'otpSessionId', response.messageId, {
+                maxAge: 5 * 60 * 1000  // 5 minutes
+            })
+            return res.status(200).json(successHandler(response, "OTP sent successfully", 200))
         } else {
-            return res.status(200).json(successHandler(response, "otp verified successfully", 200))
+            const key = "otpSessionId"
+            const messageId = getCookie(req, key);
+            const { otp } = req.body;
+            const response = await verifyOtp(otp, messageId);
+            // verify cookies
+            return res.status(200).json(successHandler(response, "OTP verified successfully", 200))
         }
     } catch (error) {
         next(error)

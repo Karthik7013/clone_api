@@ -5,7 +5,7 @@ const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRES
 const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES;
 const connectToDatabase = require('../../config/db');
 const { GET_EMPLOYEE_PHONE, GET_CUSTOMER_PHONE } = require('../../config/queries.constants');
-const smsHandler = require('./smsHandler');
+const otpHandler = require('./otpHandler');
 
 
 /**
@@ -38,11 +38,11 @@ const verfiyCustomer = async (req) => {
                     err.details = 'this is message';
                     throw err
                 }
-                req.body.phno = results[0].phone;
+                // req.body.phno = results[0].phone;
                 req.body.email = results[0].email;
                 req.body.name = results[0].firstname;
-                smsHandler.sendOtp(req); //send otp to email
-                return {}
+                const response = await otpHandler.sendOtp2Email(req.body.email, req.body.name);
+                return response;
             } catch (error) {
                 error.status = 500;
                 throw error
