@@ -1,5 +1,7 @@
 const GET_CUSTOMER_PHONE = 'SELECT * FROM customers WHERE phone = ? OR email = ?'
 
+const GET_CUSTOMER_DETAILS = 'SELECT customer_id, firstname, email, phone FROM customers WHERE phone = ? OR email = ?'
+
 const GET_EMPLOYEE_PHONE = 'SELECT * FROM employees WHERE phone = ?';
 
 const GET_AGENT_PHONE = 'SELECT * FROM agents WHERE phone = ?';
@@ -91,7 +93,9 @@ const GET_EMPLOYEE_PERMISSIONS = 'SELECT employees.*,roles.department,roles.role
 // errors
 const INSERT_ERR_LOG = 'INSERT INTO ErrorLog (ErrorMessage,ErrorType,Severity,ErrorSource,StackTrace,ErrorCode,UserID,IPAddress) VALUES(?,?,?,?,?,?,?,?)'
 module.exports = {
-    GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
+    GET_CUSTOMER_PHONE,
+    GET_CUSTOMER_DETAILS,
+    GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, CREATE_CUSTOMER, CREATE_EMPLOYEE, CREATE_AGENT,
     GET_CUSTOMER_MAX_ID,
     GET_AGENT_MAX_ID,
     GET_EMPLOYEE_MAX_ID,

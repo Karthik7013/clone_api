@@ -51,7 +51,9 @@ authRoutes.post('/customer', async (req, res, next) => {
                     exp: accessTokenExpire,
                     role: 'customer',
                 }
-
+                setCookie(res, 'accessToken', accessToken, {
+                    maxAge: 15 * 60 * 1000  // 15 minutes
+                })
                 return res.status(200).json(successHandler(payload, "Login Successfully", 200))
             default:
                 const notImplement = new Error("Method Not Implemented")

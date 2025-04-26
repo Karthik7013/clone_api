@@ -4,7 +4,7 @@ const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
 const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRES
 const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES;
 const connectToDatabase = require('../../config/db');
-const { GET_EMPLOYEE_PHONE, GET_CUSTOMER_PHONE } = require('../../config/queries.constants');
+const { GET_EMPLOYEE_PHONE, GET_CUSTOMER_PHONE, GET_CUSTOMER_DETAILS } = require('../../config/queries.constants');
 const otpHandler = require('./otpHandler');
 
 
@@ -21,7 +21,7 @@ const sendCustomer = async (phone) => {
             const dbTimeOutErr = new Error("Error in connecting to db");
             throw dbTimeOutErr
         }
-        const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone, phone]); // Execute the query
+        const [results] = await connection.execute(GET_CUSTOMER_DETAILS, [phone, phone]); // Execute the query
         if (!results.length) {
             const err = new Error('Customer Not Found !');
             throw err
@@ -29,8 +29,8 @@ const sendCustomer = async (phone) => {
         const email = results[0].email;
         const name = results[0].firstname;
         const payload = {
-            customer_id: "",
-            role: "",
+            customer_id: results[0].customer_id,
+            role: "customer",
             permissions: []
         }
         const response = await otpHandler.sendOtp2Email(email, name, payload);
