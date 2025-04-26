@@ -17,7 +17,7 @@ otpRoutes.post('/send', async (req, res, next) => {
         })
         return res.status(200).json(successHandler(response, 'OTP sent successfully', 200))
       default:
-        res.send({ msg: "not implemented" });
+        return res.send({ msg: "not implemented" });
     }
   } catch (error) {
     next(error);

@@ -13,68 +13,56 @@ const otpHandler = require('./otpHandler');
  * @param {*} req 
  * @returns 
  */
-const verfiyCustomer = async (req) => {
-    const user_agent = req.headers['user-agent'];
-    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const connection = await connectToDatabase();
-
-    switch (req.body.method) {
-        case "SEND":
-            try {
-                if (!connection) {
-                    const dbTimeOutErr = new Error("Error in connecting to db");
-                    throw dbTimeOutErr
-                }
-                const { phone } = req.body;
-                if (!phone) {
-                    const customerErr = new Error("Customer Phone Number is Required !");
-                    throw customerErr;
-                }
-                const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone, phone]); // Execute the query
-                if (!results.length) {
-                    const err = new Error('Customer Not Found !');
-                    err.status = 404;
-                    err.code = 'this is code';
-                    err.details = 'this is message';
-                    throw err
-                }
-                // req.body.phno = results[0].phone;
-                req.body.email = results[0].email;
-                req.body.name = results[0].firstname;
-                const response = await otpHandler.sendOtp2Email(req.body.email, req.body.name);
-                return response;
-            } catch (error) {
-                error.status = 500;
-                throw error
-            } finally {
-                if (connection) await connection.end();
-            }
-        case "VERIFY":
-            try {
-                if (!connection) {
-                    const dbTimeOutErr = new Error("Error in connecting to db");
-                    throw dbTimeOutErr
-                }
-                const { email } = req.body;
-                const [results] = await connection.execute(GET_CUSTOMER_PHONE, [email, email]); // Execute the query
-
-
-                smsHandler.verifyOtp(req); //send otp to email
-                return {}
-            } catch (error) {
-                error.status = 500;
-                throw error
-            } finally {
-                if (connection) await connection.end();
-            }
-            break;
-
-        default:
-            throw new Error("Not Implemented")
+const sendCustomer = async (phone) => {
+    let connection;
+    try {
+        connection = await connectToDatabase();
+        if (!connection) {
+            const dbTimeOutErr = new Error("Error in connecting to db");
+            throw dbTimeOutErr
+        }
+        const [results] = await connection.execute(GET_CUSTOMER_PHONE, [phone, phone]); // Execute the query
+        if (!results.length) {
+            const err = new Error('Customer Not Found !');
+            throw err
+        }
+        const email = results[0].email;
+        const name = results[0].firstname;
+        const payload = {
+            customer_id: "",
+            role: "",
+            permissions: []
+        }
+        const response = await otpHandler.sendOtp2Email(email, name, payload);
+        return response;
+    } catch (error) {
+        error.status = 500;
+        throw error
+    } finally {
+        if (connection) await connection.end();
     }
-
-
 }
+
+const verifyCustomer = async (otp, messageId) => {
+    let connection;
+    try {
+        connection = await connectToDatabase();
+        if (!connection) {
+            const dbTimeOutErr = new Error("Error in connecting to db");
+            throw dbTimeOutErr
+        }
+        const response = otpHandler.verifyOtp(otp, messageId)
+        return response;
+    } catch (error) {
+        error.status = 500;
+        throw error
+    } finally {
+        if (connection) await connection.end();
+    }
+}
+
+
+
 
 /**
  * check the agent with email/phone 
@@ -287,9 +275,10 @@ const getAccessToken = (req) => {
 }
 
 module.exports = {
-    verfiyCustomer,
+    verifyCustomer,
+    sendCustomer,
     verfiyAgent,
     verfiyEmployee,
     signOut,
-    getAccessToken
+    getAccessToken,
 }

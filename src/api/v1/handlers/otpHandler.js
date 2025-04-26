@@ -4,26 +4,26 @@ const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
 
-const sendOtp2Email = async (email, name = "Customer") => {
-    try {
-        const [first_name, last_name] = name.split(' ');
-        if (!email) {
-            const err = new Error("Email is required.");
-            err.status = 400;
-            throw err;
-        }
-        if (email === '' || !emailRegex.test(email)) {
-            const inValidEmail = new Error("Enter Valid Email Address.");
-            inValidEmail.status = 400;
-            throw inValidEmail;
-        }
-        const otp = otpGenerator();
-        // Email options
-        const mailOptions = {
-            from: process.env.EMAIL, // Sender address
-            to: `${email}`, // List of recipients
-            subject: 'Account Verification - OTP',
-            html: `
+const sendOtp2Email = async (email, name = "Customer", data = null) => {
+  try {
+    const [first_name, last_name] = name.split(' ');
+    if (!email) {
+      const err = new Error("Email is required.");
+      err.status = 400;
+      throw err;
+    }
+    if (email === '' || !emailRegex.test(email)) {
+      const inValidEmail = new Error("Enter Valid Email Address.");
+      inValidEmail.status = 400;
+      throw inValidEmail;
+    }
+    const otp = otpGenerator();
+    // Email options
+    const mailOptions = {
+      from: process.env.EMAIL, // Sender address
+      to: `${email}`, // List of recipients
+      subject: 'Account Verification - OTP',
+      html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -112,39 +112,40 @@ const sendOtp2Email = async (email, name = "Customer") => {
         </body>
         </html>
                 `};
-        const emailResponse = await transporter.sendMail(mailOptions);
+    const emailResponse = await transporter.sendMail(mailOptions);
 
-        const messageId = emailResponse.messageId;
-        const emailKey = generateCacheKey('otp', messageId, 'send');
-        setCache(emailKey, { messageId, email, otp }, 500);
-        return { messageId, email, expiresIn: '5 min' };
-    } catch (error) {
-        throw error;
-    }
+    const messageId = emailResponse.messageId;
+    const emailKey = generateCacheKey('otp', messageId, 'send');
+    setCache(emailKey, { messageId, email, otp, data }, 500);
+    return { messageId, email, expiresIn: '5 min' };
+  } catch (error) {
+    throw error;
+  }
 }
 
 const verifyOtp = async (otp, messageId) => {
-    if (!otp) {
-        const err = new Error("Enter OTP");
-        throw err;
-    }
-    if (!messageId) {
-        const err = new Error("Missing message ID in headers");
-        throw err;
-    }
-    const verifyKey = generateCacheKey('otp', messageId, 'send');
-    const verify = await getCache(verifyKey);
-    const expireOtp = new Error('OTP expired');
-    expireOtp.status = 403;
-    if (!verify) throw expireOtp;
-    if (otp === verify.otp) {
-        await delCache(verifyKey);
-        return { isVerified: true }
-    }
-    throw new Error('invalid otp');
+  if (!otp) {
+    const err = new Error("Enter OTP");
+    throw err;
+  }
+  if (!messageId) {
+    const err = new Error("Missing message ID in headers");
+    throw err;
+  }
+  const verifyKey = generateCacheKey('otp', messageId, 'send');
+  const verify = await getCache(verifyKey);
+  const expireOtp = new Error('OTP expired');
+  expireOtp.status = 403;
+  if (!verify) throw expireOtp;
+  if (otp === verify.otp) {
+    const { data = null } = verify;
+    await delCache(verifyKey);
+    return data;
+  }
 }
 
 
+
 module.exports = {
-    sendOtp2Email, verifyOtp
+  sendOtp2Email, verifyOtp
 }
