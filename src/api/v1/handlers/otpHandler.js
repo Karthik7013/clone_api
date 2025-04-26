@@ -142,6 +142,7 @@ const verifyOtp = async (otp, messageId) => {
     await delCache(verifyKey);
     return data;
   }
+  throw new Error("otp expire/invalid.")
 }
 
 
