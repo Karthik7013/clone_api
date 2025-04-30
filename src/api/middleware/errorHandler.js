@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 const crypto = require('crypto');
 const { INSERT_ERR_LOG } = require('../config/queries.constants');
-const connectToDatabase = require('../config/db');
+const { connectToDatabase } = require('../config/db');
 dotenv.config();
 const NODE_ENV = process.env.NODE_ENV || "DEVELOPMENT"
 

@@ -30,4 +30,4 @@ async function connectTodoDB() {
     }
 }
 
-module.exports = connectToDatabase;
+module.exports = { connectToDatabase, connectTodoDB };

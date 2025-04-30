@@ -20,7 +20,10 @@ const botRoutes = require("./v1/routes/botRoutes");
 const analyticsRoutes = require("./v1/routes/analyticsRoute");
 const smsRoutes = require("./v1/routes/smsRoutes");
 const otpRoutes = require("./v1/routes/otpRoutes");
-const isAuthenticated = require("./middleware/auth");
+const { connectTodoDB } = require("./config/db");
+const successHandler = require("./middleware/successHandler");
+const { otpGenerator } = require("./utils/randOtp");
+
 
 
 const app = express();
@@ -57,53 +60,6 @@ app.use('/api/v1/sms', smsRoutes)
 
 
 app.use('/api/v1/otp', otpRoutes);
-
-// resources
-
-// users
-app.get('/api/v1/users',isAuthenticated, (req, res) => {
-    res.send({ users: [] })
-})
-
-app.get('/api/v1/users/:id', (req, res) => {
-    res.send({ user: {} })
-})
-
-app.post('/api/v1/users/:id', (req, res) => {
-    res.send({ msg: 'user added' })
-})
-
-app.put('/api/v1/users/:id', (req, res) => {
-    res.send({ msg: 'user updated' })
-})
-
-app.delete('/api/v1/users/:id', (req, res) => {
-    res.send({ msg: 'user deleted' })
-})
-
-
-
-
-// todos
-app.get('/api/v1/todos', (req, res) => {
-    res.send({ users: [] })
-})
-
-app.get('/api/v1/todos/:id', (req, res) => {
-    res.send({ user: {} })
-})
-
-app.post('/api/v1/todos/:id', (req, res) => {
-    res.send({ msg: 'user added' })
-})
-
-app.put('/api/v1/todos/:id', (req, res) => {
-    res.send({ msg: 'user updated' })
-})
-
-app.delete('/api/v1/todos/:id', (req, res) => {
-    res.send({ msg: 'user deleted' })
-})
 
 
 // SSE
