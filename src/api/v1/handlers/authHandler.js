@@ -3,7 +3,7 @@ const jwtSecretKey = process.env.JWT_SECRET_KEY;
 const jwtRefreshSecretKey = process.env.JWT_REFRESH_SECRET_KEY;
 const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRES
 const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES;
-const connectToDatabase = require('../../config/db');
+const { connectToDatabase } = require('../../config/db');
 const { GET_EMPLOYEE_PHONE, GET_CUSTOMER_PHONE, GET_CUSTOMER_DETAILS } = require('../../config/queries.constants');
 const otpHandler = require('./otpHandler');
 
