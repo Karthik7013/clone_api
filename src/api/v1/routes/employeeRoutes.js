@@ -2,7 +2,7 @@ const { Router } = require('express');
 const isAuthenticated = require('../../middleware/auth');
 const { getEmployeeProfile, getAgentProfiles, getEmployeeProfiles, getCustomerProfiles, getClaims, createEmployee, createPermission, createRole, getRoles, getPermissions, addPermissions, removePermissions, deleteEmployee, editEmployee, getEmployeePermissions } = require('../controller/employeeController');
 const isAuthorized = require('../../middleware/authorization');
-const connectToDatabase = require('../../config/db');
+const { connectToDatabase } = require('../../config/db');
 const successHandler = require('../../middleware/successHandler');
 
 const employeeRoutes = Router();

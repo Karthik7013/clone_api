@@ -2,7 +2,7 @@ const { otpGenerator } = require("../../utils/randOtp");
 const transporter = require('../service/transporter');
 const { generateCacheKey, setCache, getCache, delCache } = require("../../utils/cache");
 const successHandler = require("../../middleware/successHandler");
-const connectToDatabase = require("../../config/db");
+const { connectToDatabase } = require("../../config/db");
 const customerController = require('./customerController');
 
 

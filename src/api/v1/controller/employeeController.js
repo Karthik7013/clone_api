@@ -3,7 +3,7 @@
 // @desc     get customer policies
 // @route    /profile
 
-const connectToDatabase = require("../../config/db");
+const { connectToDatabase } = require("../../config/db");
 const { GET_EMPLOYEE_ID, GET_ALL_CUSTOMERS, GET_ALL_AGENTS, GET_ALL_EMPLOYEES, GET_ALL_CLAIMS, CREATE_NEW_EMPLOYEE, CREATE_EMP_ROLE, CREATE_ROLE, CREATE_PERMISSION, GET_ROLES, GET_PERMISSIONS, ADD_PERMISSION, GET_PERMISSION, DELETE_PERMISSION, GET_EMPLOYEE_PERMISSIONS } = require("../../config/queries.constants");
 const successHandler = require("../../middleware/successHandler");
 const { generateCacheKey, getCache, setCache } = require("../../utils/cache");

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const connectToDatabase = require("../../config/db");
+const { connectToDatabase } = require("../../config/db");
 const { GET_CUSTOMER_PHONE, GET_AGENT_PHONE, GET_EMPLOYEE_PHONE, INSERT_REFRESH_TOKEN } = require("../../config/queries.constants");
 const successHandler = require("../../middleware/successHandler");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;

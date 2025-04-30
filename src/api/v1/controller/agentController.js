@@ -1,4 +1,4 @@
-const connectToDatabase = require("../../config/db");
+const { connectToDatabase } = require("../../config/db");
 const { GET_AGENT_ID, GET_AGENT_CUSTOMERS, GET_AGENT_POLICIES, CREATE_AGENT_CUSTOMERS } = require("../../config/queries.constants");
 const successHandler = require("../../middleware/successHandler");
 // import { v4 as uuidv4 } from 'uuid';
