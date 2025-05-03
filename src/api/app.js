@@ -20,10 +20,7 @@ const botRoutes = require("./v1/routes/botRoutes");
 const analyticsRoutes = require("./v1/routes/analyticsRoute");
 const smsRoutes = require("./v1/routes/smsRoutes");
 const otpRoutes = require("./v1/routes/otpRoutes");
-const { connectTodoDB } = require("./config/db");
-const successHandler = require("./middleware/successHandler");
-const { otpGenerator } = require("./utils/randOtp");
-
+const uploadRoutes = require('./v1/routes/uploadRoutes')
 
 
 const app = express();
@@ -60,6 +57,10 @@ app.use('/api/v1/sms', smsRoutes)
 
 
 app.use('/api/v1/otp', otpRoutes);
+
+// resources
+
+app.use('/api/v1',uploadRoutes)
 
 
 // SSE
