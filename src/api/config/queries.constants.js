@@ -91,7 +91,7 @@ const DELETE_PERMISSION = 'DELETE FROM role_permissions WHERE permission_id = ? 
 const GET_EMPLOYEE_PERMISSIONS = 'SELECT employees.*,roles.department,roles.role_name, employee_roles.employee_role_id, COALESCE(JSON_ARRAYAGG(role_permissions.permission_id), JSON_ARRAY()) AS permissions FROM employees JOIN employee_roles ON employees.employee_id = employee_roles.employee_id JOIN roles on employee_roles.role_id = roles.role_id LEFT JOIN role_permissions ON employee_roles.employee_role_id = role_permissions.employee_role_id GROUP BY employees.employee_id, employee_roles.employee_role_id';
 
 // errors
-const INSERT_ERR_LOG = 'INSERT INTO ErrorLog (ErrorMessage,ErrorType,Severity,ErrorSource,StackTrace,ErrorCode,UserID,IPAddress) VALUES(?,?,?,?,?,?,?,?)'
+const INSERT_ERR_LOG = 'INSERT INTO ErrorLogs (ErrorMessage,ErrorType,Severity,ErrorSource,StackTrace,ErrorCode,UserID,IPAddress) VALUES(?,?,?,?,?,?,?,?)'
 module.exports = {
     GET_CUSTOMER_PHONE,
     GET_CUSTOMER_DETAILS,
