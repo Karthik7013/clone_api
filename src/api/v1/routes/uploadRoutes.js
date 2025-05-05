@@ -9,7 +9,7 @@ const uploadRoutes = Routes();
 
 
 const upload = multer({ dest: 'uploads/' });
-uploadRoutes.post('/upload', upload.single('image'), async (req, res, next) => {
+uploadRoutes.post('/', upload.single('image'), async (req, res, next) => {
     try {
         const filePath = req.file.path;
         const fileStream = fs.createReadStream(filePath);

@@ -2,8 +2,11 @@ const { Router } = require("express");
 const successHandler = require("../../middleware/successHandler");
 const { setCookie, getCookie, clearCookie } = require("../../utils/cookies");
 const { sendOtp2Email, verifyOtp } = require("../handlers/otpHandler");
+const rateLimiter = require("../../middleware/rateLimiter");
 const otpRoutes = Router();
 
+
+otpRoutes.use(rateLimiter(5*10*1000,1));
 otpRoutes.post('/send', async (req, res, next) => {
   try {
     const identity = 'email';

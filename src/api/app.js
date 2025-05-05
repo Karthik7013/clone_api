@@ -6,7 +6,6 @@ const cookieParser = require("cookie-parser");
 const { flushCache } = require("./utils/cache");
 
 // ================|        MIDDLEWARES      |================>
-const rateLimiter = require("./middleware/rateLimiter");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const notFound = require("./middleware/notFound");
@@ -24,10 +23,8 @@ const uploadRoutes = require('./v1/routes/uploadRoutes')
 
 
 const app = express();
-const VERSION = 'v1';
 // middlewares
 app.use(express.json());
-app.use(rateLimiter);
 app.use(logger);
 
 // ================| CORS OPTIONS |=================>
@@ -44,9 +41,9 @@ app.use('/public', express.static(path.join(__dirname, '../../public')));
 // ==========================| VERSION 0.1 |===========================>
 
 
-app.use(`/api/${VERSION}/customers`, customerRoutes)
-app.use(`/api/${VERSION}/agents`, agentRoutes)
-app.use(`/api/${VERSION}/employees`, employeeRoutes)
+app.use(`/api/v1/customers`, customerRoutes)
+app.use(`/api/v1/agents`, agentRoutes)
+app.use(`/api/v1/employees`, employeeRoutes)
 
 app.use('/api/v1/analytics', analyticsRoutes)
 
@@ -60,7 +57,7 @@ app.use('/api/v1/otp', otpRoutes);
 
 // resources
 
-app.use('/api/v1',uploadRoutes)
+app.use('/api/v1/upload',uploadRoutes)
 
 
 // SSE
