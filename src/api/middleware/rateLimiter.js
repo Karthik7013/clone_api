@@ -6,7 +6,7 @@ const limiter = (windowMs = 60 * 1000, max = 1) => {
     max, // request
     message: {
       success: false,
-      message: `Too many requests from this IP, please try again after ${windowMs} ms.`,
+      message: `Too many requests, please try again after ${windowMs} ms.`,
       status: 429,
       timestamp: new Date()
     },

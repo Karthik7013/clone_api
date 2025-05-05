@@ -5,9 +5,8 @@ const { sendOtp2Email, verifyOtp } = require("../handlers/otpHandler");
 const rateLimiter = require("../../middleware/rateLimiter");
 const otpRoutes = Router();
 
-
-otpRoutes.use(rateLimiter(5*10*1000,1));
-otpRoutes.post('/send', async (req, res, next) => {
+// 1 request per 5 min
+otpRoutes.post('/send', rateLimiter(5 * 60 * 1000, 1), async (req, res, next) => {
   try {
     const identity = 'email';
     switch (identity) {
@@ -27,9 +26,10 @@ otpRoutes.post('/send', async (req, res, next) => {
   }
 })
 
-otpRoutes.post('/verify', async (req, res, next) => {
+// 10 request per min
+otpRoutes.post('/verify', rateLimiter(1 * 60 * 1000, 10), async (req, res, next) => {
   try {
-    const key = "otpSessionId"
+    const key = "otpSessionId";
     const messageId = getCookie(req, key);
     const { otp } = req.body;
     const response = await verifyOtp(otp, messageId);
