@@ -6,7 +6,7 @@ const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
 
 const sendOtp2Email = async (email, name = "Customer", data = null) => {
   try {
-    const [first_name, last_name] = name.split(' ');
+    const [first_name] = name.split(' ');
     if (!email) {
       const err = new Error("Email is required.");
       err.status = 400;
@@ -116,13 +116,13 @@ const sendOtp2Email = async (email, name = "Customer", data = null) => {
 
     const messageId = emailResponse.messageId;
     const emailKey = generateCacheKey('otp', messageId, 'send');
-    setCache(emailKey, { messageId, email, otp, data }, 500);
-    return { messageId, email, expiresIn: '5 min' };
+    setCache(emailKey, { messageId, email, otp, data }, 200);
+    return { messageId, email, expiresIn: '2 min' };
   } catch (error) {
     throw error;
   }
 }
-
+const resendOtp = async () => { }
 const verifyOtp = async (otp, messageId) => {
   if (!otp) {
     const err = new Error("Enter OTP");
@@ -146,7 +146,6 @@ const verifyOtp = async (otp, messageId) => {
 }
 
 
-
 module.exports = {
-  sendOtp2Email, verifyOtp
+  sendOtp2Email, verifyOtp, resendOtp
 }

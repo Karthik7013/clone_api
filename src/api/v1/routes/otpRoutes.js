@@ -5,21 +5,26 @@ const { sendOtp2Email, verifyOtp } = require("../handlers/otpHandler");
 const rateLimiter = require("../../middleware/rateLimiter");
 const otpRoutes = Router();
 
-// 1 request per 5 min
-otpRoutes.post('/send', rateLimiter(5 * 60 * 1000, 1), async (req, res, next) => {
+// 1 request per 2 min
+otpRoutes.post('/send', rateLimiter(2 * 60 * 1000, 1), async (req, res, next) => {
   try {
-    const identity = 'email';
+    const { identity } = req.body
+    if (!identity) {
+      const err = new Error('Identity is required !')
+      next(err)
+    }
     switch (identity) {
       case 'email':
-        const name = req.body.name;
         const email = req.body.email;
+        const name = req.body.name;
         const response = await sendOtp2Email(email, name);
         setCookie(res, 'otpSessionId', response.messageId, {
-          maxAge: 5 * 60 * 1000  // 5 minutes
+          maxAge: 2 * 60 * 1000  // 2 minutes
         })
         return res.status(200).json(successHandler(response, 'OTP sent successfully', 200))
       default:
-        return res.send({ msg: "not implemented" });
+        const notImplemented = new Error("Not Implemented")
+        next(notImplemented);
     }
   } catch (error) {
     next(error);

@@ -48,16 +48,16 @@ app.use(`/api/v1/employees`, employeeRoutes)
 app.use('/api/v1/analytics', analyticsRoutes)
 
 // 
+app.use('/api/v1/upload', uploadRoutes)
 app.use('/api/v1/auth', authRoutes)
-app.use('/api/v1/bot', botRoutes)
-app.use('/api/v1/sms', smsRoutes)
-
-
+app.use('/api/v1/bot', botRoutes);
 app.use('/api/v1/otp', otpRoutes);
+// app.use('/api/v1/sms', smsRoutes)
+
+
 
 // resources
 
-app.use('/api/v1/upload',uploadRoutes)
 
 
 // SSE

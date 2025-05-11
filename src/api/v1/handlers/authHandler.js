@@ -6,6 +6,7 @@ const accessTokenExpire = process.env.ACCESS_TOKEN_EXPIRES;
 const { connectToDatabase } = require('../../config/db');
 const { GET_EMPLOYEE_PHONE, GET_CUSTOMER_PHONE, GET_CUSTOMER_DETAILS } = require('../../config/queries.constants');
 const otpHandler = require('./otpHandler');
+const { clearCookie, setCookie } = require('../../utils/cookies');
 
 
 /**
@@ -191,9 +192,9 @@ const verfiyEmployee = async (req) => {
  * 
  * 
  */
-const signOut = async (req) => {
-    const connection = await connectToDatabase();
-    const { refreshToken } = req.cookies;
+const signOut = async (res) => {
+    // const connection = await connectToDatabase();
+    // const { refreshToken } = req.cookies;
     try {
         // if (!refreshToken) {
         //     const err = new Error('Not Authenticated');
@@ -205,33 +206,33 @@ const signOut = async (req) => {
         // await connection.execute(DELETE_REFRESH_TOKEN, [refreshToken]);
 
 
-        res.clearCookie('refreshToken', {
+        clearCookie(res, 'refreshToken', {
             // httpOnly: true,
             // secure: process.env.NODE_ENV === 'PRODUCTION', // Only clear in production if cookie is secure
             // sameSite: 'None', // Same SameSite setting used while setting cookies
             // path: '/' // Match the path you set when the cookie was created
         });
 
-        res.clearCookie('accessToken', {
+        clearCookie(res, 'accessToken', {
             // httpOnly: true,
             // secure: process.env.NODE_ENV === 'PRODUCTION',
             // sameSite: 'None',
             // path: '/'
         });
 
-        res.clearCookie('role', {
-            // httpOnly: true,
-            // secure: process.env.NODE_ENV === 'PRODUCTION',
-            // sameSite: 'None',
-            // path: '/'
-        });
+        // res.clearCookie('role', {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'PRODUCTION',
+        //     sameSite: 'None',
+        //     path: '/'
+        // });
         return {}
     } catch (error) {
         error.status = 500;
         throw error
     }
     finally {
-        if (connection) await connection.end();
+        // if (connection) await connection.end();
     }
 }
 
@@ -240,36 +241,31 @@ const signOut = async (req) => {
  * @param {*} req 
  * 
  */
-const getAccessToken = (req) => {
-    const { refreshToken } = req.cookies
+const generateAccessToken = async (refreshToken) => {
     if (!refreshToken) {
-        const err = new Error('Token not found');
+        const err = new Error('Refresh token not found');
         err.status = 401;
         err.code = 'this is code';
         err.details = 'Refresh token not found';
         throw err
-        // return res.redirect('http://localhost:5173')
     }
     try {
-
         jwt.verify(refreshToken, jwtRefreshSecretKey, (err, decode) => {
             if (err) {
-                const err = new Error("Token expired/invalid !");
+                const err = new Error("Refresh token expired/invalid !");
                 err.status = 403;
                 throw err
             }
-            const loginCredentials = {
-                loginId: decode.loginId, type: decode.type,
+            const { customer_id, role, permissions } = decode
+            const payload = {
+                customer_id,
+                role,
+                permissions
             }
-            const accessToken = jwt.sign(loginCredentials, jwtSecretKey, { expiresIn: accessTokenExpire });
-            res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
-            return {
-                accessToken,
-                exp: accessTokenExpire,
-            }
+            const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: accessTokenExpire });
+            return accessToken;
         })
     } catch (error) {
-        // return res.redirect('http://localhost:5173')
         throw error
     }
 }
@@ -280,5 +276,6 @@ module.exports = {
     verfiyAgent,
     verfiyEmployee,
     signOut,
-    getAccessToken,
+    generateAccessToken,
+
 }
