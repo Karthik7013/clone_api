@@ -38,24 +38,3 @@ To begin using the NameLix 360° APIs, follow these steps:
 3. **Example Usage**  
    Here’s a quick example to get you started:
 
-  ```javascript
-   const axios = require('axios');
-
-   const url = 'https://api.name-lix.com/v1/policies';
-   const apiKey = 'YOUR_API_KEY';
-
-   axios.get(url, {
-       headers: {
-           'Authorization': `Bearer ${apiKey}`,
-           'Content-Type': 'application/json'
-       }
-   })
-   .then(response => {
-       console.log(response.data);
-   })
-   .catch(error => {
-       console.error('Error:', error.response.status, error.response.data);
-   });
-       print(response.json())
-   else:
-       print("Error:", response.status_code, response.text)
