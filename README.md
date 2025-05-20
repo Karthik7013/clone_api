@@ -1,6 +1,6 @@
 
 # NameLix 360° Total Insurance
-<img src="https://clone-api.onrender.com/public/images/logo.jpg" alt="NameLix Logo" width="100"  style="border-radius: 10px;" />
+<img src="https://namelix.koyeb.app/public/images/logo.jpg" alt="NameLix Logo" width="100"  style="border-radius: 10px;" />
 
 ## Overview
 NameLix 360° Total Insurance offers a comprehensive suite of APIs designed to seamlessly integrate and enhance the functionalities of the NameLix 360 insurance application. These endpoints facilitate secure and efficient communication between the application and various external systems, enabling a wide range of operations including:
