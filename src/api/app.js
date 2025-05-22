@@ -41,22 +41,19 @@ app.use('/public', express.static(path.join(__dirname, '../../public')));
 // ==========================| VERSION 0.1 |===========================>
 
 
-app.use(`/api/v1/customers`, customerRoutes)
+app.use(`/api/v1/customer`, customerRoutes)
 app.use(`/api/v1/agents`, agentRoutes)
 app.use(`/api/v1/employees`, employeeRoutes)
 
 app.use('/api/v1/analytics', analyticsRoutes)
 
-// 
+// resources
 app.use('/api/v1/upload', uploadRoutes)
-app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/bot', botRoutes);
 app.use('/api/v1/otp', otpRoutes);
-// app.use('/api/v1/sms', smsRoutes)
+app.use('/api/v1/auth', authRoutes)
 
 
-
-// resources
 
 
 

@@ -1,18 +1,29 @@
-# Use Node.js as base image
-FROM node:18
+# Stage 1: Build dependencies
+FROM node:18-alpine AS builder
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package.json ./
-RUN npm install
+# Copy only package files to install deps first (cache efficiency)
+COPY package*.json ./
 
-# Copy the rest of the application files
+# Install only production dependencies
+RUN npm install --omit=dev
+
+# Copy application source
 COPY . .
 
-# Expose the port your app runs on
+# Stage 2: Runtime
+FROM node:18-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Copy only needed files from builder
+COPY --from=builder /app .
+
+# Expose application port
 EXPOSE 3000
 
-# Command to run the app
+# Run the application
 CMD ["node", "src/api/server.js"]
