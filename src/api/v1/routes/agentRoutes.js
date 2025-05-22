@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const isAuthenticated = require('../../middleware/auth');
-const { getAgentProfile, getAgentCustomers, getAgentPolicies, createAgentCustomer } = require('../controller/agentController');
+const { getAgentProfile, getAgentCustomers, getAgentPolicies, createAgentCustomer } = require('../services/agentController');
 
 
 const agentRoutes = Router();

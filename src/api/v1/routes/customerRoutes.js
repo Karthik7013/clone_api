@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { getCustomerPolicies, registerClaim, getCustomerClaims, getPolicyPayments, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile } = require('../controller/customerController');
+const { getCustomerPolicies, registerClaim, getCustomerClaims, getPolicyPayments, createPolicy, updatePaymentDetails, getCustomerProfile, getCustomerStats, getCustomerPolicyQueues, updateCustomerProfile } = require('../services/customerController');
 const isAuthenticated = require('../../middleware/auth');
 
 const customerRoutes = Router();
@@ -19,7 +19,6 @@ customerRoutes.get('/policyQueue', isAuthenticated(['customer']), getCustomerPol
 // modified
 
 customerRoutes.get("/", isAuthenticated(['customer']), (req, res) => {
-    console.log(req.auth)
     return res.status(200).json({message:"Message"})
 })
 

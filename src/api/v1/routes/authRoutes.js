@@ -97,8 +97,10 @@ authRoutes.post('/generate-access-token', async (req, res, next) => {
     try {
         const { refreshToken } = req.cookies
         const accessToken = await authHandler.generateAccessToken(refreshToken);
-        console.log(accessToken, 'brandnewtoken')
-        return res.status(200).json(successHandler(accessToken, "some msg", 200));
+        setCookie(res, 'accessToken', accessToken, {
+            maxAge: 1 * 60 * 1000  // 15 minutes
+        })
+        return res.status(200).json(successHandler(accessToken, "New Access Token", 200));
     } catch (error) {
         next(error)
     }
