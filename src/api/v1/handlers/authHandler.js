@@ -62,9 +62,6 @@ const verifyCustomer = async (otp, messageId) => {
     }
 }
 
-
-
-
 /**
  * check the agent with email/phone 
  * @param {*} req 
@@ -250,7 +247,7 @@ const generateAccessToken = async (refreshToken) => {
         throw err
     }
     try {
-        jwt.verify(refreshToken, jwtRefreshSecretKey, (err, decode) => {
+        const accessToken = jwt.verify(refreshToken, jwtRefreshSecretKey, (err, decode) => {
             if (err) {
                 const err = new Error("Refresh token expired/invalid !");
                 err.status = 403;
@@ -263,9 +260,9 @@ const generateAccessToken = async (refreshToken) => {
                 permissions
             }
             const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: accessTokenExpire });
-            console.log(accessToken);
             return accessToken;
         })
+        return accessToken;
     } catch (error) {
         throw error
     }
