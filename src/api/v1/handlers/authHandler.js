@@ -263,6 +263,7 @@ const generateAccessToken = async (refreshToken) => {
                 permissions
             }
             const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: accessTokenExpire });
+            console.log(accessToken);
             return accessToken;
         })
     } catch (error) {

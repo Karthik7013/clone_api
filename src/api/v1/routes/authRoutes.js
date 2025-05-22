@@ -39,7 +39,6 @@ authRoutes.post('/customer', async (req, res, next) => {
                 const messageId = getCookie(req, key);
                 const response1 = await authHandler.verifyCustomer(otp, messageId);
                 clearCookie(res, key);
-                console.log(response1, 'payload')
 
                 // verify cookies
                 const accessToken = jwt.sign(response1, jwtSecretKey, { expiresIn: accessTokenExpire });
