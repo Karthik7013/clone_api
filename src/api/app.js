@@ -54,7 +54,15 @@ app.use('/api/v1/otp', otpRoutes);
 app.use('/api/v1/auth', authRoutes)
 
 
-
+app.get('/setCookie', (req, res) => {
+    res.cookie('mycookie', '1234', {
+        // httpOnly: process.env.NODE_ENV === 'PRODUCTION'
+    })
+    return res.status(200).json({
+        message: "set cookie",
+        cookie: "Cookie"
+    })
+})
 
 
 // SSE
