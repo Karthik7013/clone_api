@@ -29,7 +29,9 @@ app.use(logger);
 
 // ================| CORS OPTIONS |=================>
 const corsOptions = {
-    origin: ['http://localhost:5173', 'https://namelixinsurance.netlify.app'], // allowed origins
+    origin: ['http://localhost:5173',
+        // 'https://namelixinsurance.netlify.app'
+    ], // allowed origins
     credentials: true,
 };
 
@@ -56,7 +58,11 @@ app.use('/api/v1/auth', authRoutes)
 
 app.get('/setCookie', (req, res) => {
     res.cookie('mycookie', '1234', {
-        // httpOnly: process.env.NODE_ENV === 'PRODUCTION'
+        httpOnly: process.env.NODE_ENV === 'PRODUCTION',
+        // maxAge:'',
+        // expires:'',
+        // secure:true,
+        // domain:'',
     })
     return res.status(200).json({
         message: "set cookie",
