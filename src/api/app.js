@@ -69,7 +69,11 @@ app.get('/setCookie', (req, res) => {
         cookie: "Cookie"
     })
 })
-
+app.get('/getCookie', (req, res) => {
+    const myCookie = req.cookies.mycookie || ''; // or req.cookies.mycookie
+    console.log(myCookie)
+    return res.send({myCookie})
+})
 
 // SSE
 app.get('/event', async (req, res) => {
