@@ -29,6 +29,7 @@
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.16",
     "puppeteer": "^24.5.0",
+    "serve-favicon": "^2.5.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

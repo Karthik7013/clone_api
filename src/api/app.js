@@ -4,6 +4,7 @@ const path = require('path');
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { flushCache } = require("./utils/cache");
+const favicon = require('serve-favicon');
 
 // ================|        MIDDLEWARES      |================>
 const logger = require("./middleware/logger");
@@ -37,7 +38,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
-
+app.use(favicon(path.join(__dirname, '../../public/favicon.ico')));
 app.use('/public', express.static(path.join(__dirname, '../../public')));
 
 // ==========================| VERSION 0.1 |===========================>
