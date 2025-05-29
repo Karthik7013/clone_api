@@ -38,7 +38,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(favicon(path.join(__dirname, '../../public/favicon.ico')));
+app.use(favicon(path.join(__dirname, '../../public/favicon.png')));
 app.use('/public', express.static(path.join(__dirname, '../../public')));
 
 // ==========================| VERSION 0.1 |===========================>
@@ -73,7 +73,7 @@ app.get('/setCookie', (req, res) => {
 app.get('/getCookie', (req, res) => {
     const myCookie = req.cookies.mycookie || ''; // or req.cookies.mycookie
     console.log(myCookie)
-    return res.send({myCookie})
+    return res.send({ myCookie })
 })
 
 // SSE
