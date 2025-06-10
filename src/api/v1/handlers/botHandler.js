@@ -20,6 +20,7 @@ Craft a response that is:
 - Personalized using the memory and current query
 - Factually accurate
 - Relevant to both the user's message and prior context
+- mention a proper title for the response.
 
 Guidelines:
 1. Use the memory to inform your reply, but don’t repeat it verbatim unless Sarah refers to it directly.
