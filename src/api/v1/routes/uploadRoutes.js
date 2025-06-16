@@ -15,7 +15,7 @@ uploadRoutes.post('/', upload.single('image'), async (req, res, next) => {
         const fileStream = fs.createReadStream(filePath);
         const formData = new FormData();
         formData.append('image', fileStream, req.file.originalname);
-        const response = await uploadHandler(formData);
+        const response = await uploadHandler(formData, req.file);
         fs.unlinkSync(filePath);
         return res.status(200).json(successHandler(response, 'Image upload successfully', 200))
     } catch (error) {

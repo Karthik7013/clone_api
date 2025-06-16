@@ -90,6 +90,8 @@ const DELETE_PERMISSION = 'DELETE FROM role_permissions WHERE permission_id = ? 
 
 const GET_EMPLOYEE_PERMISSIONS = 'SELECT employees.*,roles.department,roles.role_name, employee_roles.employee_role_id, COALESCE(JSON_ARRAYAGG(role_permissions.permission_id), JSON_ARRAY()) AS permissions FROM employees JOIN employee_roles ON employees.employee_id = employee_roles.employee_id JOIN roles on employee_roles.role_id = roles.role_id LEFT JOIN role_permissions ON employee_roles.employee_role_id = role_permissions.employee_role_id GROUP BY employees.employee_id, employee_roles.employee_role_id';
 
+const UPLOAD_FILE = `INSERT INTO media_files (file_name,file_url,file_type,mime_type,file_size) VALUES(?,?,?,?,?)`;
+
 // errors
 const INSERT_ERR_LOG = 'INSERT INTO ErrorLogs (ErrorMessage,ErrorType,Severity,ErrorSource,StackTrace,ErrorCode,UserID,IPAddress) VALUES(?,?,?,?,?,?,?,?)'
 module.exports = {
@@ -139,5 +141,6 @@ module.exports = {
     GET_COUNT_CUSTOMER_ACTIVE_POLICIES,
     GET_COUNT_CUSTOMER_RENEWAL_POLICIES,
     GET_COUNT_CUSTOMER_APPROVED_CLAIMS,
-    GET_COUNT_CUSTOMER_REGISTER_POLICIES
+    GET_COUNT_CUSTOMER_REGISTER_POLICIES,
+    UPLOAD_FILE
 }
