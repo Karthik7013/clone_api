@@ -20,7 +20,8 @@ const botRoutes = require("./v1/routes/botRoutes");
 const analyticsRoutes = require("./v1/routes/analyticsRoute");
 const smsRoutes = require("./v1/routes/smsRoutes");
 const otpRoutes = require("./v1/routes/otpRoutes");
-const uploadRoutes = require('./v1/routes/uploadRoutes')
+const uploadRoutes = require('./v1/routes/uploadRoutes');
+const mediaRoutes = require('./v1/routes/mediaRoutes')
 
 
 const app = express();
@@ -52,6 +53,7 @@ app.use('/api/v1/analytics', analyticsRoutes)
 
 // resources
 app.use('/api/v1/upload', uploadRoutes)
+app.use('/api/v1/media', mediaRoutes)
 app.use('/api/v1/bot', botRoutes);
 app.use('/api/v1/otp', otpRoutes);
 app.use('/api/v1/auth', authRoutes)
