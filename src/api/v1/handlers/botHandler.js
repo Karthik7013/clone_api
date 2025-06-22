@@ -1,4 +1,3 @@
-const { marked } = require("marked");
 // my faq's
 const my_faqs = [
     {
@@ -32,81 +31,66 @@ const instructionBuilder = () => {
 `
 }
 
-const getPreviousContext = () => {
-    return ''
-}
-
 // prompt builder
 const promptBuilder = async (query) => {
     const faqs = await getMyFaqs();
     const instructions = instructionBuilder();
-    const previousContext = getPreviousContext();
-    const prompt = `You are a helpful, knowledgeable AI assistant trained to respond only using the following uploaded FAQs from a business.
+    const prompt = `
+You are a helpful and knowledgeable AI assistant for a organization. Your job is to respond to user queries **strictly** based on the information from the uploaded FAQ content below.
 
-Your goal is to answer customer questions accurately using the provided knowledge, and never guess or hallucinate.
-
-Below is the list of FAQs the user has uploaded:
-
-${faqs}
-
-Here is the current user query:
-${query}
-
-Instructions:
-${instructions}
-
-Now craft the best response for the user’s message in a readme format.`
-    const prompt1 = `
-You are a helpful and knowledgeable AI assistant designed to respond *only* using the information provided in the uploaded FAQ file. Do not answer from general knowledge or external sources, and never guess or hallucinate.
+⛔ Do **not** use general knowledge, personal opinions, or external data. Do **not** make assumptions or hallucinate any answer.
 
 ---
-
-📘 **Knowledge Source:**
-All answers must be strictly derived from the following uploaded FAQs:
+ **Organization Details**:
+ name: KarthiTechSolution.ptv.lmtd
+ support_email: karthiktumala143gmail.com
+📘 **Knowledge Source (FAQs)**:
 ${faqs}
 
 ---
 
-🧾 **User Query:**
+🧾 **User Query**:
 ${query}
 
 ---
 
-🎯 **Instructions:**
+🎯 **Instructions**:
 
-1. Search the uploaded FAQ content for the most accurate and relevant answer(s) to the user’s query.
-2. If a matching answer is found, respond using **clear, concise markdown format** as specified below.
-3. If **no relevant answer is found**, respond with:
-   > _“Thank you for your question. Unfortunately, I couldn’t find an answer based on the current FAQ information. Please contact our support team for more help.”_
+1. Search the above FAQs for the most accurate and relevant information related to the user's query.
+2. Respond using the **README.md Markdown style** (with headings, bullet points, and optional emojis for readability).
+3. If a relevant FAQ is found:
+   - Rephrase it naturally in a helpful and friendly tone.
+   - DO NOT copy-paste the FAQ text as-is.
+   - Keep the response human-like and readable.
+4. If **no relevant information is found**, respond with:
+## [emoji reaction] [use a fallback message]
 
-4. Do **not** use any external knowledge, assumptions, or invented information.
-5. Maintain a helpful and professional tone.
-6. Avoid repeating the question unless necessary for clarity.
-7. If multiple FAQ entries apply, summarize them without redundancy.
-8. Ensure the final output is in proper **README.md style Markdown**, using appropriate headings, bullet points, code blocks, etc., as necessary.
+[Thanks for your question!]
+Unfortunately, we couldn't find an answer.
 
----
+### [emoji reaction] What You Can Do Next:
+- Try rephrasing your question for better results.
+- Reach out to our support team — we're happy to assist!
 
-📄 **Output Format** (Always in README Markdown style):
-
-[Your response should look like this:]
-
-## Title
-
-[Your precise Title here]
-
-## Answer
-
-[Your precise answer here]
-
-### Related Information
-- [Optional related FAQ entries or tips, if applicable]
+### [emoji reaction] Contact Support
+If you need direct help, please email us at:  
+**[support@yourcompany.com](mailto:support@yourcompany.com)**
+5. Keep the answer short, direct, and clean — avoid repeating the question.
+6. If multiple related FAQs apply, summarize them into a single cohesive answer.
 
 ---
 
-*Note: This answer is based solely on our current FAQ data.*
+📝 **Response Format (README-style Markdown)**:
+
+## [emoji reaction] Title
+
+*[A short, clear, rephrased title summarizing the topic]
+
+[Write the user-friendly, helpful answer here in a natural tone.]
+
+### [emoji reaction] Most Asked
+- [pick most asked faq's from the above and offer to ask.]
 `;
-
     return prompt;
 }
 
@@ -133,9 +117,8 @@ const askBot = async (req) => {
             },
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         })
-        const markDown = await response.json();
-        const data = marked.parse(markDown.candidates[0].content.parts[0].text);
-        return { response: data, text: markDown.candidates[0].content.parts[0].text }
+        const data = await response.json();
+        return { response: data.candidates[0].content.parts[0].text }
     } catch (error) {
         throw error
     }
