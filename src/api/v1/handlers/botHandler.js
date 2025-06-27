@@ -1,4 +1,4 @@
-// my faq's
+// my faq's -> db faq's
 const my_faqs = [
     {
         "question": "What is your return policy?",
