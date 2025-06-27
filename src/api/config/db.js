@@ -15,13 +15,13 @@ async function connectToDatabase() {
         console.error('Error connecting to MySQL:', err);
     }
 }
-async function connectTodoDB() {
+async function connectToSassProduct() {
     try {
         const connection = await mysql.createConnection({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
-            database: 'todo_app',
+            database: process.env.SASS_CHATBOT_BUILDER,
             port: process.env.DB_PORT,
         });
         return connection;
@@ -30,4 +30,4 @@ async function connectTodoDB() {
     }
 }
 
-module.exports = { connectToDatabase, connectTodoDB };
+module.exports = { connectToDatabase, connectToSassProduct };
