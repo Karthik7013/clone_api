@@ -1,40 +1,21 @@
-// my faq's -> db faq's
-const my_faqs = [
-    {
-        "question": "What is your return policy?",
-        "answer": "We accept returns within 30 days of purchase."
-    },
-    {
-        "question": "Do you ship internationally?",
-        "answer": "Yes, we ship to over 50 countries."
-    },
-    {
-        "question": "How do I track my order?",
-        "answer": "You can track your order using the tracking link sent to your email."
-    }
-]
+const { connectToSassProduct } = require("../../config/db");
 
 // get faq's and formatt
-const getMyFaqs = async () => {
-    const faqs = my_faqs.map(faq => `Q: ${faq.question}\nA: ${faq.answer}`).join('\n\n');
-    return faqs;
+const getMyFaqs = async (chatbot_id = 2) => {
+    try {
+        const connection = await connectToSassProduct();
+        const [result] = await connection.execute(`select * from faqs where chatbot_id = ${chatbot_id}`);
+        const faqs = result.map(faq => `Q: ${faq.question}\nA: ${faq.answer}`).join('\n\n');
+        return faqs;
+    } catch (error) {
+        throw error;
+    }
 }
 
-// instructions
-const instructionBuilder = () => {
-    return `1. Only respond using the content from the FAQs above. Do NOT use outside knowledge or assumptions.
-2. If the answer cannot be found in the provided information, respond with:
-   "I'm sorry, I can only answer based on the provided FAQs."
-3. Be clear and concise, and match the tone of a professional support assistant.
-4. If relevant, add a friendly tone without being overly casual.
-5. Avoid repeating the full question unless needed for clarity.
-`
-}
 
 // prompt builder
 const promptBuilder = async (query) => {
     const faqs = await getMyFaqs();
-    const instructions = instructionBuilder();
     const prompt = `
 You are a helpful and knowledgeable AI assistant for a organization. Your job is to respond to user queries **strictly** based on the information from the uploaded FAQ content below.
 
@@ -91,6 +72,7 @@ If you need direct help, please email us at:
 ### [emoji reaction] Most Asked
 - [pick most asked faq's from the above and offer to ask.]
 `;
+    console.log(prompt)
     return prompt;
 }
 
