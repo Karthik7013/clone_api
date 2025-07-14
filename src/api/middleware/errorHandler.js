@@ -43,6 +43,7 @@ const errorHandler = async (err, req, res, next) => {
   const stack = err.stack;
   const source = ""; //file name
   const errCode = err.status || 500;
+  // console.log('err: ', err.message, 'errCode: ', errCode, 'stack: ', stack, 'source: ', source, 'userId: ', userId, 'ipAddress: ', ipAddress)
 
   try {
     const connection = await connectToDatabase();
