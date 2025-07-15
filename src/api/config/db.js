@@ -16,6 +16,13 @@ async function connectToDatabase() {
     }
 }
 async function connectToSassProduct() {
+    console.log({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.SASS_CHATBOT_BUILDER,
+        port: process.env.DB_PORT,
+    });
     try {
         const connection = await mysql.createConnection({
             host: process.env.DB_HOST,
