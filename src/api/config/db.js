@@ -28,7 +28,7 @@ async function connectToSassProduct() {
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
-            database: process.env.SASS_CHATBOT_BUILDER,
+            database: 'sass_chatbot_builder',
             port: process.env.DB_PORT,
         });
         return connection;
