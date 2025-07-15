@@ -48,8 +48,7 @@ const errorHandler = async (err, req, res, next) => {
       success: false,
       message: err.message || "Internal Server Error",
       error: {
-        ...(NODE_ENV === "DEVELOPMENT" ? { stack: err.stack } : {}),
-        details: err.details || "An unexpected error occurred."
+        details: err.stack
       },
       status: err.status || 500,
       timestamp: new Date()
