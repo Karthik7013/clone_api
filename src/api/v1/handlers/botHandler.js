@@ -99,6 +99,9 @@ const askBot = async (req) => {
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         })
         const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error.message || 'An error occurred while processing your request.');
+        }
         return { response: data.candidates[0].content.parts[0].text }
     } catch (error) {
         throw error
