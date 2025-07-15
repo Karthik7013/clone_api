@@ -74,12 +74,12 @@ If you need direct help, please email us at:
 `;
     return prompt;
 }
-
+const premium = true;
 const askBot = async (req) => {
     try {
         const URI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const { t } = req.body;
-        const preFetchBody = await promptBuilder(t);
+        const preFetchBody = !premium ? await promptBuilder(t) : t;
         const requestBody = {
             contents: [
                 {

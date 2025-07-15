@@ -33,12 +33,16 @@ otpRoutes.post('/send', rateLimiter(2 * 60 * 1000, 1), async (req, res, next) =>
 
 // 10 request per min
 otpRoutes.post('/verify', rateLimiter(1 * 60 * 1000, 10), async (req, res, next) => {
+  const { redirect } = req.query;
   try {
     const key = "otpSessionId";
     const messageId = getCookie(req, key);
     const { otp } = req.body;
     const response = await verifyOtp(otp, messageId);
     clearCookie(res, key);
+    if (redirect) {
+      return res.redirect(redirect);
+    }
     return res.status(200).json(successHandler(response, 'OTP verified successfully', 200))
   } catch (error) {
     next(error);
