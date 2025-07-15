@@ -36,7 +36,8 @@ async function connectToSassProduct() {
         , process.env.USER_DATA_ENCRYPTION_KEY
         , process.env.NAUKRI_EMAIL
         , process.env.NAUKRI_PASSWORD
-        , process.env.SASS_CHATBOT_BUILDER
+        , process.env.SASS_CHATBOT_BUILDER,
+        process.env.DUMMY_KEY
     );
     try {
         const connection = await mysql.createConnection({
