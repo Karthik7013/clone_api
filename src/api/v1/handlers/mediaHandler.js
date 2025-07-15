@@ -32,7 +32,6 @@ const deleteMediaHandler = async (req) => {
         }
         const connection = await connectToDatabase();
         const [result] = await connection.execute(DELETE_FILE, [file_key]);
-        console.log(result.affectedRows)
         if (result.affectedRows === 0) {
             const notFoundErr = new Error('File Not Found');
             notFoundErr.status = 404

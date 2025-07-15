@@ -135,9 +135,7 @@ const verfiyCustomer = async (req, res, next) => {
         // Send the email
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                console.log('Error sending email:', error);
-            } else {
-                console.log('Email sent successfully:', info.response);
+                throw new Error('Failed to send login notification email');
             }
         });
 
@@ -387,7 +385,6 @@ const signOut = async (req, res, next) => {
         )
     } catch (error) {
         error.status = 500;
-        console.log(error)
         return next(error);
     }
     finally {

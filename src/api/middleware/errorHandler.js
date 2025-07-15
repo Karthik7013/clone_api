@@ -12,7 +12,6 @@ function extractErrorDetails(stackTrace) {
     lineNumber: '',
     columnNumber: ''
   };
-  console.log(stackTrace)
 
   // If the stack trace exists and contains multiple lines
   if (stackTrace && stackTrace.split('\n').length > 1) {
@@ -25,7 +24,6 @@ function extractErrorDetails(stackTrace) {
       errorDetails.fileName = match[1];
       errorDetails.lineNumber = match[2];
       errorDetails.columnNumber = match[3];
-      console.log(errorDetails, 'errorDetails')
     }
   }
 
@@ -43,8 +41,6 @@ const errorHandler = async (err, req, res, next) => {
   const stack = err.stack;
   const source = ""; //file name
   const errCode = err.status || 500;
-  console.log('err: ', err.message, 'errCode: ', errCode, 'stack: ', stack, 'source: ', source, 'userId: ', userId, 'ipAddress: ', ipAddress)
-
   try {
     const connection = await connectToDatabase();
     await connection.execute(INSERT_ERR_LOG, [message, errType, severity, source, stack, errCode, userId, ipAddress]);
@@ -59,7 +55,7 @@ const errorHandler = async (err, req, res, next) => {
       timestamp: new Date()
     });
   } catch (error) {
-    console.log('err: while inserting err log !', error.message)
+    next(error);
   }
 };
 module.exports = errorHandler;

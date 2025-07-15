@@ -76,13 +76,11 @@ app.get('/event', async (req, res) => {
                 data: new Array(7).fill(0).map(() => randInt()),
             }
         ]
-        console.log('triggerd!')
 
         res.write(`data: ${JSON.stringify(dataMap)}\n\n`);
     }, 1000)
 
     req.on('close', () => {
-        console.log('event aborted !')
         clearInterval(interval);
         res.end()
     })

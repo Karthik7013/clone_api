@@ -8,7 +8,7 @@ const getCache = async (key) => {
         const data = JSON.parse(cacheData);
         return data;
     } catch (error) {
-        console.log('failed to get Cache !')
+        throw new Error('Cache not found');
     }
 }
 
@@ -22,30 +22,19 @@ const setCache = async (key, value, expires = 10) => {
         const strValue = JSON.stringify(value);
         await valkey.set(key, strValue, 'EX', expires);
     } catch (error) {
-        console.log('failed to set cache !')
+        throw new Error('Failed to set cache');
     }
 }
 const delCache = async (key) => {
     try {
-
         await valkey.del(key);
     } catch (error) {
-        console.log('failed to delete cache !')
+        throw new Error('Failed to delete cache');
     }
 }
 
 const flushCache = async () => {
     valkey.flushdb();
-    console.log('flushed cache !')
 }
 
 module.exports = { setCache, generateCacheKey, getCache, flushCache, delCache }
-
-
-
-// valkey.set("key", "hello world");
-
-// valkey.get("key").then(function (result) {
-//     console.log(`The value of key is: ${result}`);
-//     valkey.disconnect();
-// });

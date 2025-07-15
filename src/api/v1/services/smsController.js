@@ -15,7 +15,6 @@ const sendOtp = async (req, res, next) => {
     const referBy = req.body.referBy || null
     const refered_by_agent = req.body.refered_by_agent || null // IF AGENT LOGIN PASS AGENT ID
     const refered_by_employee = req.body.refered_by_employee || null // IF EMPLOYEE LOGIN PASS EMP ID
-    console.log(referBy, refered_by_agent, refered_by_employee)
 
     if (!email && !phno) {
       const err = new Error("Email/phone is requried !");
@@ -23,7 +22,6 @@ const sendOtp = async (req, res, next) => {
       next(err);
     }
     const otp = otpGenerator();
-    console.log('otp :', otp);
     // Email options
     const mailOptions = {
       from: process.env.EMAIL, // Sender address
@@ -126,7 +124,6 @@ const sendOtp = async (req, res, next) => {
       } else {
         const smsKey = generateCacheKey('sms', email, 'send');
         setCache(smsKey, { otp, email, phno, first_name, last_name, referBy, refered_by_agent, refered_by_employee }, 500);
-        console.log('Email sent successfully:', info.response);
         return res.status(200).json(successHandler({}, "OTP sent successfully.", 200))
       }
     });

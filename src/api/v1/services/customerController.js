@@ -1,4 +1,4 @@
-const {connectToDatabase} = require("../../config/db");
+const { connectToDatabase } = require("../../config/db");
 const valkey = require("../../config/redisClient");
 const { v4: uuidv4 } = require('uuid');
 const { GET_CUSTOMER_POLICIES, GET_POLICY_PAYMENT, GET_CUSTOMER_CLAIMS, REGISTER_CLAIM, INSERT_CLAIM, CREATE_POLICY, CREATE_PAYMENT, UPDATE_PAYMENT, GET_CUSTOMER_ID, GET_CUSTOMER_ACTIVE_POLICIES, GET_CUSTOMER_RENEWAL_POLICIES, GET_CUSTOMER_REGISTER_POLICIES, UPDATE_CUSTOMER_BY_ID, CUSTOMER_APPLICATION_QUEUE, GET_APPROVED_CLAIMS, GET_COUNT_CUSTOMER_ACTIVE_POLICIES, GET_COUNT_CUSTOMER_RENEWAL_POLICIES, GET_COUNT_CUSTOMER_APPROVED_CLAIMS, GET_COUNT_CUSTOMER_REGISTER_POLICIES } = require("../../config/queries.constants");
@@ -94,7 +94,6 @@ const createCustomer = async (req, res, next) => {
             customerData.refered_by_employee
         ]
         await connection.execute('INSERT INTO customers (firstname,lastname,phone,email,refered_by_agent,refered_by_employee) VALUES(?,?,?,?,?,?)', values);
-        console.log(customerData, 'user created with this details');
     } catch (error) {
         next(error)
     } finally {
@@ -277,7 +276,6 @@ const getPolicyPayments = async (req, res, next) => {
             successHandler(response[0], "Policies Payment Status", 200)
         )
     } catch (error) {
-        console.log(error)
         next(error)
     } finally {
         await connection.end()
@@ -444,9 +442,7 @@ const registerClaim = async (req, res, next) => {
         // Send the email
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                console.log('Error sending email:', error);
-            } else {
-                console.log('Email sent successfully:', info.response);
+                next(error);
             }
         });
 

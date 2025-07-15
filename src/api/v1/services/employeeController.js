@@ -21,7 +21,6 @@ const getEmployeeProfile = async (req, res, next) => {
             )
         }
         const response = await connection.execute(GET_EMPLOYEE_ID, [employee_id]);
-        console.log(response[0], 'employee')
 
         // cache the data
         const cacheKey = generateCacheKey('employee', `${employee_id}`, 'profile');
@@ -327,7 +326,6 @@ const getEmployeePermissions = async (req, res, next) => {
     try {
         const cacheResponse = await getCache(`employee:${employee_id}:all-permissions`);
         if (cacheResponse) {
-            console.log('fromcache')
             return res.status(200).json(
                 cacheResponse
             )
