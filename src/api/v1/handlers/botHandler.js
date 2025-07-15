@@ -100,6 +100,7 @@ const askBot = async (req) => {
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         })
         const data = await response.json();
+        console.log(data)
         return { response: data.candidates[0].content.parts[0].text }
     } catch (error) {
         throw error
