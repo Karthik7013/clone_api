@@ -4,7 +4,29 @@ services:
   backend:
     build: .
     ports:
-      - "8000"
+      - "8000:8000"  # Expose backend on host port 8000
+    depends_on:
+      - db           # Wait for db service before starting
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: myappdb
+      DB_PORT: 3306
     deploy:
       replicas: 3
     restart: always
+
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: myappdb
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Optional: expose DB to host (for debugging)
+
+volumes:
+  db_data:
