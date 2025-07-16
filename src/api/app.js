@@ -31,7 +31,7 @@ app.use(logger);
 
 // ================| CORS OPTIONS |=================>
 const corsOptions = {
-    origin: ['http://localhost:5173',
+    origin: [
         'https://namelixinsurance.netlify.app'
     ], // allowed origins
     credentials: true,

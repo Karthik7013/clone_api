@@ -76,7 +76,6 @@ If you need direct help, please email us at:
 }
 const premium = true;
 let default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
-// models/gemini-2.5-flash
 const askBot = async (req) => {
     try {
         model = req.body.model || default_model;
