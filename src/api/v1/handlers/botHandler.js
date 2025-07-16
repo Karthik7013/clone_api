@@ -75,12 +75,12 @@ If you need direct help, please email us at:
     return prompt;
 }
 const premium = true;
-let default_model = 'gemini-2.5-flash-lite-preview-06-17'
-// gemini-2.5-flash
+let default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
+// models/gemini-2.5-flash
 const askBot = async (req) => {
     try {
         model = req.body.model || default_model;
-        const URI = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+        const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const { t } = req.body;
         const preFetchBody = !premium ? await promptBuilder(t) : t;
         const requestBody = {
