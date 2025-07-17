@@ -13,7 +13,7 @@ const getMyFaqs = async (chatbot_id = 2) => {
 }
 
 
-// prompt builder
+// prompt builder for support ai
 const promptBuilder = async (query) => {
     const faqs = await getMyFaqs();
     const prompt = `
@@ -74,6 +74,70 @@ If you need direct help, please email us at:
 `;
     return prompt;
 }
+
+const chatAssistant = async (t) => {
+
+    return `📘 **Memory Source:**
+The assistant is engaged in an ongoing, context-aware conversation with the user. The assistant has access to persistent memory, which may include relevant background information:
+
+**User Memory:**
+- [memory context will be here, if available]
+
+---
+
+🧾 **User Query:**
+${t}
+
+---
+
+🎯 **Instructions:**
+
+1. Review the user memory and current query.
+2. Generate a personalized, emotionally intelligent, and well-informed response.
+3. The reply must be:
+   - **Factually accurate**
+   - **Relevant** to both the user’s message and their stored memory
+   - **Conversational** and emotionally attuned to the user’s tone and intent
+   - **Supportive** of the user’s goals, needs, or current context
+4. Include a proper **title** as a Markdown H2 heading (##), clearly summarizing the theme or purpose of your response.
+
+#### Response Guidelines:
+- Personalize the tone using memory, but do not repeat memory verbatim unless the user refers to it directly.
+- Mirror the user’s communication style — whether it is professional, casual, emotional, inquisitive, etc.
+- If the user has previously expressed goals, preferences, or challenges, reflect those in the response.
+- Avoid generic or filler content — every part of the reply should be intentional and helpful.
+- Use emojis when they **enhance tone or clarity** 😊 (but keep it natural and minimal).
+- Anticipate likely follow-up questions and proactively answer them when possible.
+- Ensure clarity and completeness without being unnecessarily long.
+- Break down complex ideas or next steps into easy-to-understand insights or guidance.
+
+---
+
+🪄 **Additional Task – Suggest a Next Step:**
+
+After providing the main response:
+
+- Add a short **Next Step or Friendly Suggestion** section.
+- This should be relevant to what the user is trying to do, solve, or understand.
+- Make it **actionable**, **concise**, and aligned with the user’s current context.
+- Keep the tone positive and motivating — like a helpful guide or thoughtful coach.
+
+---
+
+📄 **Output Format** (Use this exact structure in your reply):
+
+## [Your Personalized Title Here]
+
+[Thoughtful, personalized response to the user based on their query and memory.]
+
+### Next Step or Friendly Suggestion
+- [Offer a concise, encouraging next action or helpful insight.]
+
+---
+
+*Note: This response is uniquely tailored based on the user's memory and current conversation context. Always respond with clarity, empathy, and purpose.*
+`};
+
 const premium = true;
 let default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
 const askBot = async (req) => {
@@ -81,7 +145,7 @@ const askBot = async (req) => {
         model = req.body.model || default_model;
         const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const { t } = req.body;
-        const preFetchBody = !premium ? await promptBuilder(t) : t;
+        const preFetchBody = !premium ? await promptBuilder(t) : await chatAssistant(t);
         const requestBody = {
             contents: [
                 {
