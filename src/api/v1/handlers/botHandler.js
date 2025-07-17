@@ -81,7 +81,11 @@ const chatAssistant = async (t) => {
 The assistant is engaged in an ongoing, context-aware conversation with the user. The assistant has access to persistent memory, which may include relevant background information:
 
 **User Memory:**
-- [memory context will be here, if available]
+- [Firstly, Computer Networking is the technological backbone that allows electronic devices to connect, communicate, and share data. This invisible infrastructure is fundamental to everything digital, enabling global communication (like email and video calls), resource sharing (printers, files), and access to the vast information on the internet. It operates through physical connections or wireless signals, governed by specific rules called protocols (e.g., TCP/IP), and relies on components like routers, switches, and servers. You've rightly pointed out common types like LANs, WANs, and the Internet as the largest example.
+
+Secondly, Professional Networking focuses on building human relationships for career or business growth. This involves exchanging information, advice, and opportunities with others, a crucial skill in its own right, though not technical.
+
+Your text effectively assumes a focus on computer networking, recognizing it as a "vast and fascinating field" and "the backbone of our connected world."]
 
 ---
 
@@ -129,6 +133,8 @@ After providing the main response:
 ## [Your Personalized Title Here]
 
 [Thoughtful, personalized response to the user based on their query and memory.]
+
+---
 
 ### Next Step or Friendly Suggestion
 - [Offer a concise, encouraging next action or helpful insight.]
