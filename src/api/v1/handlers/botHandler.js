@@ -82,7 +82,7 @@ const chatAssistant = async (t) => {
 The assistant is engaged in an ongoing, context-aware conversation with the user. The assistant has access to persistent memory, which may include relevant background information:
 
 **User Memory:**
-- [${prevContext()}]
+- [${prevContext}]
 
 ---
 
