@@ -19,7 +19,9 @@ const generateCacheKey = (prefix, id, type) => {
 // value must be an object here [ ! Importan ]
 const setCache = async (key, value, expires = 10) => {
     try {
-        const strValue = JSON.stringify(value);
+        if (typeof value === 'object') {
+            strValue = JSON.stringify(value);
+        }
         await valkey.set(key, strValue, 'EX', expires);
     } catch (error) {
         throw new Error('Failed to set cache');

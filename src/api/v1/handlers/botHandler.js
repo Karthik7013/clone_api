@@ -1,4 +1,5 @@
 const { connectToSassProduct } = require("../../config/db");
+const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
 
 // get faq's and formatt
 const getMyFaqs = async (chatbot_id = 2) => {
@@ -76,16 +77,12 @@ If you need direct help, please email us at:
 }
 
 const chatAssistant = async (t) => {
-
+    const prevContext = await getCache('memory:1:context') || '';
     return `📘 **Memory Source:**
 The assistant is engaged in an ongoing, context-aware conversation with the user. The assistant has access to persistent memory, which may include relevant background information:
 
 **User Memory:**
-- [Firstly, Computer Networking is the technological backbone that allows electronic devices to connect, communicate, and share data. This invisible infrastructure is fundamental to everything digital, enabling global communication (like email and video calls), resource sharing (printers, files), and access to the vast information on the internet. It operates through physical connections or wireless signals, governed by specific rules called protocols (e.g., TCP/IP), and relies on components like routers, switches, and servers. You've rightly pointed out common types like LANs, WANs, and the Internet as the largest example.
-
-Secondly, Professional Networking focuses on building human relationships for career or business growth. This involves exchanging information, advice, and opportunities with others, a crucial skill in its own right, though not technical.
-
-Your text effectively assumes a focus on computer networking, recognizing it as a "vast and fascinating field" and "the backbone of our connected world."]
+- [${prevContext()}]
 
 ---
 
@@ -97,7 +94,7 @@ ${t}
 🎯 **Instructions:**
 
 1. Review the user memory and current query.
-2. Generate a personalized, emotionally intelligent, and well-informed response.
+2. Generate a personalized, emotionally intelligent, and well-informed full length response.
 3. The reply must be:
    - **Factually accurate**
    - **Relevant** to both the user’s message and their stored memory
@@ -146,6 +143,28 @@ After providing the main response:
 
 const premium = true;
 let default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
+
+
+const summarizeApi = async (context = '') => {
+    const prompt = `Summarize the following chatbot response by preserving the core context, key information, and user-specific details (e.g., name, subject of interest, tone of interaction).
+The summary should be concise and ready to be reused as background for future chatbot replies.
+Keep it plain-text, factual, and omit greetings or closing lines unless contextually necessary.
+response:
+${context}
+`;
+    const URI = `https://generativelanguage.googleapis.com/v1beta/${default_model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const response = await fetch(URI, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // Set the Content-Type to JSON
+        },
+        body: JSON.stringify(prompt)  // Stringify the request body to send as JSON
+    })
+    const data = await response.json(prompt);
+    return data.candidates[0].content.parts[0].text || ''
+}
+
+
 const askBot = async (req) => {
     try {
         model = req.body.model || default_model;
@@ -171,6 +190,9 @@ const askBot = async (req) => {
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         })
         const data = await response.json();
+        const summerizeResponse = await summarizeApi(data);
+        console.log(summerizeResponse)
+        await setCache(generateCacheKey('memory', 1, 'context'), summerizeResponse, 3000)
         if (data.error) {
             throw new Error(data.error.message || 'An error occurred while processing your request.');
         }
