@@ -5,10 +5,14 @@ const valkey = require("../config/redisClient")
 const getCache = async (key) => {
     try {
         const cacheData = await valkey.get(key);
-        const data = JSON.parse(cacheData);
-        return data;
+        try {
+            return JSON.parse(cacheData)
+        } catch (error) {
+            return cacheData;
+        }
     } catch (error) {
-        throw new Error('Cache not found');
+
+        // throw new Error('Cache not found');
     }
 }
 
@@ -20,11 +24,12 @@ const generateCacheKey = (prefix, id, type) => {
 const setCache = async (key, value, expires = 10) => {
     try {
         if (typeof value === 'object') {
-            strValue = JSON.stringify(value);
+            value = JSON.stringify(value);
         }
-        await valkey.set(key, strValue, 'EX', expires);
+        await valkey.set(key, value, 'EX', expires);   
     } catch (error) {
-        throw new Error('Failed to set cache');
+        console.log(error)
+        // throw new Error(error);
     }
 }
 const delCache = async (key) => {
@@ -37,6 +42,7 @@ const delCache = async (key) => {
 
 const flushCache = async () => {
     valkey.flushdb();
+    console.log('memory refreshed !')
 }
 
 module.exports = { setCache, generateCacheKey, getCache, flushCache, delCache }

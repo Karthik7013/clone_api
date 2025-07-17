@@ -77,7 +77,8 @@ If you need direct help, please email us at:
 }
 
 const chatAssistant = async (t) => {
-    const prevContext = await getCache('memory:1:context') || '';
+    const prevContext = await getCache(generateCacheKey('memory', 'user', 'context'));
+    console.log(`previous context : [${prevContext}]`)
     return `📘 **Memory Source:**
 The assistant is engaged in an ongoing, context-aware conversation with the user. The assistant has access to persistent memory, which may include relevant background information:
 
@@ -145,12 +146,26 @@ const premium = true;
 let default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
 
 
+
 const summarizeApi = async (context = '') => {
-    const prompt = `Summarize the following chatbot response by preserving the core context, key information, and user-specific details (e.g., name, subject of interest, tone of interaction).
-The summary should be concise and ready to be reused as background for future chatbot replies.
-Keep it plain-text, factual, and omit greetings or closing lines unless contextually necessary.
-response:
+    const prevContext = await getCache('memory:user:context') || '';
+    const prompt = `Task:
+Summarize the combined chatbot conversation below, including both the previous and current responses. Preserve the core context, user-specific details (like name or interests), and key information shared so far. The summary should be concise, factual, and ready to be reused as background for future chatbot replies.
+
+Guidelines:
+- Combine and compress both the previous and latest responses into a single coherent context.
+- Focus on what has been discussed, user identity, interests, and any suggestions or directions given.
+- Maintain a consistent tone (e.g., friendly, professional).
+- Do NOT include greetings or duplicate information or closings unless contextually important.
+
+Input:
+Previous summary:
+${prevContext}
+
+Current response:
 ${context}
+
+Output (updated summary plain context):
 `;
     const URI = `https://generativelanguage.googleapis.com/v1beta/${default_model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
     const response = await fetch(URI, {
@@ -158,7 +173,17 @@ ${context}
         headers: {
             'Content-Type': 'application/json',  // Set the Content-Type to JSON
         },
-        body: JSON.stringify(prompt)  // Stringify the request body to send as JSON
+        body: JSON.stringify({
+            contents: [
+                {
+                    parts: [
+                        {
+                            text: prompt
+                        }
+                    ]
+                }
+            ]
+        })  // Stringify the request body to send as JSON
     })
     const data = await response.json(prompt);
     return data.candidates[0].content.parts[0].text || ''
@@ -170,7 +195,8 @@ const askBot = async (req) => {
         model = req.body.model || default_model;
         const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const { t } = req.body;
-        const preFetchBody = !premium ? await promptBuilder(t) : await chatAssistant(t);
+        // const preFetchBody = !premium ? await promptBuilder(t) : await chatAssistant(t);
+        const preFetchBody = await chatAssistant(t);
         const requestBody = {
             contents: [
                 {
@@ -190,9 +216,8 @@ const askBot = async (req) => {
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         })
         const data = await response.json();
-        const summerizeResponse = await summarizeApi(data);
-        console.log(summerizeResponse)
-        await setCache(generateCacheKey('memory', 1, 'context'), summerizeResponse, 3000)
+        const summerizeResponse = await summarizeApi(data.candidates[0].content.parts[0].text);
+        await setCache(generateCacheKey('memory', 'user', 'context'), summerizeResponse, 3000)
         if (data.error) {
             throw new Error(data.error.message || 'An error occurred while processing your request.');
         }
