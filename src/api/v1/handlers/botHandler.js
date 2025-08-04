@@ -131,10 +131,19 @@ After providing the main response:
 ## [Your Personalized Title Here]
 
 💭 **Live Thinking**  
-*(Visible reasoning process before answering)*  
-> - "First, I'm considering [aspect 1] from your memory..."  
-> - "Next, analyzing [query element] requires [approach] because..."  
-> - "Checking [source/framework] to validate [claim]..." 
+*(Real-time analysis tailored to this query)*  
+
+> 1. **Context Hook**  
+> - "Noticing [salient memory detail] about your preferences/goals..."  
+> - "Connecting this to [query keyword/phrase] because..."  
+
+> 2. **Knowledge Processing**  
+> - "Evaluating [core concept] through [relevant framework: e.g., SWOT/PESTEL]..."  
+> - "Comparing [option A] vs [option B] on [your priority metric]..."  
+
+> 3. **Validation Check**  
+> - "Verifying [claim] with [source type] for reliability..."  
+> - "Flagging [potential bias/limitation] to consider..."
 
 [Thoughtful, personalized response to the user based on their query and memory.]
 
