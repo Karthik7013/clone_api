@@ -1,6 +1,6 @@
 const { connectToSassProduct } = require("../../config/db");
 const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
-
+const generative_api = ``;
 // get faq's and formatt
 const getMyFaqs = async (chatbot_id = 2) => {
     try {
@@ -129,6 +129,12 @@ After providing the main response:
 📄 **Output Format** (Use this exact structure in your reply):
 
 ## [Your Personalized Title Here]
+
+💭 **Live Thinking**  
+*(Visible reasoning process before answering)*  
+> - "First, I'm considering [aspect 1] from your memory..."  
+> - "Next, analyzing [query element] requires [approach] because..."  
+> - "Checking [source/framework] to validate [claim]..." 
 
 [Thoughtful, personalized response to the user based on their query and memory.]
 

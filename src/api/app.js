@@ -3,7 +3,7 @@ const express = require("express");
 const path = require('path');
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const { flushCache } = require("./utils/cache");
+// const { flushCache } = require("./utils/cache");
 const favicon = require('serve-favicon');
 
 // ================|        MIDDLEWARES      |================>
@@ -85,6 +85,32 @@ app.get('/event', async (req, res) => {
         res.end()
     })
 })
+
+
+
+app.post('/dummy', async (req, res, next) => {
+    try {
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Transfer-Encoding', 'chunked');
+        res.setHeader('Cache-Control', 'no-cache');
+
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        res.write('Processing started...\n');
+
+        for (let i = 1; i <= 5; i++) {
+            await delay(2000); // Wait 1 sec
+            res.write(`Chunk ${i}\n`);
+            res.flushHeaders()
+            console.log(`Sent: Chunk ${i}`);
+        }
+        res.end('All done.\n');
+    } catch (error) {
+        next(error);
+    }
+});
+
+
 
 app.use(errorHandler);
 app.use(notFound);
