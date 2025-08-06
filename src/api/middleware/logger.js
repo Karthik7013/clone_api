@@ -4,8 +4,7 @@ const reqLogger = async (req, res, next) => {
     const currentTime = new Date().toISOString();
     const method = req.method;
     const url = req.originalUrl;
-    await sendTeligramMessage(
-        `
+    await sendTeligramMessage(`
 \`\`\`json
 {
     "currentTime": "${currentTime}",
