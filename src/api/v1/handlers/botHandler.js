@@ -1,6 +1,5 @@
 const { connectToSassProduct } = require("../../config/db");
 const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
-const generative_api = ``;
 // get faq's and formatt
 const getMyFaqs = async (chatbot_id = 2) => {
     try {
@@ -78,110 +77,128 @@ If you need direct help, please email us at:
 
 const chatAssistant = async (t) => {
     const prevContext = await getCache(generateCacheKey('memory', 'user', 'context'));
-    console.log(`previous context : [${prevContext}]`)
-    return `📘 **Memory Source:**
-The assistant is engaged in an ongoing, context-aware conversation with the user. The assistant has access to persistent memory, which may include relevant background information:
-
-**User Memory:**
+    return `
+    📘 **Memory & Context**
+I retain persistent memory of our conversation. Relevant background:
+**Your Memory:**
 - [${prevContext}]
 
 ---
 
-🧾 **User Query:**
+🧾 **Current Query**  
 ${t}
 
 ---
 
-🎯 **Instructions:**
-
-1. Review the user memory and current query.
-2. Generate a personalized, emotionally intelligent, and well-informed full length response.
-3. The reply must be:
-   - **Factually accurate**
-   - **Relevant** to both the user’s message and their stored memory
-   - **Conversational** and emotionally attuned to the user’s tone and intent
-   - **Supportive** of the user’s goals, needs, or current context
-4. Include a proper **title** as a Markdown H2 heading (##), clearly summarizing the theme or purpose of your response.
-
-#### Response Guidelines:
-- Personalize the tone using memory, but do not repeat memory verbatim unless the user refers to it directly.
-- Mirror the user’s communication style — whether it is professional, casual, emotional, inquisitive, etc.
-- If the user has previously expressed goals, preferences, or challenges, reflect those in the response.
-- Avoid generic or filler content — every part of the reply should be intentional and helpful.
-- Use emojis when they **enhance tone or clarity** 😊 (but keep it natural and minimal).
-- Anticipate likely follow-up questions and proactively answer them when possible.
-- Ensure clarity and completeness without being unnecessarily long.
-- Break down complex ideas or next steps into easy-to-understand insights or guidance.
+🎯 **Response Requirements**  
+1. **Personalization**  
+   - Weave memory into responses naturally (no verbatim repetition)  
+   - Mirror user's tone/style (professional/casual/emotional)  
+2. **Quality Standards**  
+   - ✅ 100% factually accurate  
+   - 🔍 Anticipate unasked questions  
+   - ❤️ Emotionally intelligent & supportive  
+   - ✂️ Zero fluff/generic phrases  
+3. **Structure**  
+   - ## [Creative Title] (Markdown H2)  
+   - 💭 **Live Thinking** section (concise bullet insights)  
+   - 📄 **Main Response** (personalized, actionable content)  
+   - ➡️ **Next Step** (single actionable suggestion)  
 
 ---
 
-🪄 **Additional Task – Suggest a Next Step:**
+💡 **Enhanced Response Strategy**  
+**Live Thinking Components:**  
+> 🔗 **Context Hook**  
+> - "Connecting [memory snippet] to [query element] because..."  
+> - "Noticing [tone/priority] from your history..."  
+>  
+> 🧠 **Knowledge Synthesis**  
+> - "Evaluating via [framework] | Comparing [option A/B] | Validating with [source]"  
+> - "Flagging caveat: [limitation/bias]"  
 
-After providing the main response:
+**Response Flow:**  
+1. Open with empathy/acknowledgement  
+2. Deliver value-dense insights  
+3. Break complexity into scannable steps  
+4. End with motivating next step  
 
-- Add a short **Next Step or Friendly Suggestion** section.
-- This should be relevant to what the user is trying to do, solve, or understand.
-- Make it **actionable**, **concise**, and aligned with the user’s current context.
-- Keep the tone positive and motivating — like a helpful guide or thoughtful coach.
+**Prohibitions:**  
+- ❌ Memory dumps  
+- ❌ Unverified claims  
+- ❌ Overused emojis (max 3/reply)
 
 ---
 
-📄 **Output Format** (Use this exact structure in your reply):
-
-## [Your Personalized Title Here]
+📄 **Output Format**  
+## [Title - Max 6 words]  
 
 💭 **Live Thinking**  
-*(Real-time analysis tailored to this query)*  
+> 🔗 [Context insight]  
+> 🧠 [Analysis insight]  
+> ⚠️ [Validation note]  
 
-> 1. **Context Hook**  
-> - "Noticing [salient memory detail] about your preferences/goals..."  
-> - "Connecting this to [query keyword/phrase] because..."  
-
-> 2. **Knowledge Processing**  
-> - "Evaluating [core concept] through [relevant framework: e.g., SWOT/PESTEL]..."  
-> - "Comparing [option A] vs [option B] on [your priority metric]..."  
-
-> 3. **Validation Check**  
-> - "Verifying [claim] with [source type] for reliability..."  
-> - "Flagging [potential bias/limitation] to consider..."
-
-[Thoughtful, personalized response to the user based on their query and memory.]
+[Conversational response addressing all query layers. Uses:  
+- "You" statements  
+- Memory-linked personalization  
+- Scannable formatting (bullets/dashes)  
+- Strategic emojis]  
 
 ---
 
-### Next Step or Friendly Suggestion
-- [Offer a concise, encouraging next action or helpful insight.]
+### ➡️ Next Step  
+- [Single action: Specific, executable, <15 words]  
 
----
+*Tailored using your memory • ${new Date().toLocaleDateString()}*
+    `};
 
-*Note: This response is uniquely tailored based on the user's memory and current conversation context. Always respond with clarity, empathy, and purpose.*
-`};
-
-const premium = true;
 let default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
-
-
 
 const summarizeApi = async (context = '') => {
     const prevContext = await getCache('memory:user:context') || '';
-    const prompt = `Task:
-Summarize the combined chatbot conversation below, including both the previous and current responses. Preserve the core context, user-specific details (like name or interests), and key information shared so far. The summary should be concise, factual, and ready to be reused as background for future chatbot replies.
+    const prompt = `
+    **Conversation Summarization Task**
+*Create a condensed context snapshot for future chatbot interactions*
 
-Guidelines:
-- Combine and compress both the previous and latest responses into a single coherent context.
-- Focus on what has been discussed, user identity, interests, and any suggestions or directions given.
-- Maintain a consistent tone (e.g., friendly, professional).
-- Do NOT include greetings or duplicate information or closings unless contextually important.
+### Inputs:
+1. **Previous Summary** (${prevContext})  
+2. **Current Response** (${context})
 
-Input:
-Previous summary:
-${prevContext}
+### Output Requirements:
+**Core Objective**:  
+Generate a standalone, reusable context summary that:  
+- Preserves all essential information for coherent future replies  
+- Maintains user-specific details and conversation trajectory  
+- Enables seamless context restoration  
 
-Current response:
-${context}
+### Guidelines:
+**✅ MUST INCLUDE**  
+- User identity markers (name, pronouns)  
+- Explicitly stated preferences/interests  
+- Active goals or projects  
+- Decided action items  
+- Persistent emotional tones (e.g., "frustrated with X")  
+- Open loops/unresolved questions  
 
-Output (updated summary plain context):
-`;
+**🚫 MUST EXCLUDE**  
+- Redundant information  
+- Greetings/closings (unless critical)  
+- Verbatim quotes (paraphrase instead)  
+- Transient mood indicators  
+- Assistant's internal processing notes  
+
+**Format Rules:**  
+1. **Third-person perspective**  
+   - *Example*: "User is exploring [topic] and needs [specific help]"  
+2. **Bullet-point structure** (max 5 items)  
+3. **Conciseness priority** (<100 words)  
+4. **Time-aware framing**  
+   - Use temporal markers: *"Previously...", "Recently...", "Currently..."*
+
+### Output Format:
+**Updated Context Summary:**  
+[Concise bullet-point summary combining previous and current context]
+    `;
     const URI = `https://generativelanguage.googleapis.com/v1beta/${default_model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
     const response = await fetch(URI, {
         method: 'POST',
@@ -204,14 +221,12 @@ Output (updated summary plain context):
     return data.candidates[0].content.parts[0].text || ''
 }
 
-
 const askBot = async (req) => {
     try {
-        model = req.body.model || default_model;
+        const model = req.body.model || default_model;
         const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const { t } = req.body;
-        // const preFetchBody = !premium ? await promptBuilder(t) : await chatAssistant(t);
-        const preFetchBody = await chatAssistant(t);
+        const preFetchBody = await chatAssistant(t); // make bot as conversation bot (by prompting)
         const requestBody = {
             contents: [
                 {
@@ -229,7 +244,7 @@ const askBot = async (req) => {
                 'Content-Type': 'application/json',  // Set the Content-Type to JSON
             },
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
-        })
+        });
         const data = await response.json();
         const summerizeResponse = await summarizeApi(data.candidates[0].content.parts[0].text);
         await setCache(generateCacheKey('memory', 'user', 'context'), summerizeResponse, 3000)
