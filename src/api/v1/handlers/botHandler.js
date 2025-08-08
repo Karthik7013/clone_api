@@ -1,5 +1,6 @@
 const { connectToSassProduct } = require("../../config/db");
 const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
+// ---------------------------| |---------------------- //
 // get faq's and formatt
 const getMyFaqs = async (chatbot_id = 2) => {
     try {
@@ -11,8 +12,6 @@ const getMyFaqs = async (chatbot_id = 2) => {
         throw error;
     }
 }
-
-
 // prompt builder for support ai
 const promptBuilder = async (query) => {
     const faqs = await getMyFaqs();
@@ -75,8 +74,11 @@ If you need direct help, please email us at:
     return prompt;
 }
 
-const chatAssistant = async (t) => {
-    const prevContext = await getCache(generateCacheKey('memory', 'user', 'context'));
+
+const default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
+
+// prevContext+currentQuery -> original prompt
+const chatAssistant = async (t, prevContext) => {
     return `
     📘 **Memory & Context**
 I retain persistent memory of our conversation. Relevant background:
@@ -103,7 +105,7 @@ ${t}
    - ## [Creative Title] (Markdown H2)  
    - 💭 **Live Thinking** section (concise bullet insights)  
    - 📄 **Main Response** (personalized, actionable content)  
-   - ➡️ **Next Step** (single actionable suggestion)  
+   - ➡️ **Next Step** (Multiple actionable suggestion)
 
 ---
 
@@ -147,15 +149,11 @@ ${t}
 ---
 
 ### ➡️ Next Step  
-- [Single action: Specific, executable, <15 words]  
+- [Multiple action: Specific, executable, <4 actions]
+`};
 
-*Tailored using your memory • ${new Date().toLocaleDateString()}*
-    `};
+const summarizeApi = async (context = '', prevContext = '') => {
 
-let default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
-
-const summarizeApi = async (context = '') => {
-    const prevContext = await getCache('memory:user:context') || '';
     const prompt = `
     **Conversation Summarization Task**
 *Create a condensed context snapshot for future chatbot interactions*
@@ -226,13 +224,14 @@ const askBot = async (req) => {
         const model = req.body.model || default_model;
         const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const { t } = req.body;
-        const preFetchBody = await chatAssistant(t); // make bot as conversation bot (by prompting)
+        const prevContext = await getCache('memory:user:context') || '';
+        const prompt = await chatAssistant(t, prevContext);
         const requestBody = {
             contents: [
                 {
                     parts: [
                         {
-                            text: preFetchBody
+                            text: prompt
                         }
                     ]
                 }
@@ -246,7 +245,7 @@ const askBot = async (req) => {
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         });
         const data = await response.json();
-        const summerizeResponse = await summarizeApi(data.candidates[0].content.parts[0].text);
+        const summerizeResponse = await summarizeApi(data.candidates[0].content.parts[0].text, prevContext);
         await setCache(generateCacheKey('memory', 'user', 'context'), summerizeResponse, 3000)
         if (data.error) {
             throw new Error(data.error.message || 'An error occurred while processing your request.');
@@ -255,6 +254,14 @@ const askBot = async (req) => {
     } catch (error) {
         throw error
     }
+}
+
+
+
+const gemini = async ({
+    query
+}) => {
+
 }
 
 module.exports = {
