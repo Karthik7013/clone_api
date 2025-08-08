@@ -5,7 +5,8 @@ const botHandler = require('../handlers/botHandler');
 
 botRoutes.post('/ask', async (req, res, next) => {
     try {
-        const response = await botHandler.askBot(req);
+        const { t, model } = req.body;
+        const response = await botHandler.askBot(t, model);
         return res.status(200).json(
             successHandler(response,
                 "Bot Response",

@@ -1,5 +1,7 @@
 const { connectToSassProduct } = require("../../config/db");
 const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
+const path = require('path');
+const fs = require('node:fs');
 // ---------------------------| |---------------------- //
 // get faq's and formatt
 const getMyFaqs = async (chatbot_id = 2) => {
@@ -75,10 +77,14 @@ If you need direct help, please email us at:
 }
 
 
-const default_model = 'models/gemini-2.5-flash-lite-preview-06-17'
+// const generateContent = async () => {
+//     const res = await 
+// }
 
-// prevContext+currentQuery -> original prompt
-const chatAssistant = async (t, prevContext) => {
+
+const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
+
+const generatePrompt = async (t, prevContext) => {
     return `
     📘 **Memory & Context**
 I retain persistent memory of our conversation. Relevant background:
@@ -152,7 +158,7 @@ ${t}
 - [Multiple action: Specific, executable, <4 actions]
 `};
 
-const summarizeApi = async (context = '', prevContext = '') => {
+const summarizeApi = async (currentContext = '', prevContext = '') => {
 
     const prompt = `
     **Conversation Summarization Task**
@@ -160,7 +166,7 @@ const summarizeApi = async (context = '', prevContext = '') => {
 
 ### Inputs:
 1. **Previous Summary** (${prevContext})  
-2. **Current Response** (${context})
+2. **Current Response** (${currentContext})
 
 ### Output Requirements:
 **Core Objective**:  
@@ -219,13 +225,11 @@ Generate a standalone, reusable context summary that:
     return data.candidates[0].content.parts[0].text || ''
 }
 
-const askBot = async (req) => {
+const askBot = async (t = '', model = default_model) => {
     try {
-        const model = req.body.model || default_model;
         const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
-        const { t } = req.body;
         const prevContext = await getCache('memory:user:context') || '';
-        const prompt = await chatAssistant(t, prevContext);
+        const prompt = await generatePrompt(t, prevContext);
         const requestBody = {
             contents: [
                 {
@@ -245,12 +249,14 @@ const askBot = async (req) => {
             body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
         });
         const data = await response.json();
-        const summerizeResponse = await summarizeApi(data.candidates[0].content.parts[0].text, prevContext);
-        await setCache(generateCacheKey('memory', 'user', 'context'), summerizeResponse, 3000)
+        const currentContext = data.candidates[0].content.parts[0].text || '';
+        const updatedContext = await summarizeApi(currentContext, prevContext);
+        await setCache(generateCacheKey('memory', 'user', 'context'), updatedContext, 3000)
         if (data.error) {
             throw new Error(data.error.message || 'An error occurred while processing your request.');
         }
-        return { response: data.candidates[0].content.parts[0].text }
+        return { response: currentContext }
+        // return { response: await generativeAI() }
     } catch (error) {
         throw error
     }
@@ -258,12 +264,116 @@ const askBot = async (req) => {
 
 
 
-const gemini = async ({
-    query
-}) => {
+const generativeAI = async (query = 'send message to teligram bot like "hai" message', model = default_model) => {
+    const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
+    const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+    const toolSelectPrompt = `You are an intelligent routing system. You are connected to the following tools:
 
+    ${JSON.stringify(manifest.tools, null, 2)}
+
+    A user has asked the following question:
+    "${query}"
+
+    Your task:
+    1. Carefully analyze the user question.
+    2. Choose the single best tool from the tools list.
+    3. Extract the required parameters based on the tool’s expected inputs.
+    4. Return ONLY a JSON object in this exact format (no explanation, no extra text, no code block formatting, no backticks, just plain JSON):
+
+    {
+        "tool": "toolName",
+        "parameters": {
+                "param1": "value1",
+                "param2": "value2"
+        }
+    }
+
+    Rules:
+    - Do not return anything except the JSON object.
+    - The "tool" must exactly match one of the tool names in the tools list.
+    - The "parameters" must exactly match the expected keys for that tool.
+    - If required values are not present in the question, leave them empty ("").
+
+    Respond now with only the JSON.
+`;
+    const requestBody = {
+        contents: [
+            {
+                parts: [
+                    {
+                        text: toolSelectPrompt
+                    }
+                ]
+            }
+        ]
+    };
+    const response = await fetch(URI, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // Set the Content-Type to JSON
+        },
+        body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
+    });
+    const data = await response.json();
+    const currentContext = data.candidates[0].content.parts[0].text || '';
+    const selectedTool = JSON.parse(currentContext);
+    const tool = manifest.tools.find((t) => t.name === selectedTool.tool);
+
+    // const toolResponse = fetch(tool.endpoint, {
+    //     method: tool.method,
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(selectedTool.parmeters)
+    // });
+    const toolResult = 'Message send successfully' // make api call dynamically
+
+    // Step 3: Ask Gemini to format final answer
+    const formatPrompt = `
+    User asked: "${query}"
+    Tool result: ${JSON.stringify(toolResult)}
+    Please respond in a friendly, natural sentence.
+  `;
+    const requestBody1 = {
+        contents: [
+            {
+                parts: [
+                    {
+                        text: formatPrompt
+                    }
+                ]
+            }
+        ]
+    };
+    const response1 = await fetch(URI, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // Set the Content-Type to JSON
+        },
+        body: JSON.stringify(requestBody1)  // Stringify the request body to send as JSON
+    });
+    const data1 = await response1.json();
+    const resq = data1.candidates[0].content.parts[0].text || ''
+    return resq;
 }
 
 module.exports = {
     askBot
 }
+
+/**
+    1️⃣ Call Gemini → Send actual user question
+    🔹 Ask: "Which tool should I use & with what parameters?"
+    
+    2️⃣ Gemini → Returns tool name + parameters
+    🔹 Example: { "tool": "getOrderStatus", "parameters": { "orderId": 123 } }
+
+    3️⃣ MCP Client → Calls the chosen tool's API
+    🔹 Example: POST /getOrderStatus { "orderId": 123 }
+
+    4️⃣ Call Gemini again → Send the API result
+    🔹 Ask: "Format this nicely for the user."
+
+
+ */
