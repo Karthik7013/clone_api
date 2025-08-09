@@ -112,7 +112,7 @@ app.post('/teligram/bot/message', async (req, res) => {
         console.log(message, "finalmessage")
         const response = sendTeligramMessage(message);
         return res.status(200).json({
-            message: "Message sent successfully",
+            message: "Message sent successfully"
         })
     } catch (error) {
         next(error);

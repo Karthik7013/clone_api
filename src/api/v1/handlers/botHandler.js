@@ -250,38 +250,49 @@ const generativeAI = async (query = '') => {
         const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
         const toolSelectPrompt = `You are an intelligent routing system. You are connected to the following tools:
 
-    ${JSON.stringify(manifest.tools, null, 2)}
+${JSON.stringify(manifest.tools, null, 2)}
 
-    A user has asked the following question:
-    "${query}"
+A user has asked the following question:
+"${query}"
 
-    Your task:
-      1. Carefully analyze the user question.
-    2. Choose the single best tool from the tools list.
-    3. Extract the required parameters based on the tool’s expected inputs.
-    4. If no tool is suitable for the query, set "tool" to an empty string ("") and "parameters" to an empty object ({}).
-    5. Return ONLY a JSON object in this exact format (no explanation, no extra text, no code block formatting, no backticks, just plain JSON):
-    {
-        "tool": "toolName",
-        "parameters": {
-                "param1": "value1",
-                "param2": "value2"
-        }
+Your task:
+1. First, decide if the query explicitly and unambiguously requires the function described in one of the tools above.
+   - The tool’s function must match the request exactly in purpose.
+   - If the match is not exact, or the request does not clearly call for that tool’s described use, treat it as no match.
+   - Do NOT select a tool just because it is the only one available or because the query contains text that could be sent.
+2. If a match is found, extract the parameters exactly as listed in the tool definition.
+3. If no match is found, return the "no tool found" format.
+
+Return ONLY one of the following JSON formats — no extra keys, no explanations, no deviations:
+
+Format A (tool found):
+{
+    "tool": "toolName",
+    "parameters": {
+        "param1": "value1",
+        "param2": "value2"
     }
+}
 
-    Rules:
-    - Do not return anything except the JSON object.
-    - The "tool" must exactly match one of the tool names in the tools list.
-    - The "parameters" must exactly match the expected keys for that tool.
-    - If required values are not present in the question, leave them empty ("").
+Format B (no tool found):
+{
+    "tool": "",
+    "parameters": {}
+}
 
-    Respond now with only the JSON.
+STRICT RULES:
+- The "tool" must exactly match a tool name from the list, or be "".
+- Parameters must exactly match the names in the tool’s definition; missing values must be "".
+- Never guess or loosely match — if uncertain, use Format B.
+- Output must be exactly one JSON object in one of the two formats above.
+
+Respond now with only the JSON.
 `;
         const currentContext = await generateContent(toolSelectPrompt);
         const selectedTool = JSON.parse(currentContext);
         console.log(selectedTool, "selected tool")
         const tool = manifest.tools.find((t) => t.name === selectedTool.tool);
-        if (!tool) {
+        if (!tool || tool.name === '') {
             throw new Error('No tool is there to solve the questions.')
         }
 
@@ -290,16 +301,14 @@ const generativeAI = async (query = '') => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(selectedTool.parmeters)
+            body: JSON.stringify(selectedTool.parameters)
         });
         const res4 = await toolResult.json();
-        console.log(res4, "res4");
-        throw new Error('error stop')
 
         // Step 3: Ask Gemini to format final answer
         const formatPrompt = `
     User asked: "${query}"
-    Tool result: ${JSON.stringify(toolResult)}
+    Tool result: ${JSON.stringify(res4)}
     Please respond in a friendly, natural sentence.
   `;
         const resq = await generateContent(formatPrompt);

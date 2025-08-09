@@ -6,7 +6,10 @@ async function sendTeligramMessage(message = '') {
     try {
         await bot.sendMessage(
             process.env.TELEGRAM_CHAT_ID,
-            message
+            message,
+            {
+                parse_mode: 'Markdown',
+            }
         );
     } catch (error) {
         throw error
