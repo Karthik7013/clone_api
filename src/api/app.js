@@ -22,7 +22,7 @@ const smsRoutes = require("./v1/routes/smsRoutes");
 const otpRoutes = require("./v1/routes/otpRoutes");
 const uploadRoutes = require('./v1/routes/uploadRoutes');
 const mediaRoutes = require('./v1/routes/mediaRoutes')
-
+const { sendTeligramMessage } = require('../../src/api/v1/handlers/teligramMessageHandler');
 
 const app = express();
 // middlewares
@@ -58,8 +58,6 @@ app.use('/api/v1/bot', botRoutes);
 app.use('/api/v1/otp', otpRoutes);
 app.use('/api/v1/auth', authRoutes)
 
-
-
 // SSE
 app.get('/event', async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream')
@@ -86,8 +84,6 @@ app.get('/event', async (req, res) => {
     })
 })
 
-
-
 app.post('/dummy', async (req, res, next) => {
     try {
         res.setHeader('Content-Type', 'text/plain');
@@ -109,6 +105,19 @@ app.post('/dummy', async (req, res, next) => {
         next(error);
     }
 });
+
+app.post('/teligram/bot/message', async (req, res) => {
+    try {
+        const { message } = req.body;
+        console.log(message, "finalmessage")
+        const response = sendTeligramMessage(message);
+        return res.status(200).json({
+            message: "Message sent successfully",
+        })
+    } catch (error) {
+        next(error);
+    }
+})
 
 
 

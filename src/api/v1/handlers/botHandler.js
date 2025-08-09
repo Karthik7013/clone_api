@@ -2,6 +2,7 @@ const { connectToSassProduct } = require("../../config/db");
 const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
 const path = require('path');
 const fs = require('node:fs');
+const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
 // ---------------------------| |---------------------- //
 // get faq's and formatt
 const getMyFaqs = async (chatbot_id = 2) => {
@@ -76,15 +77,38 @@ If you need direct help, please email us at:
     return prompt;
 }
 
+// gemini call
+const generateContent = async (prompt = '') => {
+    const URI = `https://generativelanguage.googleapis.com/v1beta/${default_model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    try {
+        const response = await fetch(URI, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',  // Set the Content-Type to JSON
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: prompt
+                            }
+                        ]
+                    }
+                ]
+            })
+        })
+        const data = await response.json(prompt);
+        if (data.error) {
+            throw new Error(data.error.message || 'An error occurred while processing your request.');
+        }
+        return data.candidates[0].content.parts[0].text || ''
+    } catch (error) {
+        throw error;
+    }
+}
 
-// const generateContent = async () => {
-//     const res = await 
-// }
-
-
-const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
-
-const generatePrompt = async (t, prevContext) => {
+const generatePrompt = (t, prevContext) => {
     return `
     📘 **Memory & Context**
 I retain persistent memory of our conversation. Relevant background:
@@ -158,8 +182,7 @@ ${t}
 - [Multiple action: Specific, executable, <4 actions]
 `};
 
-const summarizeApi = async (currentContext = '', prevContext = '') => {
-
+const summarizePrompt = (currentContext = '', prevContext = '') => {
     const prompt = `
     **Conversation Summarization Task**
 *Create a condensed context snapshot for future chatbot interactions*
@@ -203,72 +226,29 @@ Generate a standalone, reusable context summary that:
 **Updated Context Summary:**  
 [Concise bullet-point summary combining previous and current context]
     `;
-    const URI = `https://generativelanguage.googleapis.com/v1beta/${default_model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
-    const response = await fetch(URI, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',  // Set the Content-Type to JSON
-        },
-        body: JSON.stringify({
-            contents: [
-                {
-                    parts: [
-                        {
-                            text: prompt
-                        }
-                    ]
-                }
-            ]
-        })  // Stringify the request body to send as JSON
-    })
-    const data = await response.json(prompt);
-    return data.candidates[0].content.parts[0].text || ''
+    return prompt
+
 }
 
-const askBot = async (t = '', model = default_model) => {
+const askBot = async (t = '') => {
     try {
-        const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
-        const prevContext = await getCache('memory:user:context') || '';
-        const prompt = await generatePrompt(t, prevContext);
-        const requestBody = {
-            contents: [
-                {
-                    parts: [
-                        {
-                            text: prompt
-                        }
-                    ]
-                }
-            ]
-        };
-        const response = await fetch(URI, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',  // Set the Content-Type to JSON
-            },
-            body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
-        });
-        const data = await response.json();
-        const currentContext = data.candidates[0].content.parts[0].text || '';
-        const updatedContext = await summarizeApi(currentContext, prevContext);
-        await setCache(generateCacheKey('memory', 'user', 'context'), updatedContext, 3000)
-        if (data.error) {
-            throw new Error(data.error.message || 'An error occurred while processing your request.');
-        }
+        const prevContext = await getCache('memory:user:context') || ''; // prev context from redis
+        const prompt = generatePrompt(t, prevContext); // prompt preparation
+        const currentContext = await generateContent(prompt); // feed to gemini ai
+        const summPrompt = summarizePrompt(currentContext, prevContext); // prompt preparation
+        const updatedContext = await generateContent(summPrompt); // feed to gemini ai
+        await setCache(generateCacheKey('memory', 'user', 'context'), updatedContext, 3000) // store the updated
         return { response: currentContext }
-        // return { response: await generativeAI() }
     } catch (error) {
         throw error
     }
 }
 
-
-
-const generativeAI = async (query = 'send message to teligram bot like "hai" message', model = default_model) => {
-    const URI = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
-    const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
-    const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
-    const toolSelectPrompt = `You are an intelligent routing system. You are connected to the following tools:
+const generativeAI = async (query = '') => {
+    try {
+        const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
+        const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+        const toolSelectPrompt = `You are an intelligent routing system. You are connected to the following tools:
 
     ${JSON.stringify(manifest.tools, null, 2)}
 
@@ -276,11 +256,11 @@ const generativeAI = async (query = 'send message to teligram bot like "hai" mes
     "${query}"
 
     Your task:
-    1. Carefully analyze the user question.
+      1. Carefully analyze the user question.
     2. Choose the single best tool from the tools list.
     3. Extract the required parameters based on the tool’s expected inputs.
-    4. Return ONLY a JSON object in this exact format (no explanation, no extra text, no code block formatting, no backticks, just plain JSON):
-
+    4. If no tool is suitable for the query, set "tool" to an empty string ("") and "parameters" to an empty object ({}).
+    5. Return ONLY a JSON object in this exact format (no explanation, no extra text, no code block formatting, no backticks, just plain JSON):
     {
         "tool": "toolName",
         "parameters": {
@@ -297,69 +277,41 @@ const generativeAI = async (query = 'send message to teligram bot like "hai" mes
 
     Respond now with only the JSON.
 `;
-    const requestBody = {
-        contents: [
-            {
-                parts: [
-                    {
-                        text: toolSelectPrompt
-                    }
-                ]
-            }
-        ]
-    };
-    const response = await fetch(URI, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',  // Set the Content-Type to JSON
-        },
-        body: JSON.stringify(requestBody)  // Stringify the request body to send as JSON
-    });
-    const data = await response.json();
-    const currentContext = data.candidates[0].content.parts[0].text || '';
-    const selectedTool = JSON.parse(currentContext);
-    const tool = manifest.tools.find((t) => t.name === selectedTool.tool);
+        const currentContext = await generateContent(toolSelectPrompt);
+        const selectedTool = JSON.parse(currentContext);
+        console.log(selectedTool, "selected tool")
+        const tool = manifest.tools.find((t) => t.name === selectedTool.tool);
+        if (!tool) {
+            throw new Error('No tool is there to solve the questions.')
+        }
 
-    // const toolResponse = fetch(tool.endpoint, {
-    //     method: tool.method,
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(selectedTool.parmeters)
-    // });
-    const toolResult = 'Message send successfully' // make api call dynamically
+        const toolResult = await fetch(tool.endpoint, {
+            method: tool.method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(selectedTool.parmeters)
+        });
+        const res4 = await toolResult.json();
+        console.log(res4, "res4");
+        throw new Error('error stop')
 
-    // Step 3: Ask Gemini to format final answer
-    const formatPrompt = `
+        // Step 3: Ask Gemini to format final answer
+        const formatPrompt = `
     User asked: "${query}"
     Tool result: ${JSON.stringify(toolResult)}
     Please respond in a friendly, natural sentence.
   `;
-    const requestBody1 = {
-        contents: [
-            {
-                parts: [
-                    {
-                        text: formatPrompt
-                    }
-                ]
-            }
-        ]
-    };
-    const response1 = await fetch(URI, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',  // Set the Content-Type to JSON
-        },
-        body: JSON.stringify(requestBody1)  // Stringify the request body to send as JSON
-    });
-    const data1 = await response1.json();
-    const resq = data1.candidates[0].content.parts[0].text || ''
-    return resq;
+        const resq = await generateContent(formatPrompt);
+        return resq;
+    } catch (error) {
+        throw error
+    }
 }
 
 module.exports = {
-    askBot
+    askBot,
+    generativeAI
 }
 
 /**

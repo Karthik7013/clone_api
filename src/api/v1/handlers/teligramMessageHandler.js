@@ -5,13 +5,10 @@ async function sendTeligramMessage(message = '') {
     try {
         await bot.sendMessage(
             process.env.TELEGRAM_CHAT_ID,
-            message,
-            { parse_mode: 'Markdown' }
+            message
         );
     } catch (error) {
-        if (error.response) {
-            console.error("Telegram API response:", error.response.body);
-        }
+        throw error
     }
 }
 

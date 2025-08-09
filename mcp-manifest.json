@@ -6,7 +6,7 @@
         {
             "name": "sendTeligramMessage",
             "description": "This tool is used to send messages to a specific bot channel.",
-            "endpoint": "https://namelixinsurance.koyeb.app/api/v1/bot/ask",
+            "endpoint": "http://localhost:8000/teligram/bot/message",
             "method": "POST",
             "parameters": [
                 {
