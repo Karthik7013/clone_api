@@ -3,79 +3,6 @@ const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
 const path = require('path');
 const fs = require('node:fs');
 const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
-// ---------------------------| |---------------------- //
-// get faq's and formatt
-const getMyFaqs = async (chatbot_id = 2) => {
-    try {
-        const connection = await connectToSassProduct();
-        const [result] = await connection.execute(`select * from faqs where chatbot_id = ${chatbot_id}`);
-        const faqs = result.map(faq => `Q: ${faq.question}\nA: ${faq.answer}`).join('\n\n');
-        return faqs;
-    } catch (error) {
-        throw error;
-    }
-}
-// prompt builder for support ai
-const promptBuilder = async (query) => {
-    const faqs = await getMyFaqs();
-    const prompt = `
-You are a helpful and knowledgeable AI assistant for a organization. Your job is to respond to user queries **strictly** based on the information from the uploaded FAQ content below.
-
-⛔ Do **not** use general knowledge, personal opinions, or external data. Do **not** make assumptions or hallucinate any answer.
-
----
- **Organization Details**:
- name: KarthiTechSolution.ptv.lmtd
- support_email: karthiktumala143gmail.com
-📘 **Knowledge Source (FAQs)**:
-${faqs}
-
----
-
-🧾 **User Query**:
-${query}
-
----
-
-🎯 **Instructions**:
-
-1. Search the above FAQs for the most accurate and relevant information related to the user's query.
-2. Respond using the **README.md Markdown style** (with headings, bullet points, and optional emojis for readability).
-3. If a relevant FAQ is found:
-   - Rephrase it naturally in a helpful and friendly tone.
-   - DO NOT copy-paste the FAQ text as-is.
-   - Keep the response human-like and readable.
-4. If **no relevant information is found**, respond with:
-## [emoji reaction] [use a fallback message]
-
-[Thanks for your question!]
-Unfortunately, we couldn't find an answer.
-
-### [emoji reaction] What You Can Do Next:
-- Try rephrasing your question for better results.
-- Reach out to our support team — we're happy to assist!
-
-### [emoji reaction] Contact Support
-If you need direct help, please email us at:  
-**[support@yourcompany.com](mailto:support@yourcompany.com)**
-5. Keep the answer short, direct, and clean — avoid repeating the question.
-6. If multiple related FAQs apply, summarize them into a single cohesive answer.
-
----
-
-📝 **Response Format (README-style Markdown)**:
-
-## [emoji reaction] Title
-
-*[A short, clear, rephrased title summarizing the topic]
-
-[Write the user-friendly, helpful answer here in a natural tone.]
-
-### [emoji reaction] Most Asked
-- [pick most asked faq's from the above and offer to ask.]
-`;
-    return prompt;
-}
 
 // gemini call
 const generateContent = async (prompt = '') => {
@@ -102,7 +29,8 @@ const generateContent = async (prompt = '') => {
         if (data.error) {
             throw new Error(data.error.message || 'An error occurred while processing your request.');
         }
-        return data.candidates[0].content.parts[0].text || ''
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        return text;
     } catch (error) {
         throw error;
     }
@@ -144,7 +72,6 @@ ${t}
 > 🔗 **Context Hook**  
 > - "Connecting [memory snippet] to [query element] because..."  
 > - "Noticing [tone/priority] from your history..."  
->  
 > 🧠 **Knowledge Synthesis**  
 > - "Evaluating via [framework] | Comparing [option A/B] | Validating with [source]"  
 > - "Flagging caveat: [limitation/bias]"  
@@ -174,7 +101,7 @@ ${t}
 - "You" statements  
 - Memory-linked personalization  
 - Scannable formatting (bullets/dashes)  
-- Strategic emojis]  
+- Strategic emojis]
 
 ---
 
@@ -243,7 +170,7 @@ const askBot = async (t = '') => {
         throw error
     }
 }
-
+// development 
 const generativeAI = async (query = '') => {
     try {
         const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
@@ -290,7 +217,6 @@ Respond now with only the JSON.
 `;
         const currentContext = await generateContent(toolSelectPrompt);
         const selectedTool = JSON.parse(currentContext);
-        console.log(selectedTool, "selected tool")
         const tool = manifest.tools.find((t) => t.name === selectedTool.tool);
         if (!tool || tool.name === '') {
             throw new Error('No tool is there to solve the questions.')
@@ -318,9 +244,67 @@ Respond now with only the JSON.
     }
 }
 
+const generateUnifiedPrompt = (userQuery, prevContext) => `
+📘 **Memory & Context**
+Relevant background:
+[${prevContext}]
+
+🧾 **User Query**  
+${userQuery}
+
+---
+
+🎯 **Response Requirements**  
+1. Personalize based on context (no verbatim copy)  
+2. Maintain tone/style from history  
+3. Be 100% factually accurate, emotionally aware  
+4. Format clearly with scannable sections  
+
+---
+
+📄 **Output Format (MUST BE JSON) no code tags**  
+{
+  "response": "Personalized, structured answer for the user",
+  "updatedContext": [
+    "Concise bullet summary of essential facts/goals/preferences from prevContext + this query",
+    "No redundant data, under 100 words total"
+  ]
+}
+`;
+
+const askBotUpdated = async (query = '') => {
+    try {
+        const prevContext = await getCache('memory:user:context') || '';
+        const prompt = generateUnifiedPrompt(query, prevContext);
+        const raw = await generateContent(prompt);
+
+        // Parse JSON safely
+        let parsed;
+        try {
+            parsed = JSON.parse(raw);
+        } catch (e) {
+            throw new Error("Invalid JSON from Gemini");
+        }
+
+        // Store updated context
+        await setCache(
+            generateCacheKey('memory', 'user', 'context'),
+            parsed.updatedContext.join(' '),
+            3000
+        );
+
+        return { response: parsed.response };
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+
 module.exports = {
     askBot,
-    generativeAI
+    generativeAI,
+    askBotUpdated
 }
 
 /**
