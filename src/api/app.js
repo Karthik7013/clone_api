@@ -23,6 +23,7 @@ const otpRoutes = require("./v1/routes/otpRoutes");
 const uploadRoutes = require('./v1/routes/uploadRoutes');
 const mediaRoutes = require('./v1/routes/mediaRoutes')
 const { sendTeligramMessage } = require('../../src/api/v1/handlers/teligramMessageHandler');
+const { getIP } = require("../../tor");
 
 const app = express();
 // middlewares
@@ -116,6 +117,17 @@ app.post('/teligram/bot/message', async (req, res) => {
         })
     } catch (error) {
         next(error);
+    }
+})
+
+app.get('/private', async (req, res, next) => {
+    try {
+        const ip = await getIP();
+        return res.send({
+            ip
+        })
+    } catch (error) {
+        next(error)
     }
 })
 
