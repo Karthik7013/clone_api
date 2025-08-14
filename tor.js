@@ -22,7 +22,7 @@ async function getIP() {
         const res = await axios.get("https://httpbin.org/ip", {
             httpsAgent: torAgent,
         });
-        const body = {
+        const body1 = {
             phone: generatePhoneNumber().toString(),
             org_id: "100",
             agent_id: "1000",
@@ -30,15 +30,34 @@ async function getIP() {
             type: "C",
             name: ""
         }
+        const body2 = {
+            customer_name: "",
+            phone: body.phone,
+            org_id: "100",
+            agent_id: "1000",
+            method: "POST",
+            type: "C"
+        }
         const res1 = await axios.post(
             "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
-            body, // request body
+            body1, // request body
+            {
+                httpsAgent: torAgent,      // same Tor agent
+            }
+        );
+        const res2 = await axios.post(
+            "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
+            body2, // request body
             {
                 httpsAgent: torAgent,      // same Tor agent
             }
         );
 
-        return { id: res.data.origin, api: { req: body, res: res1.data } };
+        return {
+            id: res.data.origin,
+            api1: { req: body1, res: res1.data },
+            api2: { req: body2, res: res2.data }
+        };
     } catch (err) {
         throw err;
     }
