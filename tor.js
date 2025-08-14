@@ -32,7 +32,7 @@ async function getIP() {
         }
         const body2 = {
             customer_name: "",
-            phone: body.phone,
+            phone: body1.phone,
             org_id: "100",
             agent_id: "1000",
             method: "POST",
