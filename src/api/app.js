@@ -24,6 +24,7 @@ const uploadRoutes = require('./v1/routes/uploadRoutes');
 const mediaRoutes = require('./v1/routes/mediaRoutes')
 const { sendTeligramMessage } = require('../../src/api/v1/handlers/teligramMessageHandler');
 const { getIP } = require("../../tor");
+const limiter = require("./middleware/rateLimiter");
 
 const app = express();
 // middlewares
@@ -45,7 +46,7 @@ app.use('/public', express.static(path.join(__dirname, '../../public')));
 
 // ==========================| VERSION 0.1 |===========================>
 
-
+app.use(limiter());
 app.use(`/api/v1/customer`, customerRoutes)
 app.use(`/api/v1/agents`, agentRoutes)
 app.use(`/api/v1/employees`, employeeRoutes)
