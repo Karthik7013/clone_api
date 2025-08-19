@@ -36,7 +36,7 @@ const corsOptions = {
     origin: [
         'https://namelixinsurance.netlify.app'
     ], // allowed origins
-    credentials: true,
+    credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -46,7 +46,6 @@ app.use('/public', express.static(path.join(__dirname, '../../public')));
 
 // ==========================| VERSION 0.1 |===========================>
 
-app.use(limiter());
 app.use(`/api/v1/customer`, customerRoutes)
 app.use(`/api/v1/agents`, agentRoutes)
 app.use(`/api/v1/employees`, employeeRoutes)
