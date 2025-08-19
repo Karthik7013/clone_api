@@ -1,7 +1,6 @@
 const axios = require("axios")
 const { SocksProxyAgent } = require("socks-proxy-agent");
 
-
 function generatePhoneNumber() {
     const firstDigitOptions = [9, 8, 7, 6];
     const firstDigit = firstDigitOptions[Math.floor(Math.random() * firstDigitOptions.length)];
@@ -13,31 +12,35 @@ function generatePhoneNumber() {
     return number;
 }
 
-async function getIP() {
+async function getIP({
+    count = 1,
+    phone_number,
+    customer_name
+}) {
     try {
         const torAgent = new SocksProxyAgent("socks5h://127.0.0.1:9050");
         // Call IP API only once
         const ipRes = await axios.get("https://httpbin.org/ip", { httpsAgent: torAgent });
         const ipAddress = ipRes.data.origin;
 
-        // Loop 100 times for the POST requests
-    
+
+        // const makeMultipleReq = async () => { return count }
         const makeMultipleReq = async () => {
             return Promise.all(
-                Array.from({ length: 100 }, async (_, i) => {
+                Array.from({ length: count }, async (_, i) => {
                     try {
                         const phoneNumber = generatePhoneNumber().toString();
                         const body1 = {
-                            phone: phoneNumber,
+                            phone: phone_number || phoneNumber,
                             org_id: "100",
                             agent_id: "1000",
                             method: "SEND",
                             type: "C",
-                            name: ""
+                            name: customer_name || ""
                         };
                         const body2 = {
-                            customer_name: "",
-                            phone: phoneNumber,
+                            customer_name: customer_name || "",
+                            phone: phone_number || phoneNumber,
                             org_id: "100",
                             agent_id: "1000",
                             method: "POST",
@@ -71,8 +74,8 @@ async function getIP() {
         };
 
         const multiResults = await makeMultipleReq();
-
-        return { multiple: multiResults };
+        console.log('completed task')
+        return { multiple: multiResults, count };
     } catch (err) {
         throw err;
     }

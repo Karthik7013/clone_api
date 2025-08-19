@@ -122,19 +122,10 @@ app.post('/teligram/bot/message', async (req, res) => {
 
 app.get('/private', async (req, res, next) => {
     try {
-        const ip = await getIP();
-        return res.send({
+        const ip = await getIP(req.query);
+        return res.send(
             ip
-        })
-        // https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer
-        // {
-        //     "customer_name": "",
-        //         "phone": "8049787945",
-        //             "org_id": "100",
-        //                 "agent_id": "1000",
-        //                     "method": "POST",
-        //                         "type": "C"
-        // }
+        )
     } catch (error) {
         next(error)
     }
