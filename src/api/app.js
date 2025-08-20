@@ -34,7 +34,8 @@ app.use(logger);
 // ================| CORS OPTIONS |=================>
 const corsOptions = {
     origin: [
-        'https://namelixinsurance.netlify.app'
+        'https://namelixinsurance.netlify.app',
+        'https://cipherbot.netlify.app'
     ], // allowed origins
     credentials: true
 };
