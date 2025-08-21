@@ -60,8 +60,6 @@ ${t}
    - ❤️ Emotionally intelligent & supportive  
    - ✂️ Zero fluff/generic phrases  
 3. **Structure**  
-   - ## [Creative Title] (Markdown H2)  
-   - 💭 **Live Thinking** section (concise bullet insights)  
    - 📄 **Main Response** (personalized, actionable content)  
    - ➡️ **Next Step** (Multiple actionable suggestion)
 
@@ -81,11 +79,6 @@ ${t}
 2. Deliver value-dense insights  
 3. Break complexity into scannable steps  
 4. End with motivating next step  
-
-**Prohibitions:**  
-- ❌ Memory dumps  
-- ❌ Unverified claims  
-- ❌ Overused emojis (max 3/reply)
 
 ---
 
