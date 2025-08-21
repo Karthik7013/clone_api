@@ -92,11 +92,6 @@ ${t}
 📄 **Output Format**  
 ## [Title - Max 6 words]  
 
-💭 **Live Thinking**  
-> 🔗 [Context insight]  
-> 🧠 [Analysis insight]  
-> ⚠️ [Validation note]  
-
 [Conversational response addressing all query layers. Uses:  
 - "You" statements  
 - Memory-linked personalization  
