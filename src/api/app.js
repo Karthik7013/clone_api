@@ -129,7 +129,8 @@ app.get('/private', async (req, res, next) => {
             ip
         )
     } catch (error) {
-        next(error)
+        console.log(error.message);
+        // next(error)
     }
 })
 

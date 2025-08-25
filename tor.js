@@ -38,33 +38,35 @@ async function getIP({
                             type: "C",
                             name: customer_name || ""
                         };
-                        const body2 = {
-                            customer_name: customer_name || "",
-                            phone: phone_number || phoneNumber,
-                            org_id: "100",
-                            agent_id: "1000",
-                            method: "POST",
-                            type: "C"
-                        };
+                        // const body2 = {
+                        //     customer_name: customer_name || "",
+                        //     phone: phone_number || phoneNumber,
+                        //     org_id: "100",
+                        //     agent_id: "1000",
+                        //     method: "POST",
+                        //     type: "C"
+                        // };
 
                         // Run both POST requests in parallel
-                        const [res1, res2] = await Promise.all([
+                        const [res1,
+                            // res2
+                        ] = await Promise.all([
                             axios.post(
                                 "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
                                 body1,
                                 { httpsAgent: torAgent }
                             ),
-                            axios.post(
-                                "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
-                                body2,
-                                { httpsAgent: torAgent }
-                            )
+                            // axios.post(
+                            //     "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
+                            //     body2,
+                            //     { httpsAgent: torAgent }
+                            // )
                         ]);
 
                         return {
                             ip: ipAddress,
                             api1: { req: body1, res: res1.data },
-                            api2: { req: body2, res: res2.data }
+                            // api2: { req: body2, res: res2.data }
                         };
                     } catch (err) {
                         return { index: i, error: err.message, response: err.response?.data };
