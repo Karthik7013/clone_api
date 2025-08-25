@@ -157,7 +157,7 @@ I retain persistent memory of our conversation. Relevant background:
 - [${t}]
 `};
 
-const askBot = async (t = '') => {
+const askBot = async (t = '', file) => {
     try {
         const memory = await getCache('memory:user:context') || ''; // prev context from redis
         const prompt = memoryPrompt(t, memory); // prompt preparation
@@ -165,7 +165,7 @@ const askBot = async (t = '') => {
         const summPrompt = summarizePrompt(currentContext, memory); // prompt preparation
         const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
         await setCache(generateCacheKey('memory', 'user', 'context'), updatedMemory, 3000) // store the updated
-        return { response: currentContext }
+        return { response: currentContext, file }
     } catch (error) {
         throw error
     }

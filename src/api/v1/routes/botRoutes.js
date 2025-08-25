@@ -16,8 +16,8 @@ const MODEL = "gemini-1.5-flash"; // fast & free tier
 
 botRoutes.post('/ask', async (req, res, next) => {
     try {
-        const { t, model } = req.body;
-        const response = await botHandler.askBot(t);
+        const { t, file } = req.body;
+        const response = await botHandler.askBot(t, file);
         return res.status(200).json(
             successHandler(response,
                 "Bot Response",
