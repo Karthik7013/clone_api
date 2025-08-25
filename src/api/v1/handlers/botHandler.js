@@ -144,14 +144,27 @@ Generate a standalone, reusable context summary that:
 
 }
 
+const memoryPrompt = (t, prevContext) => {
+    return `
+📘 **Memory & Context**
+I retain persistent memory of our conversation. Relevant background:
+**Your Memory:**
+- [${prevContext}]
+
+---
+
+🧾 **Current Query**  
+- [${t}]
+`};
+
 const askBot = async (t = '') => {
     try {
-        // const prevContext = await getCache('memory:user:context') || ''; // prev context from redis
-        // const prompt = generatePrompt(t, prevContext); // prompt preparation
-        const currentContext = await generateContent(t); // feed to gemini ai
-        // const summPrompt = summarizePrompt(currentContext, prevContext); // prompt preparation
-        // const updatedContext = await generateContent(summPrompt); // feed to gemini ai
-        // await setCache(generateCacheKey('memory', 'user', 'context'), updatedContext, 3000) // store the updated
+        const memory = await getCache('memory:user:context') || ''; // prev context from redis
+        const prompt = memoryPrompt(t, memory); // prompt preparation
+        const currentContext = await generateContent(prompt); // feed to gemini ai
+        const summPrompt = summarizePrompt(currentContext, memory); // prompt preparation
+        const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
+        await setCache(generateCacheKey('memory', 'user', 'context'), updatedMemory, 3000) // store the updated
         return { response: currentContext }
     } catch (error) {
         throw error
