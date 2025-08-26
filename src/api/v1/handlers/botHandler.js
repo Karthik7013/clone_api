@@ -99,71 +99,19 @@ I retain persistent memory of our conversation. Relevant background:
 const toolPrompt = (prompt, manifest) => {
     return `
     ${prompt}
-    tools:[${JSON.stringify(manifest.tools, null, 2)}]
+
     You are an intelligent API Orchestrator.You are connected to the following tools:
+    tools:[${JSON.stringify(manifest.tools, null, 2)}]
 
-    Your job is to:
-    1. Read the user's latest message.
-    2. Decide if the request:
-   a) Requires calling one of the available tools/APIs
-   b) Can be answered directly with a friendly conversational reply (small_talk)
-   c) Cannot match any tool confidently (no_tool)
-3. If a tool is required:
-   - Select the single most relevant one.
-   - Identify all required parameters from the user message.
-   - If parameters are missing, clearly list them in "missing_params" without making up values.
-4. Apply conflict resolution rules if the query matches multiple tools.
-5. Match synonyms and variations for parameters (e.g., "NYC" → city=New York City, "BTC" → symbol=bitcoin) only if unambiguous.
 
----
+   
+   
+   
+   
+   
+   
+ 
 
-Available Tools & Rules:
-1. weather_api — Get current weather and forecasts.
-   Required params: city, country_code.
-   Notes: Recognize city nicknames and abbreviations. If city found but not country_code, mark country_code as missing.
-
-2. news_api — Get latest news.
-   Required params: topic OR country.
-   Notes: If both given, use both. If unclear, mark missing.
-
-3. search_api — Search the web.
-   Required params: query.
-   Notes: Use as fallback for factual questions that don't match other tools.
-
-4. crypto_api — Get cryptocurrency prices.
-   Required params: symbol.
-   Notes: Recognize tickers (BTC, ETH) and names.
-
-5. joke_api — Get a random joke.
-   Required params: none.
-   Priority: If the query contains humor-related words (joke, funny, make me laugh), choose this over others even if other keywords appear.
-
----
-
-Conflict Resolution:
-- Joke requests override all other tools.
-- Weather queries override search_api if location is given.
-- Crypto queries override search_api if cryptocurrency is clearly mentioned.
-- If multiple tools possible and rules don't decide, choose the most direct match.
-- If still unsure, set category=no_tool.
-
----
-
-Output JSON ONLY in the following format:
-{
-  "category": "tool_call" | "small_talk" | "no_tool",
-  "tool": "<tool_name or null>",
-  "params": { "<param_name>": "<value or null>" },
-  "missing_params": ["list of missing param names"],
-  "reply": "<If small_talk, your direct friendly response here>",
-  "confidence": 0.0-1.0
-}
-
-Rules:
-- If category = "small_talk", tool = null and missing_params = [].
-- If category = "no_tool", tool = null, params = {}, missing_params = [], reply = "".
-- If category = "tool_call" and missing_params is NOT empty, DO NOT fabricate values.
-- Keep reply short, friendly, and context-aware only if category=small_talk.
 `;
 }
 
@@ -174,14 +122,12 @@ const askBot = async (t = '', file) => {
         // return manifest.tools ;
         const memory = await getCache('memory:user:context') || ''; // prev context from redis
         const prompt = memoryPrompt(t, memory); // prompt preparation
-        // const prompt2 = toolPrompt(prompt, manifest); // prompt preparation
-
-        const currentContext = await generateContent(prompt); // feed to gemini ai
-        return { response: currentContext, file }
-        const summPrompt = summarizePrompt(currentContext, memory); // prompt preparation
-        const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
-        await setCache(generateCacheKey('memory', 'user', 'context'), updatedMemory, 3000) // store the updated
-        return { response: currentContext, file }
+        const prompt2 = toolPrompt(prompt, manifest); // prompt preparation
+        const currentContext = await generateContent(prompt2); // feed to gemini ai
+        // const summPrompt = summarizePrompt(currentContext, memory); // prompt preparation
+        // const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
+        // await setCache(generateCacheKey('memory', 'user', 'context'), updatedMemory, 3000) // store the updated
+        return { response: currentContext, prompt2 }
     } catch (error) {
         throw error
     }
