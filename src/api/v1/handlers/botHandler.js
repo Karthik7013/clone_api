@@ -96,33 +96,38 @@ I retain persistent memory of our conversation. Relevant background:
 - [${t}]
 `};
 
-const toolPrompt = (prompt, manifest) => {
+const orchestrator = (prompt, manifest) => {
     return `
     ${prompt}
 
     You are an intelligent API Orchestrator.You are connected to the following tools:
     tools:[${JSON.stringify(manifest.tools, null, 2)}]
 
-
-   
-   
-   
-   
-   
-   
- 
-
-`;
+    OUTPUT should ALWAYS JSON ONLY (in the below structure and no json tags or any abbrivations):
+    {
+  "category": "small_talk" | "tool_call" | "no_tool",
+  "tool": <tool_name>,
+  "widget_type": "",
+  "params": [<key>:<value>],
+  "missing_params": [],
+  "raw_data": <tool_data>,
+  "processed_data": <structured_tool_data>,
+  "reply": <friendly_response>,
+  "meta": {
+    "timestamp": <current_timestamp>,
+    "confidence": [0.0-1.0],
+    "source": <tool_name>,
+    "latency_ms": 280
+  }
+}`;
 }
-
+const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
+const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 const askBot = async (t = '', file) => {
     try {
-        const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
-        const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
-        // return manifest.tools ;
         const memory = await getCache('memory:user:context') || ''; // prev context from redis
-        const prompt = memoryPrompt(t, memory); // prompt preparation
-        const prompt2 = toolPrompt(prompt, manifest); // prompt preparation
+        // const prompt = memoryPrompt(t, memory); // prompt preparation
+        const prompt2 = orchestrator(t, manifest); // prompt preparation
         const currentContext = await generateContent(prompt2); // feed to gemini ai
         // const summPrompt = summarizePrompt(currentContext, memory); // prompt preparation
         // const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
@@ -132,45 +137,10 @@ const askBot = async (t = '', file) => {
         throw error
     }
 }
+
+
+
+
 module.exports = {
     askBot
 }
-
-/**
-    1️⃣ Call Gemini → Send actual user question
-    🔹 Ask: "Which tool should I use & with what parameters?"
-    
-    2️⃣ Gemini → Returns tool name + parameters
-    🔹 Example: { "tool": "getOrderStatus", "parameters": { "orderId": 123 } }
-
-    3️⃣ MCP Client → Calls the chosen tool's API
-    🔹 Example: POST /getOrderStatus { "orderId": 123 }
-
-    4️⃣ Call Gemini again → Send the API result
-    🔹 Ask: "Format this nicely for the user."
-{
-  "category": "tool_call",
-  "tool": "weather_api",
-  "widget_type": "weather_card",  // front-end renders WeatherCard component
-  "params": { "city": "London", "country_code": "GB" },
-  "missing_params": [],
-  "raw_data": {
-    "temperature": 18,
-    "condition": "Cloudy"
-  },
-  "processed_data": {
-    "icon": "🌥",
-    "description": "Cloudy",
-    "temp_c": 18
-  },
-  "reply": "It's cloudy in London, 18°C — take an umbrella ☔",
-  "meta": {
-    "timestamp": "2025-08-10T12:45:30Z",
-    "confidence": 0.94,
-    "source": "OpenWeatherMap",
-    "latency_ms": 280
-  }
-}
-
-
- */
