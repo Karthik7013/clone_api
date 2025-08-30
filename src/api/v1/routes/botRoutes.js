@@ -24,9 +24,13 @@ botRoutes.post('/ask1', async (req, res, next) => {
 
 botRoutes.post('/ask', async (req, res, next) => {
     try {
-        res.setHeader('Connection', 'keep-alive');
-        res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Cache-Control', 'no-cache');
+        res.writeHead(200, {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Transfer-Encoding': 'chunked',
+            'X-Accel-Buffering': 'no', // 🔥 CRITICAL: Disables Nginx-like proxy buffering
+        });
         const { t } = req.body;
         streamContent(res, t)
     } catch (error) {
