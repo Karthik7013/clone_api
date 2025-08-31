@@ -45,17 +45,25 @@ const generateContent = async (prompt = '') => {
 
 const streamContent = async (res, prompt) => {
     try {
-        const chat = model.startChat({})
+        const chat = model.startChat({});
         const result = await chat.sendMessageStream(prompt);
+
         for await (const chunk of result.stream) {
             const chunkText = chunk.text();
-            res.write(chunkText)
+            const payload = JSON.stringify({ type: "chunk", content: chunkText });
+            res.write(`data: ${payload}\n\n`);
         }
-        res.end()
+
+        // send explicit end event
+        res.write(`event: end\ndata: [DONE]\n\n`);
+        res.end();
     } catch (error) {
-        throw error
+        const payload = JSON.stringify({ type: "error", message: error.message });
+        res.write(`event: error\ndata: ${payload}\n\n`);
+        res.end();
     }
-}
+};
+
 
 module.exports = {
     generateContent,

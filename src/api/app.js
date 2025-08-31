@@ -25,6 +25,7 @@ const mediaRoutes = require('./v1/routes/mediaRoutes')
 const { sendTeligramMessage } = require('../../src/api/v1/handlers/teligramMessageHandler');
 const { getIP } = require("../../tor");
 const limiter = require("./middleware/rateLimiter");
+const { streamContent } = require("./v1/service/gemini");
 
 const app = express();
 // middlewares
@@ -61,30 +62,19 @@ app.use('/api/v1/otp', otpRoutes);
 app.use('/api/v1/auth', authRoutes)
 
 // SSE
-app.get('/event', async (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream')
-    res.setHeader('Cache-Control', 'no-cache')
-    res.setHeader('Connection', 'keep-alive');
-    const randInt = () => {
-        return Math.floor(Math.random() * 100)
+app.get('/api/v1/event', async (req, res) => {
+    const { query } = req.query;
+    console.log(query,'query')
+    if (!query) {
+        res.end();
     }
-
-    const interval = setInterval(() => {
-        const dataMap = [
-            {
-                name: 'Sales',
-                data: new Array(7).fill(0).map(() => randInt()),
-            }
-        ]
-
-        res.write(`data: ${JSON.stringify(dataMap)}\n\n`);
-    }, 1000)
-
-    req.on('close', () => {
-        clearInterval(interval);
-        res.end()
-    })
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    streamContent(res, query);
 })
+
+
 
 app.post('/dummy', async (req, res, next) => {
     try {
