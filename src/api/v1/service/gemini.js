@@ -6,7 +6,8 @@ const API_KEY = process.env.GEMINI_API_KEY;
 // Initialize the client
 const genAI = new GoogleGenerativeAI(API_KEY);
 // Choose a free model
-const MODEL_NAME = "gemini-1.5-flash"; // fast & free tier
+const MODEL_NAME = "gemini-2.5-flash-lite-preview-06-17"; // fast & free tier
+// const MODEL_NAME = "gemini-1.5-flash"; // fast & free tier
 // const MODEL_NAME = "gemini-pro"; // fast & free tier
 const model = genAI.getGenerativeModel({ model: MODEL_NAME })
 
