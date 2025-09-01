@@ -26,6 +26,7 @@ const { sendTeligramMessage } = require('../../src/api/v1/handlers/teligramMessa
 const { getIP } = require("../../tor");
 const limiter = require("./middleware/rateLimiter");
 const { streamContent } = require("./v1/service/gemini");
+const { handleTargetRequest } = require("./v1/routes/target");
 
 const app = express();
 // middlewares
@@ -48,11 +49,7 @@ app.use('/public', express.static(path.join(__dirname, '../../public')));
 
 // ==========================| VERSION 0.1 |===========================>
 
-app.use(`/api/v1/customer`, customerRoutes)
-app.use(`/api/v1/agents`, agentRoutes)
-app.use(`/api/v1/employees`, employeeRoutes)
 
-app.use('/api/v1/analytics', analyticsRoutes)
 
 // resources
 app.use('/api/v1/upload', uploadRoutes)
@@ -64,7 +61,6 @@ app.use('/api/v1/auth', authRoutes)
 // SSE
 app.get('/api/v1/event', async (req, res) => {
     const { query } = req.query;
-    console.log(query,'query')
     if (!query) {
         res.end();
     }
@@ -75,28 +71,19 @@ app.get('/api/v1/event', async (req, res) => {
 })
 
 
-
-app.post('/dummy', async (req, res, next) => {
+app.post('/api/v1/ask', (req, res, next) => {
     try {
-        res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Transfer-Encoding', 'chunked');
-        res.setHeader('Cache-Control', 'no-cache');
+        const { t } = req.body;
+        const uuid = 1;
+        // set the queryid:query(t) -> set in redis
+        // return the queryid
 
-        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-        res.write('Processing started...\n');
-
-        for (let i = 1; i <= 5; i++) {
-            await delay(2000); // Wait 1 sec
-            res.write(`Chunk ${i}\n`);
-            res.flushHeaders()
-            console.log(`Sent: Chunk ${i}`);
-        }
-        res.end('All done.\n');
     } catch (error) {
-        next(error);
+        next(error)
     }
-});
+})
+
+
 
 app.post('/teligram/bot/message', async (req, res) => {
     try {
@@ -119,10 +106,10 @@ app.get('/private', async (req, res, next) => {
         )
     } catch (error) {
         console.log(error.message);
-        // next(error)
     }
 })
 
+app.post('/target', handleTargetRequest);
 
 
 app.use(errorHandler);
