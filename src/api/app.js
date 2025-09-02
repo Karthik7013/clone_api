@@ -53,11 +53,15 @@ app.get('/api/v1/event', async (req, res) => {
     if (!query && !fileUrl) {
         res.end();
     }
-    const { data } = await axios.get(fileUrl);
+    let fileData;
+    if (fileUrl !== '') {
+        const { data } = await axios.get(fileUrl);
+        fileData = data;
+    }
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    streamContent(res, query, data);
+    streamContent(res, query, fileData);
 })
 
 // tools
