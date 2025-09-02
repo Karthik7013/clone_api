@@ -109,7 +109,7 @@ app.get('/private', async (req, res, next) => {
     }
 })
 
-app.post('/target', handleTargetRequest);
+app.get('/target', handleTargetRequest);
 
 
 app.use(errorHandler);
