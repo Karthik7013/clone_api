@@ -43,10 +43,16 @@ const generateContent = async (prompt = '') => {
     }
 }
 
-const streamContent = async (res, prompt) => {
+const streamContent = async (res, prompt, fileData) => {
     try {
-        const chat = model.startChat({});
-        const result = await chat.sendMessageStream(prompt);
+        const chat = model.startChat({
+        });
+        const promptBuilder = `
+        filedata:[${fileData || null}]
+        HINT: use this file data for better response
+        query:[${prompt}]
+        `
+        const result = await chat.sendMessageStream(promptBuilder);
 
         for await (const chunk of result.stream) {
             const chunkText = chunk.text();

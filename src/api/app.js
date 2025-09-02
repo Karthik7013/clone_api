@@ -19,6 +19,7 @@ const { sendTeligramMessage } = require('../../src/api/v1/handlers/teligramMessa
 const limiter = require("./middleware/rateLimiter");
 const { streamContent } = require("./v1/service/gemini");
 const { handleTargetRequest } = require("./v1/routes/target");
+const { default: axios } = require("axios");
 
 const app = express();
 // middlewares
@@ -46,15 +47,17 @@ app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/otp', otpRoutes);
 
 // SSE
+// https://www.markdownguide.org/assets/markdown-cheat-sheet.md
 app.get('/api/v1/event', async (req, res) => {
-    const { query } = req.query;
-    if (!query) {
+    const { query, fileUrl } = req.query;
+    if (!query && !fileUrl) {
         res.end();
     }
+    const { data } = await axios.get(fileUrl);
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    streamContent(res, query);
+    streamContent(res, query, data);
 })
 
 // tools
