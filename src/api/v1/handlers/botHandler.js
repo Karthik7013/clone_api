@@ -138,9 +138,6 @@ const askBot = async (t = '', file) => {
     }
 }
 
-
-
-
 module.exports = {
     askBot
 }

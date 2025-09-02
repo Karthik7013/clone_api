@@ -25,7 +25,6 @@
     "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
     "k6": "^0.0.0",
-    "marked": "^15.0.7",
     "multer": "^1.4.5-lts.2",
     "mysql2": "^3.11.3",
     "node-telegram-bot-api": "^0.66.0",
@@ -36,9 +35,6 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "chai": "^5.1.2",
-    "chai-http": "^5.1.1",
-    "mocha": "^11.1.0",
     "nodemon": "^3.1.9"
   }
 }
