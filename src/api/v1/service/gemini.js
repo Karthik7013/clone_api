@@ -49,7 +49,7 @@ const streamContent = async (res, prompt, fileData) => {
         });
         const promptBuilder = `
         filedata:[${fileData || null}]
-        HINT: use this file data for better response
+        HINT: use this file data for better response if available
         query:[${prompt}]
         `
         const result = await chat.sendMessageStream(promptBuilder);

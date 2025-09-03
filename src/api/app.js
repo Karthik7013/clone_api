@@ -48,16 +48,26 @@ app.use('/api/v1/otp', otpRoutes);
 
 // SSE
 // https://www.markdownguide.org/assets/markdown-cheat-sheet.md
-app.get('/api/v1/event', async (req, res) => {
-    const { query, fileUrl } = req.query;
-    if (!query && !fileUrl) {
-        res.end();
+app.get('/api/v1/event', async (req, res, next) => {
+    try {
+        const { query, fileUrl } = req.query;
+
+        if (!query && !fileUrl) {
+            res.end();
+        }
+        let fileData;
+        if (fileUrl && fileUrl !== '') {
+            const { data } = await axios.get(fileUrl);
+            fileData = data;
+        }
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        streamContent(res, query, fileData);
+    } catch (error) {
+        next(error)
     }
-    const { data } = await axios.get(fileUrl);
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    streamContent(res, query, data);
+
 })
 
 // tools
