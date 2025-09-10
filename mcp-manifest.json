@@ -4,6 +4,7 @@
     "description": "Gemini MCP server mainfest",
     "tools": [
         {
+            "title": "Teligram Messenger",
             "name": "sendTeligramMessage",
             "description": "This tool is used to send messages to a specific bot channel.",
             "endpoint": "https://namelixinsurance.koyeb.app/teligram/bot/message",
@@ -13,6 +14,11 @@
                     "name": "message",
                     "type": "string",
                     "required": true
+                }
+            ],
+            "ENV": [
+                {
+                    "API_KEY": ""
                 }
             ]
         }

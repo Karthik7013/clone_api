@@ -1,6 +1,7 @@
 const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
 const path = require('path');
 const fs = require('node:fs');
+const { streamContent } = require("../service/gemini");
 const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
 
 // gemini call
@@ -98,41 +99,78 @@ I retain persistent memory of our conversation. Relevant background:
 
 const orchestrator = (prompt, manifest) => {
     return `
-    ${prompt}
+STRICT DIRECTIVES:
+1. You are an API Orchestrator that processes user inputs against defined tools.
+2. You MUST output ONLY valid JSON in the exact specified structure without deviations.
+3. Your output must NOT include any additional text, explanations, or markdown formatting.
 
-    You are an intelligent API Orchestrator.You are connected to the following tools:
-    tools:[${JSON.stringify(manifest.tools, null, 2)}]
+AVAILABLE TOOLS:
+${JSON.stringify(manifest.tools, null, 2)}
 
-    OUTPUT should ALWAYS JSON ONLY (in the below structure and no json tags or any abbrivations):
-    {
+USER PROMPT:
+"${prompt}"
+
+ANALYSIS PROCESS:
+1. category:
+    - if external data is required to process the query <tool_call>
+    - if external data is required and no tool is suitable to process the query <no_tool>
+    - if no external data is required to process the query <small_talk>
+2. tool:
+    - if
+3. params:
+    - extract the required tool parameters from the query
+    - 
+4. missing_params:
+5. confidence:
+    - if <small_talk> | <no_tool> confidence =  1.0
+6. source:
+
+
+REQUIRED JSON STRUCTURE (output nothing else no markdown | tags):
+{
   "category": "small_talk" | "tool_call" | "no_tool",
-  "tool": <tool_name>,
-  "widget_type": "",
-  "params": [<key>:<value>],
-  "missing_params": [],
-  "raw_data": <tool_data>,
-  "processed_data": <structured_tool_data>,
-  "reply": <friendly_response>,
+  "tool": "tool_name" | null, // null when it is small_talk or no_tool
+  "params": [{ "key": "value" }] | null, // null when it is small_talk or no_tool
+  "missing_params": [{ "key": "expected_type" }] | null, // null when it is small_talk or no_tool,
   "meta": {
-    "timestamp": <current_timestamp>,
-    "confidence": [0.0-1.0],
-    "source": <tool_name>,
-    "latency_ms": 280
+    "confidence": number,
+    "source": "tool_name" | null // source should be null in <small_talk> and <no_tool>
   }
-}`;
 }
+`};
+
+function extractJSONFromMarkdown(response) {
+    // Remove Markdown code block syntax if present
+    const cleanedResponse = response.replace(/```json\n?/g, '').replace(/\n```$/g, '');
+
+    try {
+        return JSON.parse(cleanedResponse);
+    } catch (error) {
+        console.error('Failed to parse JSON:', error);
+        return null;
+    }
+}
+
 const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
 const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+
 const askBot = async (t = '', file) => {
     try {
-        const memory = await getCache('memory:user:context') || ''; // prev context from redis
+        // const memory = await getCache('memory:user:context') || ''; // prev context from redis
         // const prompt = memoryPrompt(t, memory); // prompt preparation
-        const prompt2 = orchestrator(t, manifest); // prompt preparation
-        const currentContext = await generateContent(prompt2); // feed to gemini ai
+        const orchestratorPrompt = orchestrator(t, manifest); // prompt preparation
+        const currentContext = await generateContent(orchestratorPrompt); // feed to gemini ai
+        const parsedData = extractJSONFromMarkdown(currentContext);
+        if (parsedData?.category === 'small_talk') {
+            streamContent(res, query, fileData);
+        }
+
+
+
         // const summPrompt = summarizePrompt(currentContext, memory); // prompt preparation
         // const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
         // await setCache(generateCacheKey('memory', 'user', 'context'), updatedMemory, 3000) // store the updated
-        return { response: currentContext, prompt2 }
+        return { response: parsedData }
     } catch (error) {
         throw error
     }

@@ -20,6 +20,7 @@ const limiter = require("./middleware/rateLimiter");
 const { streamContent } = require("./v1/service/gemini");
 const { handleTargetRequest } = require("./v1/routes/target");
 const { default: axios } = require("axios");
+const { askBot } = require("./v1/handlers/botHandler");
 
 const app = express();
 // middlewares
@@ -67,7 +68,16 @@ app.get('/api/v1/event', async (req, res, next) => {
     } catch (error) {
         next(error)
     }
+})
 
+app.post('/api/v1/bot/ask', async (req, res, next) => {
+    try {
+        const { t } = req.body
+        const result = await askBot(t);
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error)
+    }
 })
 
 // tools
