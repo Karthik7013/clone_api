@@ -60,49 +60,27 @@ I retain persistent memory of our conversation. Relevant background:
 `};
 
 
-const summarizePrompt = (currentContext = '', prevContext = '') => {
+const summarizePrompt = (query = '', file_data = '', currentContext = '', prevContext = '') => {
     const prompt = `
-    **Conversation Summarization Task**
-*Create a condensed context snapshot for future chatbot interactions*
+    **ROLE:** You are a conversation summarization system. Your only goal is to condense a conversation into a minimal, meaningful summary for future context.
 
-### Inputs:
-1. **Previous Summary** (${prevContext})  
-2. **Current Response** (${currentContext})
+**FULL CONVERSATION HISTORY FOR THIS TURN:**
 
-### Output Requirements:
-**Core Objective**:  
-Generate a standalone, reusable context summary that:  
-- Preserves all essential information for coherent future replies  
-- Maintains user-specific details and conversation trajectory  
-- Enables seamless context restoration  
+1. **Existing Context Summary:** ${prevContext}
+2. **User's Uploaded File Data:** ${file_data}
+3. **User's Query:** ${query}
+4. **AI's Response:** ${currentContext}
 
-### Guidelines:
-**✅ MUST INCLUDE**  
-- User identity markers (name, pronouns)  
-- Explicitly stated preferences/interests  
-- Active goals or projects  
-- Decided action items  
-- Persistent emotional tones (e.g., "frustrated with X")  
-- Open loops/unresolved questions  
+**TASK:** Create a concise, new summary that captures the essential meaning, facts, decisions, and user preferences from the entire interaction above.
 
-**🚫 MUST EXCLUDE**  
-- Redundant information  
-- Greetings/closings (unless critical)  
-- Verbatim quotes (paraphrase instead)  
-- Transient mood indicators  
-- Assistant's internal processing notes  
+**RULES:**
+- Be extremely concise. Your summary must be shorter than the input.
+- Paraphrase and combine information. Omit all greetings and filler words.
+- Focus on objective facts and conclusions, not the style of the conversation.
+- This summary will be the only memory provided to an AI in the next turn of this conversation.
+- Output nothing but the summary itself.
 
-**Format Rules:**  
-1. **Third-person perspective**  
-   - *Example*: "User is exploring [topic] and needs [specific help]"  
-2. **Bullet-point structure** (max 5 items)  
-3. **Conciseness priority** (<100 words)  
-4. **Time-aware framing**  
-   - Use temporal markers: *"Previously...", "Recently...", "Currently..."*
-
-### Output Format:
-**Updated Context Summary:**  
-[Concise bullet-point summary combining previous and current context]
+**NEW CONTEXT SUMMARY:**
     `;
     return prompt
 
@@ -112,7 +90,6 @@ const streamContent = async (res, query, fileData) => {
     try {
         const prevMemory = await getCache('memory:user:conversation') || ''; // prev context from redis
         const promptBuilder = memoryPrompt(query, prevMemory, fileData); // query + prevMemory + fileData
-        console.log(promptBuilder);
         const chat = model.startChat({});
         const result = await chat.sendMessageStream(promptBuilder);
         let finalmessage = ''
@@ -122,7 +99,7 @@ const streamContent = async (res, query, fileData) => {
             const payload = JSON.stringify({ type: "chunk", content: chunkText });
             res.write(`data: ${payload}\n\n`);
         }
-        const summPrompt = summarizePrompt(finalmessage, prevMemory);
+        const summPrompt = summarizePrompt(query, fileData, finalmessage, prevMemory);
         const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
         await setCache(generateCacheKey('memory', 'user', 'conversation'), updatedMemory, 3000) // store the updated
         // send explicit end event
