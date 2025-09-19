@@ -1,5 +1,4 @@
-const axios = require("axios")
-const { SocksProxyAgent } = require("socks-proxy-agent");
+const axios = require("axios");
 
 function generatePhoneNumber() {
     const firstDigitOptions = [9, 8, 7, 6];
@@ -11,10 +10,12 @@ function generatePhoneNumber() {
     }
     return number;
 }
-const body3 = {
+
+const body4 = {
     payload: "EqmOGBbKW4aRltA8G6PYmw==:alfrcyVmGLRVOTNYXTewp23n1GhhjjuFiXQ77l/pI0wFfZxzTUA29dDobwc2TGAx1M4uwdbNN0dpu1Luu/7mmgyZKBKTSuRN2tkIVTAUt3T9KzwPBnCjyYsOq91gKzhgiQs4s3VwI0KnOPGBh1Qcm4IEJ9UOD6AcNiOMXNBb+571s99R7vhMkHoEjlE3WRZ0THVtsgpiq1BmdUWdQ2taoFhC7xDb84AAzGuiWfqWW2H4ofXf4Fhux+X0irZxPbGtzF3DPtwMRDf7g5Oae12AGh7x7tHYahcTwEUf3Y8DezKFjK2UCyFeoJcOyBzPSFtQCZd7qrbyUpLJgioAu12lb9wkljpf2QA2aCP0efXEudK0wvSHZ+U3vc1JWxB13USYaQGOPhO+k4ZvWWMbP/tdbddDmy33dDDELef59c9COacPuUc/GMiccEmyGhpZ1Shd9UuHRFXdtaaQeFjNGgoXhV49sdwCefOMyYGmheJfK/YhnWHLA5SmoLnfCTerGSDzrRb1JWSTQO4GEHRwyNxFZg=="
 }
-const body4 = {
+
+const body5 = {
     "enquiryId": "LMV_QQ_PVT_CAR_PACKAGE_01",
     "user": {
         "login": false,
@@ -320,86 +321,76 @@ const body4 = {
     "documents": []
 }
 
-async function getIP({
+async function target1() {
+    try {
+        const ipRes = await axios.get("https://httpbin.org/ip",
+        );
+        const ipAddress = ipRes.data.origin;
+        return { res1: ipAddress };
+    } catch (err) {
+        console.log('getting error here')
+        throw err;
+    }
+}
+
+async function target2({
     count = 1,
     phone_number,
     customer_name
 }) {
-    try {
-        const torAgent = new SocksProxyAgent("socks5h://127.0.0.1:9050");
-        // Call IP API only once
-        const ipRes = await axios.get("https://httpbin.org/ip",
-            { httpsAgent: torAgent }
-        );
-        const ipAddress = ipRes.data.origin;
+    const phoneNumber = generatePhoneNumber().toString();
+    const body1 = {
+        phone: phone_number || phoneNumber,
+        org_id: "100",
+        agent_id: "1000",
+        method: "SEND",
+        type: "C",
+        name: customer_name || ""
+    };
+    const result = await axios.post(
+        "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
+        body1
+    )
+    return { res2: result.data }
 
-
-        const makeMultipleReq = async () => {
-            return Promise.all(
-                Array.from({ length: count }, async (_, i) => {
-                    try {
-                        const phoneNumber = generatePhoneNumber().toString();
-                        const body1 = {
-                            phone: phone_number || phoneNumber,
-                            org_id: "100",
-                            agent_id: "1000",
-                            method: "SEND",
-                            type: "C",
-                            name: customer_name || ""
-                        };
-                        const body2 = {
-                            customer_name: customer_name || "",
-                            phone: phone_number || phoneNumber,
-                            org_id: "100",
-                            agent_id: "1000",
-                            method: "POST",
-                            type: "C"
-                        };
-
-                        // Run requests in parallel
-                        const [res1,
-                            res2, res3, res4
-                        ] = await Promise.all([
-                            axios.post(
-                                "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
-                                body1,
-                                { httpsAgent: torAgent }
-                            ),
-                            axios.post(
-                                "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
-                                body2,
-                                { httpsAgent: torAgent }
-                            ),
-                            axios.post(
-                                "https://c4vygufp78.execute-api.ap-south-1.amazonaws.com/Prod/insurance/v1/health/policy/quote",
-                                body3,
-                                { httpsAgent: torAgent }
-                            ),
-                            axios.post(
-                                "https://73rhs0ky9d.execute-api.ap-south-1.amazonaws.com/prod/insurance/v1/motor/policy/quote",
-                                body4,
-                                { httpsAgent: torAgent }
-                            )
-                        ]);
-
-                        return {
-                            ip: ipAddress,
-                            api1: { req: body1, res: res1.data },
-                            api2: { req: body2, res: res2.data },
-                            api3: { req: body3, res: res3.data },
-                            api4: { req: body4, res: res4.data }
-                        };
-                    } catch (err) {
-                        return { index: i, error: err.message, response: err.response?.data };
-                    }
-                })
-            );
-        };
-
-        const multiResults = await makeMultipleReq();
-        return { multiple: multiResults, count };
-    } catch (err) {
-        throw err;
-    }
 }
-module.exports = { getIP };
+
+async function target3({
+    count = 1,
+    phone_number,
+    customer_name
+}) {
+    const phoneNumber = generatePhoneNumber().toString();
+    const body2 = {
+        customer_name: customer_name || "",
+        phone: phone_number || phoneNumber,
+        org_id: "100",
+        agent_id: "1000",
+        method: "POST",
+        type: "C"
+    };
+    const result = await axios.post(
+        "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
+        body2
+    )
+    return { res3: result.data }
+}
+
+async function target4() {
+    const result = await axios.post(
+        "https://c4vygufp78.execute-api.ap-south-1.amazonaws.com/Prod/insurance/v1/health/policy/quote",
+        body4
+    )
+    return { res4: result.data }
+}
+
+async function target5() {
+    const result = await axios.post(
+        "https://73rhs0ky9d.execute-api.ap-south-1.amazonaws.com/prod/insurance/v1/motor/policy/quote",
+        body5
+    )
+    return { res5: result.data }
+}
+
+
+module.exports = { target1, target2, target3, target4, target5 };

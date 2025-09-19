@@ -3,10 +3,10 @@ import { sleep, check } from 'k6';
 
 export let options = {
     stages: [
-        { duration: '30s', target: 100 },    // ramp up slowly
+        { duration: '1s', target: 100 },    // ramp up slowly
         { duration: '1m', target: 100 },   // increase gradually
         { duration: '1m', target: 100 },   // ramp down
-        { duration: '30s', target: 0 },   // ramp down
+        { duration: '1s', target: 0 },   // ramp down
     ],
 };
 

@@ -11,6 +11,9 @@ async function sendTeligramMessage(message = '') {
                 parse_mode: 'Markdown',
             }
         );
+        return {
+            res: 'Message send successfully'
+        }
     } catch (error) {
         throw error
     }

@@ -2,6 +2,7 @@ const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
 const path = require('path');
 const fs = require('node:fs');
 const { streamContent } = require("../service/gemini");
+const { sendTeligramMessage } = require("./teligramMessageHandler");
 const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
 
 // gemini call
@@ -132,6 +133,7 @@ REQUIRED JSON STRUCTURE (output nothing else no markdown | tags):
   "tool": "tool_name" | null, // null when it is small_talk or no_tool
   "params": [{ "key": "value" }] | null, // null when it is small_talk or no_tool
   "missing_params": [{ "key": "expected_type" }] | null, // null when it is small_talk or no_tool,
+  "reply":<friendly reply>, // null when tool_call
   "meta": {
     "confidence": number,
     "source": "tool_name" | null // source should be null in <small_talk> and <no_tool>
@@ -154,27 +156,48 @@ function extractJSONFromMarkdown(response) {
 const filePath = path.join(__dirname, '../../../../mcp-manifest.json');
 const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 
-const askBot = async (t = '', file) => {
+const askBot = async (req, res, next) => {
     try {
-        // const memory = await getCache('memory:user:context') || ''; // prev context from redis
-        // const prompt = memoryPrompt(t, memory); // prompt preparation
+        const { t } = req.body
         const orchestratorPrompt = orchestrator(t, manifest); // prompt preparation
         const currentContext = await generateContent(orchestratorPrompt); // feed to gemini ai
         const parsedData = extractJSONFromMarkdown(currentContext);
-        if (parsedData?.category === 'small_talk') {
-            streamContent(res, query, fileData);
+        if (parsedData?.category === 'no_tool') {
+            const reply = parsedData.reply;
+            console.log(reply)
         }
-
-
-
-        // const summPrompt = summarizePrompt(currentContext, memory); // prompt preparation
-        // const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
-        // await setCache(generateCacheKey('memory', 'user', 'context'), updatedMemory, 3000) // store the updated
-        return { response: parsedData }
+        if (parsedData?.category === 'tool_call') {
+            // manifest.tool.map((tool) => tool.name === parsedData.name && )
+            const parameters = parsedData.params;
+            const message = parameters[0].value;
+            const toolRes = await sendTeligramMessage(message)
+            console.log(toolRes)
+            // streamContent(res, t, file, toolRes);
+        }
+        // streamContent(res, t, file, tool_response);
+        return res.status(200).json({ response: parsedData });
     } catch (error) {
-        throw error
+        next(error)
     }
 }
+// const askBot = async (t = '', file) => {
+//     try {
+//         const orchestratorPrompt = orchestrator(t, manifest); // prompt preparation
+//         const currentContext = await generateContent(orchestratorPrompt); // feed to gemini ai
+//         const parsedData = extractJSONFromMarkdown(currentContext);
+//         if (parsedData?.category === 'tool_call') {
+//             // manifest.tool.map((tool) => tool.name === parsedData.name && )
+//             const parameters = parsedData.params;
+//             const message = parameters[0].value;
+//             const toolRes = await sendTeligramMessage(message)
+//             console.log(toolRes)
+//         }
+//         // streamContent(res, t, file, tool_response);
+//         return { response: parsedData }
+//     } catch (error) {
+//         throw error
+//     }
+// }
 
 module.exports = {
     askBot

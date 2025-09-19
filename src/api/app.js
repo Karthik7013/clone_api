@@ -52,7 +52,6 @@ app.use('/api/v1/otp', otpRoutes);
 app.get('/api/v1/event', async (req, res, next) => {
     try {
         const { query, fileUrl } = req.query;
-
         if (!query && !fileUrl) {
             res.end();
         }
@@ -70,22 +69,23 @@ app.get('/api/v1/event', async (req, res, next) => {
     }
 })
 
-app.post('/api/v1/bot/ask', async (req, res, next) => {
-    try {
-        const { t } = req.body
-        const result = await askBot(t);
-        return res.status(200).json(result);
-    } catch (error) {
-        next(error)
-    }
-})
+app.post('/api/v1/bot/ask', askBot)
+// app.post('/api/v1/bot/ask', async (req, res, next) => {
+//     try {
+//         const { t } = req.body
+//         const result = await askBot(t);
+//         return res.status(200).json(result);
+//     } catch (error) {
+//         next(error)
+//     }
+// })
 
 // tools
 app.post('/teligram/bot/message', async (req, res) => {
     try {
         const { message } = req.body;
         console.log(message, "finalmessage")
-        const response = sendTeligramMessage(message);
+        const response = await sendTeligramMessage(message);
         return res.status(200).json({
             message: "Message sent successfully"
         })

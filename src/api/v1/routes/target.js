@@ -22,7 +22,6 @@ function handleTargetRequest(req, res, next) {
 
     worker.on('message', (result) => {
         console.log(`Task ${result.taskId} completed:`, result);
-        // Here you could store the result in database, send notification, etc.
     });
 
     worker.on('error', (error) => {
