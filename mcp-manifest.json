@@ -15,10 +15,19 @@
                     "type": "string",
                     "required": true
                 }
-            ],
-            "ENV": [
+            ]
+        },
+        {
+            "title": "Web Search Engine",
+            "name": "webSearch",
+            "description": "This tool is used for getting query related articles or web pages.",
+            "endpoint": "https://namelixinsurance.koyeb.app/api/v1/web/search",
+            "method": "GET",
+            "parameters": [
                 {
-                    "API_KEY": ""
+                    "name": "query",
+                    "type": "string",
+                    "required": true
                 }
             ]
         }

@@ -1,9 +1,9 @@
 const { setCache, generateCacheKey, getCache } = require("../../utils/cache");
 const path = require('path');
 const fs = require('node:fs');
-const { streamContent } = require("../service/gemini");
 const { sendTeligramMessage } = require("./teligramMessageHandler");
-const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
+// const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
+const default_model = 'models/gemini-1.5-flash';
 
 // gemini call
 const generateContent = async (prompt = '') => {
@@ -133,7 +133,8 @@ REQUIRED JSON STRUCTURE (output nothing else no markdown | tags):
   "tool": "tool_name" | null, // null when it is small_talk or no_tool
   "params": [{ "key": "value" }] | null, // null when it is small_talk or no_tool
   "missing_params": [{ "key": "expected_type" }] | null, // null when it is small_talk or no_tool,
-  "reply":<friendly reply>, // null when tool_call
+  "think":<think_process>, // what you think,
+  "reply":"<friendly_message>  // only when no_tool" 
   "meta": {
     "confidence": number,
     "source": "tool_name" | null // source should be null in <small_talk> and <no_tool>
@@ -143,7 +144,7 @@ REQUIRED JSON STRUCTURE (output nothing else no markdown | tags):
 
 function extractJSONFromMarkdown(response) {
     // Remove Markdown code block syntax if present
-    const cleanedResponse = response.replace(/```json\n?/g, '').replace(/\n```$/g, '');
+    const cleanedResponse = response.replace(/```json\n?/g, '').replace(/\n```/g, '');
 
     try {
         return JSON.parse(cleanedResponse);
@@ -158,10 +159,15 @@ const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 
 const askBot = async (req, res, next) => {
     try {
+        // temp_mode = false
+        // research = false
+        // web search = false
+
         const { t } = req.body
         const orchestratorPrompt = orchestrator(t, manifest); // prompt preparation
         const currentContext = await generateContent(orchestratorPrompt); // feed to gemini ai
         const parsedData = extractJSONFromMarkdown(currentContext);
+        console.log(parsedData)
         if (parsedData?.category === 'no_tool') {
             const reply = parsedData.reply;
             console.log(reply)
@@ -169,12 +175,15 @@ const askBot = async (req, res, next) => {
         if (parsedData?.category === 'tool_call') {
             // manifest.tool.map((tool) => tool.name === parsedData.name && )
             const parameters = parsedData.params;
-            const message = parameters[0].value;
+            const message = parameters[0].message;
+            console.log(message);
             const toolRes = await sendTeligramMessage(message)
             console.log(toolRes)
             // streamContent(res, t, file, toolRes);
         }
-        // streamContent(res, t, file, tool_response);
+        if (parsedData?.category === 'simple_talk') {
+            // streamContent(res, t, file);
+        }
         return res.status(200).json({ response: parsedData });
     } catch (error) {
         next(error)
@@ -200,5 +209,8 @@ const askBot = async (req, res, next) => {
 // }
 
 module.exports = {
-    askBot
+    askBot,
+    orchestrator,
+    generateContent,
+    extractJSONFromMarkdown
 }

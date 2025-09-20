@@ -97,15 +97,13 @@ const streamContent = async (res, query, fileData) => {
             const chunkText = chunk.text();
             finalmessage += chunkText;
             const payload = JSON.stringify({ type: "chunk", content: chunkText });
-            res.write(`data: ${payload}\n\n`);
+            res.write(`event: response\ndata: ${payload}\n\n`);
         }
         const summPrompt = summarizePrompt(query, fileData, finalmessage, prevMemory);
         const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
         await setCache(generateCacheKey('memory', 'user', 'conversation'), updatedMemory, 3000) // store the updated
         // send explicit end event
-        res.write(`event: end\ndata: [DONE]\n\n`);
-
-        res.end();
+    
     } catch (error) {
         const payload = JSON.stringify({ type: "error", message: error.message });
         res.write(`event: error\ndata: ${payload}\n\n`);
