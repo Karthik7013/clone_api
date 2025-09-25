@@ -51,7 +51,7 @@ const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 
 // SSE
 // https://www.markdownguide.org/assets/markdown-cheat-sheet.md
-app.get('/api/v1/event/:conversation_id', async (req, res, next) => {
+app.get('/api/v1/chat/:conversation_id', async (req, res, next) => {
     try {
 
         const { query, fileUrl } = req.query;
