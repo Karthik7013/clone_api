@@ -76,7 +76,7 @@ app.get('/api/v1/chat/:conversation_id', async (req, res, next) => {
         // const payload = extractJSONFromMarkdown(currentContext);
         res.write(`event: thinking\ndata: [END]\n\n`);
 
-        res.write(`event: orchestrator\ndata: ${JSON.stringify(payload)}\n\n`);
+        // res.write(`event: orchestrator\ndata: ${JSON.stringify(payload)}\n\n`);
 
 
 
