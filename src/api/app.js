@@ -70,10 +70,10 @@ app.get('/api/v1/chat/:conversation_id', async (req, res, next) => {
 
 
         res.write(`event: thinking\ndata: [START]\n\n`);
-        const orchestratorPrompt = orchestrator(query, manifest);
+        // const orchestratorPrompt = orchestrator(query, manifest);
 
-        const currentContext = await generateContent(orchestratorPrompt);
-        const payload = extractJSONFromMarkdown(currentContext);
+        // const currentContext = await generateContent(orchestratorPrompt);
+        // const payload = extractJSONFromMarkdown(currentContext);
         res.write(`event: thinking\ndata: [END]\n\n`);
 
         res.write(`event: orchestrator\ndata: ${JSON.stringify(payload)}\n\n`);
