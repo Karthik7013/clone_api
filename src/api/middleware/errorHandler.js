@@ -42,8 +42,8 @@ const errorHandler = async (err, req, res, next) => {
   const source = ""; //file name
   const errCode = err.status || 500;
   try {
-    const connection = await connectToDatabase();
-    await connection.execute(INSERT_ERR_LOG, [message, errType, severity, source, stack, errCode, userId, ipAddress]);
+    // const connection = await connectToDatabase();
+    // await connection.execute(INSERT_ERR_LOG, [message, errType, severity, source, stack, errCode, userId, ipAddress]);
     res.status(err.status || 500).json({
       success: false,
       message: err.message || "Internal Server Error",
