@@ -1,119 +1,138 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { getCache, setCache, generateCacheKey } = require("../../utils/cache");
-const default_model = 'models/gemini-2.5-flash-lite-preview-06-17';
-// Replace with your Gemini Free API key
+
+// --- Setup Gemini Model ---
 const API_KEY = process.env.GEMINI_API_KEY;
+if (!API_KEY) throw new Error("GEMINI_API_KEY is missing in environment");
 
-// Initialize the client
 const genAI = new GoogleGenerativeAI(API_KEY);
-// Choose a free model
-const MODEL_NAME = "gemini-2.5-flash-lite-preview-06-17"; // fast & free tier
-// const MODEL_NAME = "gemini-1.5-flash"; // fast & free tier
-// const MODEL_NAME = "gemini-pro"; // fast & free tier
-const model = genAI.getGenerativeModel({ model: MODEL_NAME })
+const MODEL_NAME = "gemini-2.5-flash-lite-preview-06-17";
+const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-// gemini call
-const generateContent = async (prompt = '') => {
-    const URI = `https://generativelanguage.googleapis.com/v1beta/${default_model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
-    try {
-        const response = await fetch(URI, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',  // Set the Content-Type to JSON
+// --- History (example conversation) ---
+const history = [];
+
+
+// --- System Instruction ---
+// const systemInstruction = {
+//     role: "system",
+//     parts: [
+//         {
+//             text: "You are a helpful assistant. Always answer precisely and use clean, readable formatting for code.",
+//         }
+//     ],
+// };
+
+// --- Generation Config ---
+// const generationConfig = {
+//     temperature: 0.7,
+//     topP: 0.9,
+//     topK: 40,
+//     maxOutputTokens: 512,
+//     responseMimeType: "text/plain",
+// };
+
+// --- Tools ---
+const tools = [
+    {
+        functionDeclarations: [
+            {
+                name: "get_weather_data",
+                description: "Get the current weather data of a city/place",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        location: {
+                            type: "string",
+                            description: "Name of the city or place",
+                        },
+                    },
+                    required: ["location"],
+                },
             },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: prompt
-                            }
-                        ]
-                    }
-                ]
-            })
-        })
-        const data = await response.json(prompt);
-        if (data.error) {
-            throw new Error(data.error.message || 'An error occurred while processing your request.');
-        }
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        return text;
-    } catch (error) {
-        throw error;
-    }
-}
+        ],
+    },
+];
 
-const memoryPrompt = (t, prevContext, fileData) => {
-    return `
-📘 **Memory & Context**
-I retain persistent memory of our conversation. Relevant background:
-**Your Memory:**
-- [${prevContext}]
-- external data source (file | api response)
-  [${fileData}]
+// --- Mock tool function ---
+const getWeather = async (location) => {
+    // Simulate async external API call
+    await new Promise((r) => setTimeout(r, 500));
+    return {
+        location,
+        temperature: "28°C",
+        condition: "Partly cloudy",
+    };
+};
 
----
+// --- Map tool names to functions ---
+const tool_func_mapper = {
+    get_weather_data: getWeather,
+};
 
-🧾 **Current Query**  
-- [${t}]
-`};
+// --- Tool Config ---
+const toolConfig = {
+    functionCallingConfig: {
+        mode: "AUTO", // AUTO = let Gemini decide when to call a function
+    },
+};
 
+// --- Stream Response ---
 
-const summarizePrompt = (query = '', file_data = '', currentContext = '', prevContext = '') => {
-    const prompt = `
-    **ROLE:** You are a conversation summarization system. Your only goal is to condense a conversation into a minimal, meaningful summary for future context.
-
-**FULL CONVERSATION HISTORY FOR THIS TURN:**
-
-1. **Existing Context Summary:** ${prevContext}
-2. **User's Uploaded File Data:** ${file_data}
-3. **User's Query:** ${query}
-4. **AI's Response:** ${currentContext}
-
-**TASK:** Create a concise, new summary that captures the essential meaning, facts, decisions, and user preferences from the entire interaction above.
-
-**RULES:**
-- Be extremely concise. Your summary must be shorter than the input.
-- Paraphrase and combine information. Omit all greetings and filler words.
-- Focus on objective facts and conclusions, not the style of the conversation.
-- This summary will be the only memory provided to an AI in the next turn of this conversation.
-- Output nothing but the summary itself.
-
-**NEW CONTEXT SUMMARY:**
-    `;
-    return prompt
-
-}
-
-const streamContent = async (res, query, fileData) => {
+const streamContent = async (res, query) => {
     try {
-        const prevMemory = await getCache('memory:user:conversation') || ''; // prev context from redis
-        const promptBuilder = memoryPrompt(query, prevMemory, fileData); // query + prevMemory + fileData
-        const chat = model.startChat({});
-        const result = await chat.sendMessageStream(promptBuilder);
-        let finalmessage = ''
+        const chat = model.startChat({
+            history,
+            // systemInstruction,
+            // generationConfig,
+            tools,
+            toolConfig
+        });
+        history.push({
+            role: "user",
+            parts: [{ text: query }]
+        })
+        const result = await chat.sendMessageStream(query);
+        let finalMessage = "";
         for await (const chunk of result.stream) {
+            const calls = chunk.functionCalls();
+            if (calls && calls.length) {
+                for (const { name, args } of calls) {
+                    if (tool_func_mapper[name]) {
+                        const func = tool_func_mapper[name];
+                        const funcResult = await func(args.location);
+                        await chat.sendMessage([
+                            {
+                                functionResponse: {
+                                    name,
+                                    response: { name, content: funcResult },
+                                },
+                            },
+                        ]);
+                        const payload = JSON.stringify({ type: "func_res", content: funcResult });
+                        res.write(`event: response\ndata: ${payload}\n\n`);
+                    }
+                }
+            }
+
             const chunkText = chunk.text();
-            finalmessage += chunkText;
-            const payload = JSON.stringify({ type: "chunk", content: chunkText });
-            res.write(`event: response\ndata: ${payload}\n\n`);
+            if (chunkText) {
+                finalMessage += chunkText;
+                const payload = JSON.stringify({ type: "chunk", content: chunkText });
+                res.write(`event: response\ndata: ${payload}\n\n`);
+            }
         }
-        const summPrompt = summarizePrompt(query, fileData, finalmessage, prevMemory);
-        const updatedMemory = await generateContent(summPrompt); // feed to gemini ai
-        await setCache(generateCacheKey('memory', 'user', 'conversation'), updatedMemory, 3000) // store the updated
-        // send explicit end event
-    
+        history.push({ role: "model", parts: [{ text: finalMessage }] })
+
+        // ✅ close the stream here
+        const endPayload = JSON.stringify({ type: "done", content: finalMessage });
+        res.write(`event: response\ndata: ${endPayload}\n\n`);
+
     } catch (error) {
         const payload = JSON.stringify({ type: "error", message: error.message });
         res.write(`event: error\ndata: ${payload}\n\n`);
-        res.end();
     }
 };
 
-
 module.exports = {
-    generateContent,
     streamContent
-
-}
+};

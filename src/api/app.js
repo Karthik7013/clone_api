@@ -54,37 +54,14 @@ const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 app.get('/api/v1/chat/:conversation_id', async (req, res, next) => {
     try {
 
-        const { query, fileUrl } = req.query;
-        if (!query && !fileUrl) {
-            res.end();
-        }
-        let fileData;
-        if (fileUrl && fileUrl !== '') {
-            const { data } = await axios.get(fileUrl);
-            fileData = data;
-        }
+        const { query } = req.query;
+
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
-        // =====================
 
-
-        res.write(`event: thinking\ndata: [START]\n\n`);
-        // const orchestratorPrompt = orchestrator(query, manifest);
-
-        // const currentContext = await generateContent(orchestratorPrompt);
-        // const payload = extractJSONFromMarkdown(currentContext);
-        res.write(`event: thinking\ndata: [END]\n\n`);
-
-        // res.write(`event: orchestrator\ndata: ${JSON.stringify(payload)}\n\n`);
-
-
-
-
-        // =====================
-        await streamContent(res, query, fileData);
+        await streamContent(res, query);
         res.write(`event: end\ndata: [DONE]\n\n`);
-
         res.end();
     } catch (error) {
         next(error)
