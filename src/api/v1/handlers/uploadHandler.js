@@ -1,70 +1,8 @@
 const axios = require('axios');
-const { connectToDatabase } = require('../../config/db');
-const fs = require('node:fs')
+const fs = require('node:fs');
 const FormData = require('form-data');
-const tool = {
-    temp: async (formData, fileInfo) => {
-        const {
-            originalname,
-            size
-        } = fileInfo;
-        try {
-            const response = await axios.post('https://tmpfiles.org/api/v1/upload', formData, {
-                headers: formData.getHeaders()
-            });
-            if (response.status !== 200 || !response.data.data.url) {
-                throw new Error('Failed to upload file: Invalid response from upload server')
-            };
-            const originalUrl = response.data.data.url;
-            const insertIndex = originalUrl.indexOf("tmpfiles.org/") + "tmpfiles.org/".length;
-            const url = originalUrl.substring(0, insertIndex) + "dl/" + originalUrl.substring(insertIndex);
-            const file = {
-                url,
-                filename: originalname,
-                size_formatted: size,
-                thumb_url: null,
-                delete_url: null
-            };
-            return file;
-        } catch (error) {
-            throw error
-        }
-    }, //any file temporary
-    perm: async (formData, fileInfo) => {
-        const {
-            originalname,
-            size
-        } = fileInfo;
-        try {
-            console.log(fileInfo);
-            const response = await axios.post('https://imgbb.com/json', formData, {
-                headers: formData.getHeaders()
-            });
 
-            if (response.status !== 200 || !response.data.image || !response.data.image.url) {
-                throw new Error('Failed to upload image: Invalid response from upload server');
-            }
-            // await connection.execute(UPLOAD_FILE, [originalname, filename, response.data.image.url, fieldname, mimetype, size]);
-            const file = response.data.image;
-            return file;
-        } catch (error) {
-            throw error
-        }
-    }, //img file permanent
-}
-
-// const uploadHandler = async (formData, fileInfo) => {
-//     try {
-//         // const file = await tool['perm'](formData, fileInfo);
-//         const file = tool['temp'](formData, fileInfo);
-//         return file;
-//     } catch (error) {
-//         throw error;
-//     }
-// }
-
-
-class UploadHandlerC {
+class UploadHandler {
     constructor() {
         this.file = {
             url: null,
@@ -79,13 +17,59 @@ class UploadHandlerC {
     }
 }
 
-class UplodToAwsHandler extends UploadHandlerC {
+class UplodToAws extends UploadHandler {
     async upload(file) {
-        return this.file
+        const {
+            originalname,
+            size,
+            path,
+            filename,
+            destination,
+            mimetype,
+            encoding,
+            fieldname
+        } = file;
+        try {
+            const fileBuffer = fs.readFileSync(path);
+            const payload = {
+                "action": "upload",
+                "typeOfAction": "policy_doc",
+                "fileBuffer": fileBuffer.toString('base64'),
+                "contentType": mimetype || "application/octet-stream",
+                "originalFilename": originalname,
+                "fileSize": size
+            }
+            const { data } = await axios.post(
+                'https://5il6my5wxc.execute-api.ap-south-1.amazonaws.com/Prod/bucketuploadhandler/policydocs',
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+            console.log(data);
+            if (!data.url) {
+                throw new Error('Failed to upload')
+            }
+            const uploaded_file = {
+                url: data.url,
+                filename: originalname,
+                size_formatted: size,
+                thumb_url: null,
+                delete_url: null
+            };
+            return uploaded_file;
+        } catch (error) {
+            console.log(error)
+            throw error
+        } finally {
+            fs.unlinkSync(path);
+        }
     }
 }
 
-class UploadTemp extends UploadHandlerC {
+class UploadTemp extends UploadHandler {
     async upload(file) {
         const {
             originalname,
@@ -132,7 +116,6 @@ class UploadTemp extends UploadHandlerC {
 }
 
 module.exports = {
-    // uploadHandler,
-    UplodToAwsHandler,
+    UplodToAws,
     UploadTemp
 };
