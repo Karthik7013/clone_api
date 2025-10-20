@@ -54,20 +54,20 @@ const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 
 // SSE
 // https://www.markdownguide.org/assets/markdown-cheat-sheet.md
-app.get('/api/v1/chat/:conversation_id', async (req, res, next) => {
-    try {
-        const { query } = req.query;
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
+// app.get('/api/v1/chat/:conversation_id', async (req, res, next) => {
+//     try {
+//         const { query } = req.query;
+//         res.setHeader('Content-Type', 'text/event-stream');
+//         res.setHeader('Cache-Control', 'no-cache');
+//         res.setHeader('Connection', 'keep-alive');
 
-        await streamContent(res, query);
-        res.write(`event: end\ndata: [DONE]\n\n`);
-        res.end();
-    } catch (error) {
-        next(error)
-    }
-})
+//         await streamContent(res, query);
+//         res.write(`event: end\ndata: [DONE]\n\n`);
+//         res.end();
+//     } catch (error) {
+//         next(error)
+//     }
+// })
 
 app.post('/api/v1/chat', async (req, res, next) => {
     let connection;
@@ -124,6 +124,7 @@ app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
     const chatid = req.params.conversation_id;
     const verify_key = generateCacheKey('query', 'user_001', chatid);
     const cache = await getCache(verify_key);
+    console.log(cache)
     try {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
@@ -140,7 +141,7 @@ app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
 
 
 app.post('/api/v1/get_chat', () => {
-// return user-chats
+    // return user-chats
 })
 
 // tools
