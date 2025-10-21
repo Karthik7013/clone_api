@@ -73,8 +73,10 @@ app.post('/api/v1/chat', async (req, res, next) => {
     let connection;
     try {
         const body = req.body;
+        // console.log(body, 'se')
         // on going chat return the current id
         if (body.chat_id) {
+            console.log('second')
             const cache_key = generateCacheKey('query', 'user_001', body.chat_id);
             await setCache(cache_key, body, 200);
             let mid = v4();
@@ -85,7 +87,8 @@ app.post('/api/v1/chat', async (req, res, next) => {
             return res.status(200).json(successHandler(
                 {
                     cid: body.chat_id,
-                    user_id: 'user_001'
+                    user_id: 'user_001',
+                    title: "New Chat"
                 }
             ))
         }
@@ -124,7 +127,7 @@ app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
     const chatid = req.params.conversation_id;
     const verify_key = generateCacheKey('query', 'user_001', chatid);
     const cache = await getCache(verify_key);
-    console.log(cache)
+    // console.log(cache, "cache");
     try {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
