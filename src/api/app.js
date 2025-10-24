@@ -24,7 +24,7 @@ const { askBot, orchestrator, generateContent, extractJSONFromMarkdown } = requi
 const { v4 } = require('uuid');
 const { connectToDatabase } = require("./config/db");
 const successHandler = require("./middleware/successHandler");
-const { new_streamContent } = require("./v1/service/new-gemini-stream");
+const { new_streamContent, previousChats, deletChatById, getConversation } = require("./v1/service/new-gemini-stream");
 const app = express();
 // middlewares
 app.use(express.json());
@@ -52,31 +52,12 @@ app.use('/api/v1/otp', otpRoutes);
 const filePath = path.join(__dirname, '../../mcp-manifest.json');
 const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 
-// SSE
-// https://www.markdownguide.org/assets/markdown-cheat-sheet.md
-// app.get('/api/v1/chat/:conversation_id', async (req, res, next) => {
-//     try {
-//         const { query } = req.query;
-//         res.setHeader('Content-Type', 'text/event-stream');
-//         res.setHeader('Cache-Control', 'no-cache');
-//         res.setHeader('Connection', 'keep-alive');
-
-//         await streamContent(res, query);
-//         res.write(`event: end\ndata: [DONE]\n\n`);
-//         res.end();
-//     } catch (error) {
-//         next(error)
-//     }
-// })
-
 app.post('/api/v1/chat', async (req, res, next) => {
     let connection;
     try {
         const body = req.body;
-        // console.log(body, 'se')
         // on going chat return the current id
         if (body.chat_id) {
-            console.log('second')
             const cache_key = generateCacheKey('query', 'user_001', body.chat_id);
             await setCache(cache_key, body, 200);
             let mid = v4();
@@ -142,9 +123,36 @@ app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
     }
 })
 
+app.post('/api/v1/chat/list', async (req, res, next) => {
+    const { limit, page } = req.params;
+    const list = await previousChats();
+    return res.json({
+        data: list || []
+    })
+})
+app.post('/api/v1/chat/list', async (req, res, next) => {
+    // const { limit, page } = req.params;
+    const list = await previousChats();
+    return res.json({
+        data: list || []
+    })
+})
 
-app.post('/api/v1/get_chat', () => {
-    // return user-chats
+app.delete('/api/v1/chat/delete/:id', async (req, res, next) => {
+    const { id } = req.params;
+    await deletChatById(id);
+    return res.json({
+        success: true,
+        message: 'successfully deleted'
+    })
+})
+
+app.get('/api/v1/chat/:cid', async (req, res, next) => {
+    const { cid } = req.params;
+    const conversations = await getConversation(cid);
+    return res.json({
+        data: conversations || []
+    })
 })
 
 // tools
@@ -179,16 +187,6 @@ app.get('/api/v1/web/search', async (req, res) => {
     const response = await websearch(query);
     return res.json(response)
 })
-
-
-
-
-
-
-
-
-
-
 
 app.get('/target', handleTargetRequest);
 

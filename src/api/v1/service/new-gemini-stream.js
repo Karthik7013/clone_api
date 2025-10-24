@@ -33,6 +33,56 @@ const new_streamContent = async (res, options) => {
     }
 }
 
+
+const previousChats = async () => {
+    const limit = 10;
+    const page = 1;
+    let connection;
+    try {
+        connection = await connectToDatabase();
+        const res = await connection.execute(`SELECT cid,title FROM conversations WHERE uid='user_001'`);
+        return res[0];
+    } catch (error) {
+        console.log(error)
+    } finally {
+        if (connection) {
+            connection.close();
+        }
+    }
+}
+
+const deletChatById = async (id) => {
+    let connection;
+    try {
+        connection = await connectToDatabase();
+        const res = await connection.execute(`DELETE FROM conversations WHERE cid='${id}'`);
+    } catch (error) {
+        console.log(error)
+    } finally {
+        if (connection) {
+            connection.close();
+        }
+    }
+}
+
+const getConversation = async (cid) => {
+    let connection;
+    try {
+        connection = await connectToDatabase();
+        const res = await connection.execute(`SELECT id,role,mid,content FROM messages WHERE cid='${cid}'`);
+        return res[0]
+    } catch (error) {
+        console.log(error)
+    } finally {
+        if (connection) {
+            connection.close();
+        }
+    }
+}
+
 module.exports = {
-    new_streamContent
+    new_streamContent,
+    previousChats,
+    deletChatById,
+    getConversation
 }
