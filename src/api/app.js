@@ -34,6 +34,7 @@ app.use(logger);
 const corsOptions = {
     origin: [
         'https://cipherbot.netlify.app',
+        'https://cipherbot.vercel.app',
         'http://localhost:5173'
     ], // allowed origins
     credentials: true
