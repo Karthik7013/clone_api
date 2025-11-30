@@ -24,7 +24,7 @@ const { askBot, orchestrator, generateContent, extractJSONFromMarkdown } = requi
 const { v4 } = require('uuid');
 const { connectToDatabase } = require("./config/db");
 const successHandler = require("./middleware/successHandler");
-const { new_streamContent, previousChats, deletChatById, getConversation } = require("./v1/service/new-gemini-stream");
+const { new_streamContent, previousChats, deletChatById, getConversation, updateConversation } = require("./v1/service/new-gemini-stream");
 const app = express();
 // middlewares
 app.use(express.json());
@@ -53,6 +53,7 @@ app.use('/api/v1/otp', otpRoutes);
 const filePath = path.join(__dirname, '../../mcp-manifest.json');
 const manifest = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
 
+// create chat
 app.post('/api/v1/chat', async (req, res, next) => {
     let connection;
     try {
@@ -105,6 +106,7 @@ app.post('/api/v1/chat', async (req, res, next) => {
     }
 })
 
+// stream chat id
 app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
     const chatid = req.params.conversation_id;
     const verify_key = generateCacheKey('query', 'user_001', chatid);
@@ -124,13 +126,7 @@ app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
     }
 })
 
-app.post('/api/v1/chat/list', async (req, res, next) => {
-    const { limit, page } = req.params;
-    const list = await previousChats();
-    return res.json({
-        data: list || []
-    })
-})
+// chat list
 app.post('/api/v1/chat/list', async (req, res, next) => {
     // const { limit, page } = req.params;
     const list = await previousChats();
@@ -138,7 +134,7 @@ app.post('/api/v1/chat/list', async (req, res, next) => {
         data: list || []
     })
 })
-
+// chat delete
 app.delete('/api/v1/chat/delete/:id', async (req, res, next) => {
     const { id } = req.params;
     await deletChatById(id);
@@ -148,9 +144,16 @@ app.delete('/api/v1/chat/delete/:id', async (req, res, next) => {
     })
 })
 
+// get chat by id
 app.get('/api/v1/chat/:cid', async (req, res, next) => {
     const { cid } = req.params;
     const conversations = await getConversation(cid);
+    return res.json({
+        data: conversations || []
+    })
+})
+app.patch('/api/v1/chat', async (req, res, next) => {
+    const conversations = await updateConversation(req.body);
     return res.json({
         data: conversations || []
     })

@@ -80,10 +80,28 @@ const getConversation = async (cid) => {
         }
     }
 }
+const updateConversation = async (record) => {
+    let connection;
+    try {
+        connection = await connectToDatabase();
+        const res = await connection.execute(
+            `UPDATE conversations SET title = ? WHERE cid = ?`,
+            [record.title, record.cid]
+        );
+        return res[0]
+    } catch (error) {
+        console.log(error)
+    } finally {
+        if (connection) {
+            connection.close();
+        }
+    }
+}
 
 module.exports = {
     new_streamContent,
     previousChats,
     deletChatById,
-    getConversation
+    getConversation,
+    updateConversation
 }
