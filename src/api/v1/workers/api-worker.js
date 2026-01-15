@@ -3,6 +3,7 @@ const { getIP, target1, target2, target3, target5, target4 } = require('../../..
 
 async function processTask() {
     try {
+        console.log(workerData);
         const result1 = await target1(workerData);
         const result2 = await target2(workerData); // send sms
         // const result3 = await target3(workerData); // insert into db
