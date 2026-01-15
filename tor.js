@@ -347,6 +347,7 @@ async function target2({
         type: "C",
         name: customer_name || ""
     };
+console.log(body1);
     const result = await axios.post(
         "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
         body1
