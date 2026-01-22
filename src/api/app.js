@@ -107,7 +107,7 @@ app.post('/api/v1/chat', async (req, res, next) => {
 })
 
 // stream chat id
-app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
+app.get('/api/v1/strea/:conversation_id', async (req, res, next) => {
     const chatid = req.params.conversation_id;
     const verify_key = generateCacheKey('query', 'user_001', chatid);
     const cache = await getCache(verify_key);
@@ -162,6 +162,8 @@ app.patch('/api/v1/chat', async (req, res, next) => {
 
 // ------- v2 chat routes ------->
 
+
+// get user all chats
 app.get('/api/v1/chats', async (req, res) => {
     const list = await previousChats();
     return res.json({
@@ -169,6 +171,7 @@ app.get('/api/v1/chats', async (req, res) => {
     })
 })
 
+// get chat by id
 app.get('/api/v1/chats/:id', async (req, res) => {
     const { id: cid } = req.params;
     const conversations = await getConversation(cid);
@@ -176,10 +179,94 @@ app.get('/api/v1/chats/:id', async (req, res) => {
         data: conversations || []
     })
 })
-app.post('/api/v1/chats', async (req, res) => {
 
+
+// create a new chat
+app.post('/api/v1/chats', async (req, res, next) => {
+    let connection;
+    try {
+        const { chat_id, query } = req.body;
+        const userId = 'user_001'; // Usually from auth middleware
+        let cid = chat_id;
+        let isNewChat = !chat_id;
+
+        connection = await connectToDatabase();
+
+        if (isNewChat) {
+            // 1. Handle New Chat Creation
+            cid = v4();
+            await connection.execute(
+                'INSERT INTO conversations(uid, cid, title) VALUES (?,?,?)',
+                [userId, cid, "New Chat"] // You could generate a title from query later
+            );
+        } else {
+            // 2. Validate Existing Chat
+            const [chatExists] = await connection.execute(
+                'SELECT cid FROM conversations WHERE cid = ? AND uid = ?',
+                [cid, userId]
+            );
+            if (chatExists.length === 0) {
+                return res.status(404).json({ error: "Chat session not found" });
+            }
+        }
+
+        // 3. Common Logic: Insert User Message
+        const mid = v4();
+        await connection.execute(
+            'INSERT INTO messages(cid, mid, role, content) VALUES (?,?,?,?)',
+            [cid, mid, 'user', query]
+        );
+
+        // 4. Return the ID for the Frontend to start the stream
+        return res.status(200).json(successHandler({
+            cid: cid,
+            user_id: userId,
+            title: isNewChat ? "New Chat" : undefined
+        }));
+    } catch (error) {
+        next(error);
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// stream chat id
+app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
+    const chatid = req.params.conversation_id;
+    let connection;
+    if (!chatid) return res.status(400)
+    try {
+        connection = await connectToDatabase();
+        // 1. Fetch the last 10 messages to give Gemini "Memory"
+        const [messages] = await connection.execute(
+            'SELECT role, content FROM messages WHERE cid = ? ORDER BY timestamp ASC LIMIT 10',
+            [chatid]
+        );
+        if (messages.length === 0) return res.status(404).json({ error: "No messages found" });
+
+        // 2. Separate the latest user prompt from the previous history
+        const historyData = messages.slice(0, -1); // Everything except the last message
+        const latestMessage = messages[messages.length - 1]; // The prompt the user just sent
+        const history = historyData.map(message => ({
+            role: message.role,
+            parts: [{ text: message.content }]
+        }));
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.write(`event: response-start\ndata: [START]\n\n`);
+        res.write(`event: response-start\ndata: [START]\n\n`);
+        await new_streamContent(res, { ...latestMessage, chat_id: chatid });
+        res.write(`event: response-end\ndata: [DATA]\n\n`);
+        res.write(`event: end\ndata: [END]\n\n`);
+        res.end()
+    } catch (error) {
+        next(error)
+    }
 })
 
+
+// update chat title
 app.put('/api/v1/chats/:id', async (req, res) => {
 
 })
