@@ -42,6 +42,10 @@ const new_streamContent = async (res, options) => {
         await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
             options.chat_id, mid, 'model', finalMessage, MODEL_NAME
         ]);
+
+        // if(title==="New chat"){
+       //  updateChatTitle(chat_id,content,finalMessage)
+        // }
     } catch (error) {
         console.log(`event: error\ndata: ${error}\n\n`);
     }
@@ -113,6 +117,35 @@ const updateConversation = async (record) => {
         }
     }
 }
+
+async function updateChatTitle(chatId, userQuery, aiResponse) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        // We only take the first 100 characters of the AI response to save tokens
+        const aiSnippet = aiResponse.substring(0, 100);
+
+        const prompt = `
+            Based on this exchange, generate a 3-word title for the conversation.
+            User: "${userQuery}"
+            AI: "${aiSnippet}..."
+            Return only the title text.
+        `;
+
+        const result = await model.generateContent(prompt);
+        const newTitle = result.response.text().trim().replace(/[".]/g, "");
+
+        const connection = await connectToDatabase();
+        await connection.execute(
+            'UPDATE conversations SET title = ? WHERE cid = ?',
+            [newTitle, chatId]
+        );
+        await connection.end();
+    } catch (e) {
+        console.error("Title error:", e);
+    }
+}
+
 
 module.exports = {
     new_streamContent,
