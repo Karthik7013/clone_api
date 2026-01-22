@@ -170,7 +170,7 @@ app.get('/api/v1/chats', async (req, res) => {
 })
 
 app.get('/api/v1/chats/:id', async (req, res) => {
-    const { cid } = req.params;
+    const { id: cid } = req.params;
     const conversations = await getConversation(cid);
     return res.json({
         data: conversations || []
