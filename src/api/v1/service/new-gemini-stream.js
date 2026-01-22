@@ -26,7 +26,7 @@ const new_streamContent = async (res, options) => {
         let mid = v4();
         connection = await connectToDatabase();
         await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
-            options.chat_id, mid, 'model', finalMessage, 'gemini-2.1'
+            options.chat_id, mid, 'model', finalMessage, MODEL_NAME
         ]);
         // console.log(finalMessage)
     } catch (error) {
