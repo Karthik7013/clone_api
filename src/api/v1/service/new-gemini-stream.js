@@ -36,12 +36,15 @@ const new_streamContent = async (res, options) => {
 
 
 const previousChats = async () => {
-    const limit = 10;
-    const page = 1;
     let connection;
     try {
         connection = await connectToDatabase();
-        const res = await connection.execute(`SELECT cid,title FROM conversations WHERE uid='user_001'`);
+        const res = await connection.execute(`
+            SELECT cid,title
+            FROM conversations
+            WHERE uid='user_001'
+            ORDER BY created_at DESC
+            `);
         return res[0];
     } catch (error) {
         console.log(error)

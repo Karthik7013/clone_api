@@ -134,6 +134,7 @@ app.post('/api/v1/chat/list', async (req, res, next) => {
         data: list || []
     })
 })
+
 // chat delete
 app.delete('/api/v1/chat/delete/:id', async (req, res, next) => {
     const { id } = req.params;
@@ -156,6 +157,39 @@ app.patch('/api/v1/chat', async (req, res, next) => {
     const conversations = await updateConversation(req.body);
     return res.json({
         data: conversations || []
+    })
+})
+
+// ------- v2 chat routes ------->
+
+app.get('/api/v1/chats', async (req, res) => {
+    const list = await previousChats();
+    return res.json({
+        data: list || []
+    })
+})
+
+app.get('/api/v1/chats/:id', async (req, res) => {
+    const { cid } = req.params;
+    const conversations = await getConversation(cid);
+    return res.json({
+        data: conversations || []
+    })
+})
+app.post('/api/v1/chats', async (req, res) => {
+
+})
+
+app.put('/api/v1/chats/:id', async (req, res) => {
+
+})
+
+app.delete('/api/v1/chats/:id', async (req, res) => {
+    const { id } = req.params;
+    await deletChatById(id);
+    return res.json({
+        success: true,
+        message: 'successfully deleted'
     })
 })
 
