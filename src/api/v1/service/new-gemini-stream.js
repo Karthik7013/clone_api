@@ -64,6 +64,54 @@ const new_streamContent = async (res, options) => {
         ]);
     }
 }
+const new_streamContentPostWay = async (res, options) => {
+    let connection;
+    try {
+        const chat = model.startChat({
+            history: options.history || [],
+            // systemInstruction: instructionList.join('\n'),
+            // cachedContent: options.context || undefined, // This is for context caching and is not currently used.
+            // generationConfig: {
+            //     temperature: 0.7,
+            //     topP: 0.9,
+            //     topK: 40,
+            //     maxOutputTokens: 512,
+            // }
+        });
+
+        const result = await chat.sendMessageStream(options.content);
+        let finalMessage = ''
+        for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            finalMessage += chunkText;
+            const payload = {
+                content: chunkText,
+                type: "chunk"
+            }
+            // NEW: Write raw JSON + a delimiter (newline) for easier parsing on frontend
+            res.write(JSON.stringify(payload) + "\n");
+        }
+        let mid = v4();
+        connection = await connectToDatabase();
+        await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
+            options.chat_id, mid, 'model', finalMessage, MODEL_NAME
+        ]);
+        if (options?.title === "New Chat") {
+            updateChatTitle(options.chat_id, options.content, finalMessage).catch(console.error);
+        }
+    } catch (error) {
+        const payload = {
+            content: error.message,
+            type: "chunk"
+        }
+        res.write(JSON.stringify(payload) + "\n");
+        let mid = v4();
+        connection = await connectToDatabase();
+        await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
+            options.chat_id, mid, 'model', error.message, MODEL_NAME
+        ]);
+    }
+}
 
 
 const previousChats = async () => {
@@ -174,5 +222,6 @@ module.exports = {
     previousChats,
     deletChatById,
     getConversation,
-    updateConversation
+    updateConversation,
+    new_streamContentPostWay
 }

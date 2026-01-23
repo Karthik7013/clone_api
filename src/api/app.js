@@ -24,7 +24,7 @@ const { askBot, orchestrator, generateContent, extractJSONFromMarkdown } = requi
 const { v4 } = require('uuid');
 const { connectToDatabase } = require("./config/db");
 const successHandler = require("./middleware/successHandler");
-const { new_streamContent, previousChats, deletChatById, getConversation, updateConversation } = require("./v1/service/new-gemini-stream");
+const { new_streamContent, previousChats, deletChatById, getConversation, updateConversation, new_streamContentPostWay } = require("./v1/service/new-gemini-stream");
 const app = express();
 // middlewares
 app.use(express.json());
@@ -273,6 +273,62 @@ app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
         if (connection) await connection.end(); // Always close connection
     }
 })
+
+app.post('/api/v1/streamv2/:conversation_id', async (req, res, next) => {
+    const chatid = req.params.conversation_id;
+    let connection;
+
+    if (!chatid) return res.status(400).send("Chat ID required");
+
+    try {
+        connection = await connectToDatabase();
+
+        // 1. Fetch history and chat details
+        const [messages] = await connection.execute(
+            'SELECT role, content FROM messages WHERE cid = ? ORDER BY timestamp ASC LIMIT 11',
+            [chatid]
+        );
+        const [chat] = await connection.execute(
+            'SELECT cid, title FROM conversations WHERE cid = ?',
+            [chatid]
+        );
+
+        if (messages.length === 0) return res.status(404).json({ error: "No messages found" });
+
+        // 2. Format history for the AI model
+        const history = messages.slice(0, -1).map(m => ({
+            role: m.role === 'assistant' ? 'model' : m.role,
+            parts: [{ text: m.content }]
+        }));
+
+        const latestUserMessage = messages[messages.length - 1];
+
+        // 3. Set standard Stream Headers (Replacing SSE headers)
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Transfer-Encoding', 'chunked');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+
+        // 4. Execute Stream
+        // Your new_streamContent function should use res.write() directly 
+        // to send raw text tokens without the "data: " prefix.
+        await new_streamContentPostWay(res, {
+            ...latestUserMessage,
+            chat_id: chatid,
+            title: chat[0]?.title,
+            history
+        });
+
+        res.end();
+    } catch (error) {
+        if (!res.headersSent) {
+            res.status(500).json({ error: "Streaming failed" });
+        }
+        next(error);
+    } finally {
+        if (connection) await connection.end();
+    }
+});
 
 
 // update chat title
