@@ -15,10 +15,15 @@ const { v4 } = require('uuid');
 const new_streamContent = async (res, options) => {
     let connection;
     try {
+        const instructionList = [
+            'do not use external CSS files',
+            'use Tailwind classes in HTML only.',
+            'include any CSS or JS in the single HTML file'
+        ];
         const chat = model.startChat({
             history: options.history || [],
-            // systemInstruction: '',
-            // cachedContent: '',
+            systemInstruction: instructionList.join('\n'),
+            cachedContent: options.context || undefined, // This is for context caching and is not currently used.
             // generationConfig: {
             //     temperature: 0.7,
             //     topP: 0.9,
