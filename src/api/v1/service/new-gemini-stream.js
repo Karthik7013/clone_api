@@ -8,25 +8,21 @@ const { connectToDatabase } = require('../../config/db');
 const { v4 } = require('uuid');
 
 const new_streamContent = async (res, options) => {
-    console.log(JSON.stringify(options.history), "history")
     let connection;
     try {
         const chat = model.startChat({
             // history: options.history || [],
             // systemInstruction: '',
             // cachedContent: '',
-            generationConfig: {
-                temperature: 0.7,
-                topP: 0.9,
-                topK: 40,
-                maxOutputTokens: 512,
-            }
+            // generationConfig: {
+            //     temperature: 0.7,
+            //     topP: 0.9,
+            //     topK: 40,
+            //     maxOutputTokens: 512,
+            // }
         });
 
         const result = await chat.sendMessageStream(options.content);
-        if (!result || !result.stream) {
-            throw new Error("Failed to initialize stream from Gemini API");
-        }
         let finalMessage = ''
         for await (const chunk of result.stream) {
             const chunkText = chunk.text();
@@ -42,12 +38,20 @@ const new_streamContent = async (res, options) => {
         await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
             options.chat_id, mid, 'model', finalMessage, MODEL_NAME
         ]);
-
-        // if(title==="New chat"){
-       //  updateChatTitle(chat_id,content,finalMessage)
-        // }
+        if (options?.title === "New chat") {
+            updateChatTitle(options.chat_id, options.content, finalMessage).catch(console.error);
+        }
     } catch (error) {
-        console.log(`event: error\ndata: ${error}\n\n`);
+        const payload = {
+            content: error.message,
+            type: "chunk"
+        }
+        res.write(`event: response-data\ndata: ${JSON.stringify(payload)}\n\n`);
+        let mid = v4();
+        connection = await connectToDatabase();
+        await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
+            options.chat_id, mid, 'model', error.message, MODEL_NAME
+        ]);
     }
 }
 
@@ -119,6 +123,7 @@ const updateConversation = async (record) => {
 }
 
 async function updateChatTitle(chatId, userQuery, aiResponse) {
+    console.log("update chat title triggered")
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 

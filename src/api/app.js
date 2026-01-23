@@ -234,34 +234,43 @@ app.post('/api/v1/chats', async (req, res, next) => {
 app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
     const chatid = req.params.conversation_id;
     let connection;
-    if (!chatid) return res.status(400)
+    if (!chatid) return res.status(400).send("Chat ID required");
     try {
         connection = await connectToDatabase();
-        // 1. Fetch the last 10 messages to give Gemini "Memory"
+        // 1. Fetch history (limit 11 to get 10 history + 1 latest prompt)
         const [messages] = await connection.execute(
-            'SELECT role, content FROM messages WHERE cid = ? ORDER BY timestamp ASC LIMIT 10',
+            'SELECT role, content FROM messages WHERE cid = ? ORDER BY timestamp ASC LIMIT 11',
+            [chatid]
+        );
+        const [chat] = await connection.execute(
+            'SELECT cid,title FROM conversations WHERE cid = ?',
             [chatid]
         );
         if (messages.length === 0) return res.status(404).json({ error: "No messages found" });
 
-        // 2. Separate the latest user prompt from the previous history
-        const historyData = messages.slice(0, -1); // Everything except the last message
-        const latestMessage = messages[messages.length - 1]; // The prompt the user just sent
-        const history = historyData.map(message => ({
-            role: message.role,
-            parts: [{ text: message.content }]
+        // 2. Format history for startChat (Role must be 'user' or 'model')
+        // We exclude the very last message because that is the 'prompt' we send to sendMessageStream
+        const history = messages.slice(0, -1).map(m => ({
+            role: m.role === 'assistant' ? 'model' : m.role, // Ensure role is correct
+            parts: [{ text: m.content }]
         }));
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
+
+        const latestUserMessage = messages[messages.length - 1];
+        // 3. SSE Setup
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+        });
         res.write(`event: response-start\ndata: [START]\n\n`);
-        res.write(`event: response-start\ndata: [START]\n\n`);
-        await new_streamContent(res, { ...latestMessage, chat_id: chatid });
+        await new_streamContent(res, { ...latestUserMessage, chat_id: chatid, title: chat[0]?.title });
         res.write(`event: response-end\ndata: [DATA]\n\n`);
         res.write(`event: end\ndata: [END]\n\n`);
         res.end()
     } catch (error) {
         next(error)
+    } finally {
+        if (connection) await connection.end(); // Always close connection
     }
 })
 
