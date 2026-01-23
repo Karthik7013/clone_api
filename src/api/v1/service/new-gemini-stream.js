@@ -1,9 +1,14 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
-const MODEL_NAME = "gemini-2.5-flash";
+const MODEL_NAME = "gemini-2.5-flash-lite";
 const model = genAI.getGenerativeModel({ model: MODEL_NAME })
-
+// const MODEL_NAME = "gemini-2.5-flash";
+// const MODEL_NAME = "gemini-2.0-flash";
+// const MODEL_NAME = "gemini-2.0-flash-lite";
+// const MODEL_NAME = "gemini-2.5-flash-lite"; //1000req/day- best backup
+// const MODEL_NAME = "gemini-3-flash-preview"; // best backup
+// const MODEL_NAME = "gemini-3-pro-preview"; // best backup
 const { connectToDatabase } = require('../../config/db');
 const { v4 } = require('uuid');
 
@@ -11,7 +16,7 @@ const new_streamContent = async (res, options) => {
     let connection;
     try {
         const chat = model.startChat({
-            // history: options.history || [],
+            history: options.history || [],
             // systemInstruction: '',
             // cachedContent: '',
             // generationConfig: {
