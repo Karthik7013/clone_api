@@ -263,7 +263,7 @@ app.get('/api/v1/stream/:conversation_id', async (req, res, next) => {
             'Connection': 'keep-alive',
         });
         res.write(`event: response-start\ndata: [START]\n\n`);
-        await new_streamContent(res, { ...latestUserMessage, chat_id: chatid, title: chat[0]?.title });
+        await new_streamContent(res, { ...latestUserMessage, chat_id: chatid, title: chat[0]?.title, history });
         res.write(`event: response-end\ndata: [DATA]\n\n`);
         res.write(`event: end\ndata: [END]\n\n`);
         res.end()
