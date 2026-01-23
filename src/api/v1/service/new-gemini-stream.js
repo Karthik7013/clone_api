@@ -43,7 +43,7 @@ const new_streamContent = async (res, options) => {
         await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
             options.chat_id, mid, 'model', finalMessage, MODEL_NAME
         ]);
-        if (options?.title === "New chat") {
+        if (options?.title === "New Chat") {
             updateChatTitle(options.chat_id, options.content, finalMessage).catch(console.error);
         }
     } catch (error) {
@@ -128,19 +128,24 @@ const updateConversation = async (record) => {
 }
 
 async function updateChatTitle(chatId, userQuery, aiResponse) {
-    console.log("update chat title triggered")
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // CHANGE: Use MODEL_NAME ("gemini-2.5-flash") instead of the hardcoded 1.5 string
+        const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-        // We only take the first 100 characters of the AI response to save tokens
         const aiSnippet = aiResponse.substring(0, 100);
 
         const prompt = `
-            Based on this exchange, generate a 3-word title for the conversation.
-            User: "${userQuery}"
-            AI: "${aiSnippet}..."
-            Return only the title text.
-        `;
+    Context:
+    User's first question: "${userQuery}"
+    AI's initial response: "${aiSnippet}..."
+    Task:
+    Create a meaningful, concise title for this conversation that captures the main topic.
+    Constraints:
+    - Focus on the subject matter (e.g., "Troubleshooting React Hooks" instead of "Coding help").
+    - Use 2 to 5 words.
+    - Do not use quotes, periods, or prefixes like "Title:".
+    - Return ONLY the title text.
+`;
 
         const result = await model.generateContent(prompt);
         const newTitle = result.response.text().trim().replace(/[".]/g, "");
@@ -150,6 +155,8 @@ async function updateChatTitle(chatId, userQuery, aiResponse) {
             'UPDATE conversations SET title = ? WHERE cid = ?',
             [newTitle, chatId]
         );
+        // Important: Use connection.end() only if you are not using a pool
+        // If using a pool, use connection.release() or let the finally block handle it
         await connection.end();
     } catch (e) {
         console.error("Title error:", e);
