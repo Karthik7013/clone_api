@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const { flushCache, generateCacheKey, setCache, getCache } = require("./utils/cache");
 const favicon = require('serve-favicon');
 const fs = require('node:fs');
+const PDFDocument = require('pdfkit');
 // ================|        MIDDLEWARES      |================>
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -28,6 +29,7 @@ const { new_streamContent, previousChats, deletChatById, getConversation, update
 const app = express();
 // middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 
 // ================| CORS OPTIONS |=================>
@@ -378,6 +380,74 @@ app.get('/api/v1/web/search', async (req, res) => {
     return res.json(response)
 })
 
+
+
+app.post('/download/certificate', (req, res) => {
+
+
+const users = {
+  user123: {
+    name: 'Alex Johnson',
+    course: 'Advanced Web Development',
+    completionDate: 'January 20, 2026',
+    completed: true
+  },
+  user456: {
+    name: 'Taylor Smith',
+    course: 'Data Science Fundamentals',
+    completionDate: 'December 15, 2025',
+    completed: true
+  }
+};
+  // Get userId from request body (in real app: validate via session/JWT)
+  const userId  = "user123";
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  const user = users[userId];
+  if (!user || !user.completed) {
+    return res.status(403).json({ error: 'Certificate not available' });
+  }
+
+  // Create a new PDF document
+  const doc = new PDFDocument({
+    size: 'A4',
+    margins: { top: 100, bottom: 100, left: 80, right: 80 }
+  });
+
+  // Set response headers for file download
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="certificate-123.pdf"`);
+
+  // Pipe PDF output directly to HTTP response (no disk!)
+  doc.pipe(res);
+
+  // === Design the certificate ===
+  doc.fontSize(28).fillColor('#2c3e50').text('Certificate of Completion', { align: 'center' });
+  doc.moveDown(2);
+
+  doc.fontSize(16).fillColor('#7f8c8d').text('This is to certify that', { align: 'center' });
+  doc.moveDown();
+
+  doc.fontSize(32).fillColor('#2c3e50').text(user.name, { align: 'center' });
+  doc.moveDown();
+
+  doc.fontSize(18).fillColor('#34495e').text('has successfully completed the course', { align: 'center' });
+  doc.moveDown();
+
+  doc.fontSize(24).fillColor('#16a085').text(`"${user.course}"`, { align: 'center' });
+  doc.moveDown(2);
+
+  doc.fontSize(14).fillColor('#7f8c8d').text(`Issued on: ${user.completionDate}`, { align: 'center' });
+  doc.moveDown();
+
+  doc.fontSize(12).fillColor('#95a5a6').text(`Verification ID: CERT-${userId}-${Math.floor(Date.now() / 1000)}`, { align: 'center' });
+
+  // Finalize PDF and end stream
+  doc.end();
+});
 app.get('/target', handleTargetRequest);
 
 app.use(errorHandler);
