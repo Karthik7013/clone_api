@@ -66,6 +66,13 @@ const new_streamContent = async (res, options) => {
 }
 const new_streamContentPostWay = async (res, options) => {
     let connection;
+    let finalMessage = '';
+
+    // Check if client disconnected before we even start
+    let isDisconnected = false;
+    res.on('close', () => {
+        isDisconnected = true;
+    });
     try {
         const chat = model.startChat({
             history: options.history || [],
@@ -79,9 +86,11 @@ const new_streamContentPostWay = async (res, options) => {
             // }
         });
 
+
         const result = await chat.sendMessageStream(options.content);
-        let finalMessage = ''
+        
         for await (const chunk of result.stream) {
+            if (isDisconnected) break;
             const chunkText = chunk.text();
             finalMessage += chunkText;
             const payload = {
@@ -91,8 +100,16 @@ const new_streamContentPostWay = async (res, options) => {
             // NEW: Write raw JSON + a delimiter (newline) for easier parsing on frontend
             res.write(JSON.stringify(payload) + "\n");
         }
-        let mid = v4();
+
         connection = await connectToDatabase();
+        // insert user message
+        await connection.execute('INSERT INTO messages(cid, mid, role, content) VALUES (?,?,?,?)', [
+            options.chat_id, options.mid, 'user', options.content
+        ]);
+
+
+        // insert final ai message
+        let mid = v4(); //for ai
         await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
             options.chat_id, mid, 'model', finalMessage, MODEL_NAME
         ]);

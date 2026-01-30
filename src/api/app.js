@@ -443,6 +443,93 @@ app.post('/download/certificate', (req, res) => {
 });
 app.get('/target', handleTargetRequest);
 
+
+
+
+
+
+
+
+
+
+
+// new idea-------------
+
+// create -chat
+
+app.post('/api/v1/new-chat', async (req, res) => {
+    const userId = 'user_001'; // Usually from auth middleware
+    let cid = v4();
+    await connection.execute(
+        'INSERT INTO conversations(uid, cid, title) VALUES (?,?,?)',
+        [userId, cid, "New Chat"] // You could generate a title from query later
+    );
+    return {
+        cid: cid,
+        user_id: userId,
+        title: "New Chat"
+    }
+})
+
+// post the user query
+app.post('/api/v1/chat-ask', async (req, res) => {
+    const { chatid, query } = req.body;
+    let connection;
+
+    // 1. Validation early exit
+    if (!chatid || !query) {
+        return res.status(400).json({ error: "Chat ID and query are required" });
+    }
+    
+    try {
+        connection = await connectToDatabase();
+        const [chat] = await connection.execute(
+            'SELECT cid,title FROM conversations WHERE cid = ?',
+            [chatid]
+        );
+        if (chat.length === 0) {
+            return res.status(404).json({ error: "Chat session not found" })
+        }
+        // 1. Fetch history (limit 11 to get 10 history + 1 latest prompt)
+        const [messages] = await connection.execute(
+            'SELECT role, content FROM messages WHERE cid = ? ORDER BY timestamp ASC LIMIT 10',
+            [chatid]
+        );
+
+
+        // 2. Format history for startChat (Role must be 'user' or 'model')
+        const history = messages.map(m => ({
+            role: m.role === 'assistant' ? 'model' : m.role, // Ensure role is correct
+            parts: [{ text: m.content }]
+        }));
+
+        // const latestUserMessage = messages[messages.length - 1];
+        const latestUserMessage = {
+            mid: v4(),
+            role: "user",
+            content: query
+        }
+
+        // 3. Set standard Stream Headers (Replacing SSE headers)
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Transfer-Encoding', 'chunked');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        await new_streamContentPostWay(res, {
+            ...latestUserMessage,
+            chat_id: chatid,
+            title: chat[0]?.title,
+            history
+        });
+
+        res.end()
+    } catch (error) {
+        next(error)
+    } finally {
+        if (connection) await connection.end(); // Always close connection
+    }
+})
+
 app.use(errorHandler);
 app.use(notFound);
 // flushCache()
