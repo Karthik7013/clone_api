@@ -460,6 +460,8 @@ app.get('/target', handleTargetRequest);
 app.post('/api/v1/new-chat', async (req, res) => {
     const userId = 'user_001'; // Usually from auth middleware
     let cid = v4();
+    let connection;
+    connection = await connectToDatabase();
     await connection.execute(
         'INSERT INTO conversations(uid, cid, title) VALUES (?,?,?)',
         [userId, cid, "New Chat"] // You could generate a title from query later
@@ -480,7 +482,7 @@ app.post('/api/v1/chat-ask', async (req, res) => {
     if (!chatid || !query) {
         return res.status(400).json({ error: "Chat ID and query are required" });
     }
-    
+
     try {
         connection = await connectToDatabase();
         const [chat] = await connection.execute(
