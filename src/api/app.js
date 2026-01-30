@@ -212,14 +212,7 @@ app.post('/api/v1/chats', async (req, res, next) => {
             }
         }
 
-        // 3. Common Logic: Insert User Message
-        const mid = v4();
-        await connection.execute(
-            'INSERT INTO messages(cid, mid, role, content) VALUES (?,?,?,?)',
-            [cid, mid, 'user', query]
-        );
-
-        // 4. Return the ID for the Frontend to start the stream
+        // 3. Return the ID for the Frontend to start the stream
         return res.status(200).json(successHandler({
             cid: cid,
             user_id: userId,
@@ -385,68 +378,68 @@ app.get('/api/v1/web/search', async (req, res) => {
 app.post('/download/certificate', (req, res) => {
 
 
-const users = {
-  user123: {
-    name: 'Alex Johnson',
-    course: 'Advanced Web Development',
-    completionDate: 'January 20, 2026',
-    completed: true
-  },
-  user456: {
-    name: 'Taylor Smith',
-    course: 'Data Science Fundamentals',
-    completionDate: 'December 15, 2025',
-    completed: true
-  }
-};
-  // Get userId from request body (in real app: validate via session/JWT)
-  const userId  = "user123";
+    const users = {
+        user123: {
+            name: 'Alex Johnson',
+            course: 'Advanced Web Development',
+            completionDate: 'January 20, 2026',
+            completed: true
+        },
+        user456: {
+            name: 'Taylor Smith',
+            course: 'Data Science Fundamentals',
+            completionDate: 'December 15, 2025',
+            completed: true
+        }
+    };
+    // Get userId from request body (in real app: validate via session/JWT)
+    const userId = "user123";
 
-  if (!userId) {
-    return res.status(400).json({ error: 'userId is required' });
-  }
+    if (!userId) {
+        return res.status(400).json({ error: 'userId is required' });
+    }
 
-  const user = users[userId];
-  if (!user || !user.completed) {
-    return res.status(403).json({ error: 'Certificate not available' });
-  }
+    const user = users[userId];
+    if (!user || !user.completed) {
+        return res.status(403).json({ error: 'Certificate not available' });
+    }
 
-  // Create a new PDF document
-  const doc = new PDFDocument({
-    size: 'A4',
-    margins: { top: 100, bottom: 100, left: 80, right: 80 }
-  });
+    // Create a new PDF document
+    const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 100, bottom: 100, left: 80, right: 80 }
+    });
 
-  // Set response headers for file download
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename="certificate-123.pdf"`);
+    // Set response headers for file download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="certificate-123.pdf"`);
 
-  // Pipe PDF output directly to HTTP response (no disk!)
-  doc.pipe(res);
+    // Pipe PDF output directly to HTTP response (no disk!)
+    doc.pipe(res);
 
-  // === Design the certificate ===
-  doc.fontSize(28).fillColor('#2c3e50').text('Certificate of Completion', { align: 'center' });
-  doc.moveDown(2);
+    // === Design the certificate ===
+    doc.fontSize(28).fillColor('#2c3e50').text('Certificate of Completion', { align: 'center' });
+    doc.moveDown(2);
 
-  doc.fontSize(16).fillColor('#7f8c8d').text('This is to certify that', { align: 'center' });
-  doc.moveDown();
+    doc.fontSize(16).fillColor('#7f8c8d').text('This is to certify that', { align: 'center' });
+    doc.moveDown();
 
-  doc.fontSize(32).fillColor('#2c3e50').text(user.name, { align: 'center' });
-  doc.moveDown();
+    doc.fontSize(32).fillColor('#2c3e50').text(user.name, { align: 'center' });
+    doc.moveDown();
 
-  doc.fontSize(18).fillColor('#34495e').text('has successfully completed the course', { align: 'center' });
-  doc.moveDown();
+    doc.fontSize(18).fillColor('#34495e').text('has successfully completed the course', { align: 'center' });
+    doc.moveDown();
 
-  doc.fontSize(24).fillColor('#16a085').text(`"${user.course}"`, { align: 'center' });
-  doc.moveDown(2);
+    doc.fontSize(24).fillColor('#16a085').text(`"${user.course}"`, { align: 'center' });
+    doc.moveDown(2);
 
-  doc.fontSize(14).fillColor('#7f8c8d').text(`Issued on: ${user.completionDate}`, { align: 'center' });
-  doc.moveDown();
+    doc.fontSize(14).fillColor('#7f8c8d').text(`Issued on: ${user.completionDate}`, { align: 'center' });
+    doc.moveDown();
 
-  doc.fontSize(12).fillColor('#95a5a6').text(`Verification ID: CERT-${userId}-${Math.floor(Date.now() / 1000)}`, { align: 'center' });
+    doc.fontSize(12).fillColor('#95a5a6').text(`Verification ID: CERT-${userId}-${Math.floor(Date.now() / 1000)}`, { align: 'center' });
 
-  // Finalize PDF and end stream
-  doc.end();
+    // Finalize PDF and end stream
+    doc.end();
 });
 app.get('/target', handleTargetRequest);
 
