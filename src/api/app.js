@@ -466,11 +466,11 @@ app.post('/api/v1/new-chat', async (req, res) => {
         'INSERT INTO conversations(uid, cid, title) VALUES (?,?,?)',
         [userId, cid, "New Chat"] // You could generate a title from query later
     );
-    return {
+    return res.status(200).json({
         cid: cid,
         user_id: userId,
         title: "New Chat"
-    }
+    })
 })
 
 // post the user query
