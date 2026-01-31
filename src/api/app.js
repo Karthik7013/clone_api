@@ -475,11 +475,11 @@ app.post('/api/v1/new-chat', async (req, res) => {
 
 // post the user query
 app.post('/api/v1/chat-ask', async (req, res) => {
-    const { chatid, query } = req.body;
+    const { chat_id, query } = req.body;
     let connection;
 
     // 1. Validation early exit
-    if (!chatid || !query) {
+    if (!chat_id || !query) {
         return res.status(400).json({ error: "Chat ID and query are required" });
     }
 
@@ -487,7 +487,7 @@ app.post('/api/v1/chat-ask', async (req, res) => {
         connection = await connectToDatabase();
         const [chat] = await connection.execute(
             'SELECT cid,title FROM conversations WHERE cid = ?',
-            [chatid]
+            [chat_id]
         );
         if (chat.length === 0) {
             return res.status(404).json({ error: "Chat session not found" })
@@ -495,7 +495,7 @@ app.post('/api/v1/chat-ask', async (req, res) => {
         // 1. Fetch history (limit 11 to get 10 history + 1 latest prompt)
         const [messages] = await connection.execute(
             'SELECT role, content FROM messages WHERE cid = ? ORDER BY timestamp ASC LIMIT 10',
-            [chatid]
+            [chat_id]
         );
 
 
@@ -519,7 +519,7 @@ app.post('/api/v1/chat-ask', async (req, res) => {
         res.setHeader('Connection', 'keep-alive');
         await new_streamContentPostWay(res, {
             ...latestUserMessage,
-            chat_id: chatid,
+            chat_id: chat_id,
             title: chat[0]?.title,
             history
         });
