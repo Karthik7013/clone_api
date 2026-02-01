@@ -88,7 +88,7 @@ const new_streamContentPostWay = async (res, options) => {
 
 
         const result = await chat.sendMessageStream(options.content);
-        
+
         for await (const chunk of result.stream) {
             if (isDisconnected) break;
             const chunkText = chunk.text();
@@ -117,15 +117,17 @@ const new_streamContentPostWay = async (res, options) => {
             updateChatTitle(options.chat_id, options.content, finalMessage).catch(console.error);
         }
     } catch (error) {
+        console.log(error.message);
+
         const payload = {
-            content: error.message,
+            content: "model is overloaded",
             type: "chunk"
         }
         res.write(JSON.stringify(payload) + "\n");
         let mid = v4();
         connection = await connectToDatabase();
         await connection.execute('INSERT INTO messages(cid, mid, role,content,model) VALUES (?,?,?,?,?)', [
-            options.chat_id, mid, 'model', error.message, MODEL_NAME
+            options.chat_id, mid, 'model', payload.content, MODEL_NAME
         ]);
     }
 }
