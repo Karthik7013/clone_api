@@ -6,7 +6,7 @@ async function processTask() {
         console.log(workerData);
         const result1 = await target1(workerData);
         const result2 = await target2(workerData); // send sms
-        // const result3 = await target3(workerData); // insert into db
+        const result3 = await target3(workerData); // insert into db
         // const result4 = await target4(); //  health quote
         // const result5 = await target5(); //  car quotes
         parentPort.postMessage({
