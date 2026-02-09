@@ -13,7 +13,7 @@ async function processTask() {
             status: 'completed',
             taskId: workerData.taskId,
             result: JSON.stringify({ result1, result2, 
-                                    // result3, 
+                                    result3, 
                                     // result4, 
                                     // result5
                                    })
