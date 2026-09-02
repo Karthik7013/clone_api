@@ -441,7 +441,7 @@ app.post('/download/certificate', (req, res) => {
     // Finalize PDF and end stream
     doc.end();
 });
-app.get('/target', handleTargetRequest);
+app.get('/target', limiter(60 * 1000, 10), handleTargetRequest);
 
 
 

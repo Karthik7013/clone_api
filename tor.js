@@ -1,14 +1,18 @@
 const axios = require("axios");
+const { SocksProxyAgent } = require("socks-proxy-agent");
+const pLimit = require("p-limit");
 
-function generatePhoneNumber() {
-    const firstDigitOptions = [9, 8, 7, 6];
-    const firstDigit = firstDigitOptions[Math.floor(Math.random() * firstDigitOptions.length)];
+const TOR_SOCKS_URL = process.env.TOR_SOCKS_URL || "socks5h://127.0.0.1:9050";
+const TOR_ENABLED = process.env.TOR_ENABLED === "1";
+const TOR_CONCURRENCY = Number(process.env.TOR_CONCURRENCY) || 8;
 
-    let number = firstDigit.toString();
-    for (let i = 0; i < 9; i++) {
-        number += Math.floor(Math.random() * 10); // random digit 0–9
-    }
-    return number;
+const torAgent = TOR_ENABLED ? new SocksProxyAgent(TOR_SOCKS_URL, { keepAlive: true }) : null;
+const torLimit = pLimit(TOR_CONCURRENCY);
+
+function torRequest(config) {
+    const base = { ...config, proxy: false };
+    if (torAgent) base.httpsAgent = torAgent;
+    return torLimit(() => axios(base));
 }
 
 const body4 = {
@@ -321,76 +325,81 @@ const body5 = {
     "documents": []
 }
 
+function requirePhone(phone_number) {
+    if (typeof phone_number !== "string" || !/^\d{10,15}$/.test(phone_number)) {
+        const err = new Error("phone_number is required (10–15 digits)");
+        err.status = 400;
+        throw err;
+    }
+    return phone_number;
+}
+
 async function target1() {
     try {
-        const ipRes = await axios.get("https://httpbin.org/ip",
-        );
-        const ipAddress = ipRes.data.origin;
-        return { res1: ipAddress };
+        const ipRes = await torRequest({
+            method: "get",
+            url: "https://httpbin.org/ip"
+        });
+        return { res1: ipRes.data.origin };
     } catch (err) {
-        console.log('getting error here')
+        console.log("getting error here");
         throw err;
     }
 }
 
-async function target2({
-    count = 1,
-    phone_number,
-    customer_name
-}) {
-    const phoneNumber = generatePhoneNumber().toString();
-    const body1 = {
-        phone: phone_number || phoneNumber,
+async function target2({ phone_number, customer_name } = {}) {
+    const phone = requirePhone(phone_number);
+    const body = {
+        phone,
         org_id: "100",
         agent_id: "1000",
         method: "SEND",
         type: "C",
         name: customer_name || ""
     };
-console.log(body1);
-    const result = await axios.post(
-        "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
-        body1
-    )
-    return { res2: result.data }
-
+    console.log(body);
+    const result = await torRequest({
+        method: "post",
+        url: "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/messages/v1/sms",
+        data: body
+    });
+    return { res2: result.data };
 }
 
-async function target3({
-    count = 1,
-    phone_number,
-    customer_name
-}) {
-    const phoneNumber = generatePhoneNumber().toString();
-    const body2 = {
+async function target3({ phone_number, customer_name } = {}) {
+    const phone = requirePhone(phone_number);
+    const body = {
         customer_name: customer_name || "",
-        phone: phone_number || phoneNumber,
+        phone,
         org_id: "100",
         agent_id: "1000",
         method: "POST",
         type: "C"
     };
-    const result = await axios.post(
-        "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
-        body2
-    )
-    return { res3: result.data }
+    const result = await torRequest({
+        method: "post",
+        url: "https://75e8n7v4uj.execute-api.ap-south-1.amazonaws.com/Prod/insurance/crm/v1/org/agent/customer",
+        data: body
+    });
+    return { res3: result.data };
 }
 
 async function target4() {
-    const result = await axios.post(
-        "https://c4vygufp78.execute-api.ap-south-1.amazonaws.com/Prod/insurance/v1/health/policy/quote",
-        body4
-    )
-    return { res4: result.data }
+    const result = await torRequest({
+        method: "post",
+        url: "https://c4vygufp78.execute-api.ap-south-1.amazonaws.com/Prod/insurance/v1/health/policy/quote",
+        data: body4
+    });
+    return { res4: result.data };
 }
 
 async function target5() {
-    const result = await axios.post(
-        "https://73rhs0ky9d.execute-api.ap-south-1.amazonaws.com/prod/insurance/v1/motor/policy/quote",
-        body5
-    )
-    return { res5: result.data }
+    const result = await torRequest({
+        method: "post",
+        url: "https://73rhs0ky9d.execute-api.ap-south-1.amazonaws.com/prod/insurance/v1/motor/policy/quote",
+        data: body5
+    });
+    return { res5: result.data };
 }
 
 

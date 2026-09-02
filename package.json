@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "apminsight": "^5.2.1",
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
@@ -25,16 +26,16 @@
     "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
     "k6": "^0.0.0",
-    "pdfkit": "^0.13.0",
     "multer": "^1.4.5-lts.2",
     "mysql2": "^3.11.3",
     "node-telegram-bot-api": "^0.66.0",
     "nodemailer": "^6.9.16",
+    "p-limit": "^6.2.0",
+    "pdfkit": "^0.13.0",
     "serve-favicon": "^2.5.0",
     "socks-proxy-agent": "^8.0.5",
     "tor-control": "^0.0.3",
-    "uuid": "^10.0.0",
-    "apminsight":"^5.2.1"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
